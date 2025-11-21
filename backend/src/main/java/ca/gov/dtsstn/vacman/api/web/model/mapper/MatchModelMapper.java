@@ -50,7 +50,6 @@ public interface MatchModelMapper {
 
 	/**
 	 * Generate an ODS spreadsheet from a collection of match summaries.
-	 * XXX ::: GjB ::: is this the correct place for this method?
 	 */
 	default byte[] toOds(Collection<MatchSummaryReadModel> matches) {
 		// Define the columns for the spreadsheet
@@ -63,7 +62,7 @@ public interface MatchModelMapper {
 		// The ODS library requires cell indexes when creating cells, which makes refactoring
 		// (ie: moving columns around) exceedingly difficult.
 		//
-		// This data structure alleviates some of the that pain.
+		// This data structure alleviates some of that pain.
 		//
 
 		final var columns = List.of(
@@ -94,9 +93,6 @@ public interface MatchModelMapper {
 			final var spreadsheet = OdfSpreadsheetDocument.newSpreadsheetDocument();
 			final var table = spreadsheet.getTableByName("Sheet1");
 
-			// An array to track column widths to auto-size them later
-			final var columnWidths = new int[columns.size()];
-
 			// Create a bold style for the header row
 			final var boldStyle = spreadsheet.getContentDom().getAutomaticStyles().newStyle(OdfStyleFamily.TableCell);
 			boldStyle.setProperty(StyleTextPropertiesElement.FontWeight, "bold");
@@ -109,7 +105,6 @@ public interface MatchModelMapper {
 				final var cell = table.getRowByIndex(0).getCellByIndex(i);
 				cell.setStringValue(columns.get(i).header());
 				cell.getOdfElement().setStyleName(boldStyle.getStyleNameAttribute());
-				columnWidths[i] = columns.get(i).header().length();
 			}
 
 			// Create the data rows
@@ -121,14 +116,13 @@ public interface MatchModelMapper {
 					final var value = columns.get(i).valueExtractor().apply(match);
 					cell.setStringValue(value);
 					cell.getOdfElement().setStyleName(normalStyle.getStyleNameAttribute());
-					columnWidths[i] = Math.max(columnWidths[i], value.length());
 				}
 			}
 
 			// Set the column widths
 			for (int i = 0; i < columns.size(); i++) {
 				final var columnStyle = spreadsheet.getContentDom().getAutomaticStyles().newStyle(OdfStyleFamily.TableColumn);
-				columnStyle.setProperty(StyleTableColumnPropertiesElement.ColumnWidth, (columnWidths[i] * 0.25) + "cm");
+				columnStyle.setProperty(StyleTableColumnPropertiesElement.UseOptimalColumnWidth, "true");
 				table.getColumnByIndex(i).getOdfElement().setStyleName(columnStyle.getStyleNameAttribute());
 			}
 
