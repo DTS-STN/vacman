@@ -7,8 +7,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
@@ -18,6 +16,8 @@ import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class UserEventListener {
@@ -26,9 +26,9 @@ public class UserEventListener {
 
 	private final EventRepository eventRepository;
 
-	private final ObjectMapper objectMapper = new ObjectMapper()
-		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-		.findAndRegisterModules();
+	private final ObjectMapper objectMapper = JsonMapper.builder()
+		.findAndAddModules()
+		.build();
 
 	public UserEventListener(EventRepository eventRepository) {
 		this.eventRepository = eventRepository;
