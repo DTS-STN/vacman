@@ -1,11 +1,15 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import java.lang.reflect.RecordComponent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -175,15 +179,15 @@ public class NotificationService {
 
 		// Create the appropriate model based on the request event
 		final var model = switch (requestEvent) {
-			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> 
+			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED ->
 				recordToMap(new EmailTemplateModel.RequestAssigned(requestId.toString()));
-			case FEEDBACK_PENDING -> 
+			case FEEDBACK_PENDING ->
 				recordToMap(new EmailTemplateModel.PrioritiesIdentified(requestId.toString()));
-			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED -> 
+			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED ->
 				recordToMap(new EmailTemplateModel.FeedbackApproved(requestId.toString(), "CL-" + requestId));
-			case COMPLETED -> 
+			case COMPLETED ->
 				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(requestId.toString(), "CL-" + requestId, "PSC-" + requestId));
-			case CANCELLED -> 
+			case CANCELLED ->
 				recordToMap(new EmailTemplateModel.RequestCancelled(requestId.toString()));
 		};
 
