@@ -14,10 +14,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
@@ -34,22 +36,25 @@ import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDtoBuilder;
 class RequestEventListenerTest {
 
 	@Mock
-	NotificationService notificationService;
+	ApplicationProperties applicationProperties;
 
 	@Mock
 	EventRepository eventRepository;
 
-	@Mock
-	ApplicationProperties applicationProperties;
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
+	LookupCodes lookupCodes;
 
 	@Mock
 	MatchRepository matchRepository;
+
+	@Mock
+	NotificationService notificationService;
 
 	RequestEventListener requestEventListener;
 
 	@BeforeEach
 	void beforeEach() {
-		this.requestEventListener = new RequestEventListener(eventRepository, notificationService, applicationProperties, matchRepository);
+		this.requestEventListener = new RequestEventListener(eventRepository, lookupCodes, notificationService, applicationProperties, matchRepository);
 	}
 
 	@Nested
