@@ -220,7 +220,7 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
     location,
     navigate,
     i18nNamespace: handle.i18nNamespace,
-    fetcherData: undefined, // Replace with the correct data source or remove if unnecessary
+    fetcherData: undefined,
   });
 
   return (
