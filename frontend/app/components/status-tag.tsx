@@ -96,7 +96,7 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
           [REQUEST_STATUS_CODE.DRAFT]: TagVariants.pending,
           [REQUEST_STATUS_CODE.FDBK_PENDING]: TagVariants.default,
           [REQUEST_STATUS_CODE.FDBK_PEND_APPR]: TagVariants.pending,
-          Default: TagVariants.default,
+          Default: TagVariants.alternative,
         }
       : {
           [REQUEST_STATUS_CODE.DRAFT]: TagVariants.alternative,
