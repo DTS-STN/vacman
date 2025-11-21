@@ -1,3 +1,6 @@
+import { useRef } from 'react';
+
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
@@ -19,10 +22,12 @@ import {
   resolveClassificationSearch,
 } from '~/.server/utils/request-classification-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formString, removeNumberMask } from '~/utils/string-utils';
@@ -205,6 +210,18 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
 export default function HiringManagerRequests({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const alertRef = useRef<HTMLDivElement>(null);
+  const successMessage = useSaveSuccessMessage({
+    searchParams,
+    location,
+    navigate,
+    i18nNamespace: handle.i18nNamespace,
+    fetcherData: undefined,
+  });
 
   return (
     <div className="mb-8 space-y-4">
@@ -216,6 +233,11 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
       >
         {t('app:hiring-manager-requests.back-to-dashboard')}
       </BackLink>
+
+      {successMessage && (
+        <AlertMessage ref={alertRef} type="success" message={successMessage} role="alert" ariaLive="assertive" />
+      )}
+
       <RequestsTables {...loaderData} view="hiring-manager" />
     </div>
   );

@@ -126,6 +126,7 @@ export default {
     'choice-tag-with-group-added-aria-label':
       'Selected {{item}}: {{choice}} {{groupName}}, Activate to remove selected {{item}}.',
     'clear-all-sr-message': 'All selected {{item}} removed.',
+    'clear-group-sr-message': 'All selected {{item}} from {{groupName}} removed.',
     'removed-choice-tag-sr-message': 'Selected {{item}} removed: {{choice}}',
   },
   'acronym': {

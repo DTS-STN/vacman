@@ -178,7 +178,7 @@ export function ReferralPreferencesForm({
 
   const handleOnClearCityGroup = (groupName: string) => {
     setSrAnnouncement(
-      tGcweb('choice-tag.clear-group-label', { items: tApp('referral-preferences.choice-tag.cities'), groupName }),
+      tGcweb('choice-tag.clear-group-sr-message', { items: tApp('referral-preferences.choice-tag.cities'), groupName }),
     );
     setSelectedCities((prev) =>
       prev.filter((cityId) => {

@@ -145,7 +145,7 @@ export function PositionInformationForm({
 
   const handleOnClearCityGroup = (groupName: string) => {
     setSrAnnouncement(
-      tGcweb('choice-tag.clear-group-label', { items: tApp('position-information.choice-tag.cities'), groupName }),
+      tGcweb('choice-tag.clear-group-sr-message', { item: tApp('position-information.choice-tag.cities'), groupName }),
     );
     setSelectedCities((prev) =>
       prev.filter((cityId) => {

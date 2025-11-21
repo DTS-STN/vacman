@@ -30,6 +30,7 @@ export function useSaveSuccessMessage({
     'process': t('app:referral-requests.request-process-info-saved'),
     'somc': t('app:referral-requests.request-somc-conditions-saved'),
     'submission': t('app:referral-requests.request-submission-details-saved'),
+    'delete-request': t('app:hiring-manager-referral-requests.delete-request.success-msg'),
   };
 
   // Determine the success message based on URL params
