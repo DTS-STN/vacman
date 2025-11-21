@@ -2,10 +2,9 @@ package ca.gov.dtsstn.vacman.api.web.model;
 
 import org.immutables.value.Value.Immutable;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @Immutable
 @JsonDeserialize(as = ImmutableWorkUnitReadModel.class)
