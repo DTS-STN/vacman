@@ -15,8 +15,10 @@ import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -54,6 +57,10 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.MatchModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -277,14 +284,21 @@ public class RequestsController {
 	//
 	//
 
-	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
 	@ApiResponses.ResourceNotFoundError
-	@GetMapping({ "/{requestId}/matches" })
-	@Operation(summary = "Get all matches for a request.")
+	@Operation(summary = "Get or Download matches for a request.")
+	@ApiResponse(responseCode = "200", description = "Success response", content = {
+		@Content(mediaType = "application/json", schema = @Schema(implementation = MatchSummaryPagedModel.class)),
+		@Content(mediaType = "application/vnd.oasis.opendocument.spreadsheet", schema = @Schema(format = "binary"))
+	})
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#requestId, 'REQUEST', 'READ')")
-	public ResponseEntity<PagedModel<MatchSummaryReadModel>> getAllRequestMatches(@PathVariable Long requestId, @ParameterObject Pageable pageable, @ParameterObject MatchReadFilterModel filter) {
-		log.info("Received request to get all matches for request; ID: [{}]", requestId);
+	@GetMapping(value = "/{requestId}/matches",  produces = { "application/json", "application/vnd.oasis.opendocument.spreadsheet" })
+	public ResponseEntity<?> getAllRequestMatches(
+			@PathVariable Long requestId,
+			@ParameterObject Pageable pageable,
+			@ParameterObject MatchReadFilterModel filter,
+			@Parameter(hidden = true) @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "application/json") String acceptHeader) {
+		log.info("Received request for matches; ID: [{}], Accept: [{}]", requestId, acceptHeader);
 
 		final var request = requestService.getRequestById(requestId)
 			.orElseThrow(asResourceNotFoundException("request", requestId));
@@ -300,10 +314,14 @@ public class RequestsController {
 			matchQueryBuilder.profileWfaStatusIds(profile.wfaStatusId());
 		});
 
-		final var matches = requestService.getMatchesByRequestId(pageable, matchQueryBuilder.build())
-			.map(matchModelMapper::toSummaryModel);
+		final var matches = requestService.getMatchesByRequestId(Pageable.unpaged(), matchQueryBuilder.build()).map(matchModelMapper::toSummaryModel);
+		final var isSpreadsheet = acceptHeader.contains("application/vnd.oasis.opendocument.spreadsheet");
 
-		return ResponseEntity.ok(new PagedModel<>(matches));
+		return isSpreadsheet
+			? ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=req-%03d-matches.ods", requestId))
+				.body(matchModelMapper.toOds(matches.getContent()))
+			: ResponseEntity.ok(new PagedModel<>(matches));
 	}
 
 	@ApiResponses.Ok
@@ -441,6 +459,20 @@ public class RequestsController {
 		return hrAdvisorIds.stream()
 			.map(id -> "me".equals(id) ? currentUserId.toString() : id)
 			.toList();
+	}
+
+	/**
+	 * This class only is used to provide a type for the Swagger documentation for the
+	 * {@link #getAllRequestMatches(Long, Pageable, MatchReadFilterModel, String)} method.
+	 * <p>
+	 * Because PagedModel is a generic class, Swagger has difficulty determining the actual
+	 * type returned by that method. By creating this subclass, we can provide a concrete
+	 * type that Swagger can use for documentation purposes.
+	 */
+	private static class MatchSummaryPagedModel extends PagedModel<MatchSummaryReadModel> {
+		public MatchSummaryPagedModel(Page<MatchSummaryReadModel> page) {
+			super(page);
+		}
 	}
 
 }

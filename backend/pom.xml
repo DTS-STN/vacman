@@ -51,6 +51,7 @@
 		<immutables.version>2.11.7</immutables.version>
 		<johnzon.version>2.0.2</johnzon.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
+		<odfdom-java.version>1.0.0-BETA1</odfdom-java.version>
 		<record-builder.version>51</record-builder.version>
 		<spring-boot-configuration-processor.version>3.5.7</spring-boot-configuration-processor.version>
 		<springdoc.version>2.8.14</springdoc.version>
@@ -105,6 +106,11 @@
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
 			<version>${mapstruct.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.odftoolkit</groupId>
+			<artifactId>odfdom-java</artifactId>
+			<version>${odfdom-java.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
