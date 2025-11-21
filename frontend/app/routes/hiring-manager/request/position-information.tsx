@@ -100,7 +100,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params });
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+    params,
+    search: new URLSearchParams({ success: 'position' }),
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
