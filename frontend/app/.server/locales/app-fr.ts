@@ -400,7 +400,7 @@ export default {
       'delete': 'Supprimer la demande',
       'not-allowed': 'Les demandes déjà soumises ne peuvent pas être supprimées. Seuls les brouillons peuvent être retirés.',
       'error-generic': 'Une erreur est survenue lors de la suppression de la demande. Veuillez réessayer plus tard.',
-      'success-msg': '.',
+      'success-msg': 'Demande supprimée avec succès.',
     },
     'back': 'Retour aux demandes',
   },
