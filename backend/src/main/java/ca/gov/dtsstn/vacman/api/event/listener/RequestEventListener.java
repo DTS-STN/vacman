@@ -178,14 +178,14 @@ public class RequestEventListener {
 			log.info("Sending bulk job opportunity notifications () {} English-speaking recipients for request ID: [{}]", englishEmails.size(), request.id());
 
 			final var jobModelEn = new EmailTemplateModel.JobOpportunity(
-				request.requestNumber(),
-				request.nameEn(),
+				Optional.ofNullable(request.requestNumber()).orElse(""),
+				Optional.ofNullable(request.nameEn()).orElse(""),
 				Optional.ofNullable(request.classificationNameEn()).orElse("N/A"),
 				Optional.ofNullable(request.languageRequirementNameEn()).orElse("N/A"),
-				request.location(),
+				Optional.ofNullable(request.location()).orElse(""),
 				Optional.ofNullable(request.securityClearanceNameEn()).orElse("N/A"),
-				request.submitterName(),
-				request.submitterEmail(),
+				Optional.ofNullable(request.submitterName()).orElse("N/A"),
+				Optional.ofNullable(request.submitterEmail()).orElse("N/A"),
 				request.bilingual(),
 				Optional.ofNullable(request.somcAndConditionEmploymentEn()).orElse("N/A")
 			);
@@ -207,14 +207,14 @@ public class RequestEventListener {
 			log.info("Sending bulk job opportunity notifications () {} French-speaking recipients for request ID: [{}]", frenchEmails.size(), request.id());
 
 			final var jobModelFr = new EmailTemplateModel.JobOpportunity(
-				request.requestNumber(),
-				request.nameFr(),
+				Optional.ofNullable(request.requestNumber()).orElse(""),
+				Optional.ofNullable(request.nameFr()).orElse(""),
 				Optional.ofNullable(request.classificationNameFr()).orElse("N/A"),
 				Optional.ofNullable(request.languageRequirementNameFr()).orElse("N/A"),
-				request.location(),
+				Optional.ofNullable(request.location()).orElse(""),
 				Optional.ofNullable(request.securityClearanceNameFr()).orElse("N/A"),
-				request.submitterName(),
-				request.submitterEmail(),
+				Optional.ofNullable(request.submitterName()).orElse("N/A"),
+				Optional.ofNullable(request.submitterEmail()).orElse("N/A"),
 				request.bilingual(),
 				Optional.ofNullable(request.somcAndConditionEmploymentFr()).orElse("N/A")
 			);
