@@ -143,6 +143,7 @@ export default function RequestsTables({
           )}
 
           <RequestsColumns
+            title={t('requests-tables.active-requests')}
             keyPrefix="active"
             fetcher={fetcher}
             page={activeRequestsPage}
@@ -161,6 +162,7 @@ export default function RequestsTables({
         <section>
           <h2 className="font-lato text-xl font-bold">{t('requests-tables.inactive-requests')}</h2>
           <RequestsColumns
+            title={t('requests-tables.inactive-requests')}
             keyPrefix="inactive"
             fetcher={fetcher}
             page={inactiveRequestsPage}
@@ -181,6 +183,7 @@ export default function RequestsTables({
 }
 
 interface RequestColumnsProps {
+  title: string;
   keyPrefix: string;
   fetcher: FetcherWithComponents<unknown>;
   page: PageMetadata;
@@ -196,6 +199,7 @@ interface RequestColumnsProps {
 }
 
 function RequestsColumns({
+  title,
   keyPrefix,
   fetcher,
   page,
@@ -238,7 +242,14 @@ function RequestsColumns({
   );
 
   return (
-    <ServerTable page={page} data={requests} searchParams={searchParams} setSearchParams={setSearchParams} urlParam={urlParam}>
+    <ServerTable
+      title={title}
+      page={page}
+      data={requests}
+      searchParams={searchParams}
+      setSearchParams={setSearchParams}
+      urlParam={urlParam}
+    >
       <Column
         accessorKey={`${keyPrefix}Id`}
         accessorFn={(row: RequestReadModel) => row.id}
