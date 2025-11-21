@@ -30,5 +30,7 @@ spring:
 application:
   gcnotify:
     generic-template-id: 9de577c3-3963-41a9-8fdb-676fcb41a1a6
+    hr-gd-inbox-email: EDSC.Priorites.2-2.Priorities.ESDC@hrsdc-rhdcc.gc.ca
+    pims-sle-team-email: EDSC.Priorites.2-2.Priorities.ESDC@hrsdc-rhdcc.gc.ca
   metrics:
     environment-name: int

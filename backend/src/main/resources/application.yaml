@@ -272,8 +272,8 @@ application:
     read-timeout: 30s
     api-key: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     generic-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) generic template for FreeMarker
-    hr-gd-inbox-email: EDSC.Priorites.2-2.Priorities.ESDC@hrsdc-rhdcc.gc.ca
-    pims-sle-team-email: EDSC.RE.SP-PS.WFA.ESDC@hrsdc-rhdcc.gc.ca
+    hr-gd-inbox-email: hr@example.com
+    pims-sle-team-email: pims@example.com
   matches:
     wfa-end-date-grace-period: 30d
     max-matches-per-request: 1000
