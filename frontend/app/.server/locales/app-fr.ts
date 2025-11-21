@@ -412,6 +412,10 @@ export default {
     'submission-intro': 'Confirmez les personnes concernées par cette demande et ajoutez toute autre remarque importante',
     'selection-process-number': 'Numéro du processus de sélection',
     'not-provided': 'non fourni',
+    'request-position-info-saved': 'Informations sur le poste enregistrées avec succès.',
+    'request-process-info-saved': 'Informations sur le processus enregistrées avec succès.',
+    'request-somc-conditions-saved': "Énoncé des critères de mérite et conditions d'emploi enregistrés avec succès.",
+    'request-submission-details-saved': 'Détails de la soumission enregistrés avec succès.',
   },
   'hr-advisor-referral-requests': {
     'page-title': "Demande d'autorisation en matière de priorité",

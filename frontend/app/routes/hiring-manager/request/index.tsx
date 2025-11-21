@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useFetcher } from 'react-router';
+import { useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -51,6 +51,7 @@ import {
 } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
+import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import PositionInformationSection from '~/routes/page-components/requests/position-information-section';
@@ -427,7 +428,19 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const isDeleting = fetcherState.submitting && fetcherState.action === 'delete';
   const isDraft = loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT;
 
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const alertRef = useRef<HTMLDivElement>(null);
+
+  const successMessage = useSaveSuccessMessage({
+    searchParams,
+    location,
+    navigate,
+    i18nNamespace: handle.i18nNamespace,
+    fetcherData: fetcher.data,
+  });
 
   if (fetcher.data && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -572,6 +585,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
       {alertConfig && (
         <AlertMessage ref={alertRef} type={alertConfig.type} message={alertConfig.message} role="alert" ariaLive="assertive" />
+      )}
+      {successMessage && (
+        <AlertMessage ref={alertRef} type="success" message={successMessage} role="alert" ariaLive="assertive" />
       )}
       {fetcher.data && (
         <SectionErrorSummary

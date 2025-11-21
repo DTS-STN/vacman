@@ -85,7 +85,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, { params });
+  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, {
+    params,
+    search: new URLSearchParams({ success: 'process' }),
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {

@@ -26,6 +26,10 @@ export function useSaveSuccessMessage({
     'personal-info': t('app:profile.profile-personal-info-saved'),
     'employment': t('app:profile.profile-employment-saved'),
     'referral': t('app:profile.profile-referral-saved'),
+    'position': t('app:referral-requests.request-position-info-saved'),
+    'process': t('app:referral-requests.request-process-info-saved'),
+    'somc': t('app:referral-requests.request-somc-conditions-saved'),
+    'submission': t('app:referral-requests.request-submission-details-saved'),
   };
 
   // Determine the success message based on URL params

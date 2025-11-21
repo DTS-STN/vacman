@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { data, useFetcher } from 'react-router';
+import { data, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -47,6 +47,7 @@ import type { RequestEventType } from '~/domain/constants';
 import { REQUEST_CATEGORY, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
+import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import PositionInformationSection from '~/routes/page-components/requests/position-information-section';
@@ -321,7 +322,19 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const isSubmitting = fetcherState.submitting;
   const isReassigning = fetcherState.submitting && fetcherState.action === 're-assign-request';
 
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const alertRef = useRef<HTMLDivElement>(null);
+
+  const successMessage = useSaveSuccessMessage({
+    searchParams,
+    location,
+    navigate,
+    i18nNamespace: handle.i18nNamespace,
+    fetcherData: fetcher.data,
+  });
 
   if (fetcher.data && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -439,6 +452,10 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           role="alert"
           ariaLive="assertive"
         />
+      )}
+
+      {successMessage && (
+        <AlertMessage ref={alertRef} type="success" message={successMessage} role="alert" ariaLive="assertive" />
       )}
 
       {loaderData.status && (

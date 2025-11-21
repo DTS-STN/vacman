@@ -407,6 +407,10 @@ export default {
     'submission-intro': 'Confirm details and individuals involved in this request.',
     'selection-process-number': 'Selection process number',
     'not-provided': 'Not provided',
+    'request-position-info-saved': 'Position information saved successfully.',
+    'request-process-info-saved': 'Process information saved successfully.',
+    'request-somc-conditions-saved': 'Statement of merit criteria and conditions of employment saved successfully.',
+    'request-submission-details-saved': 'Submission details saved successfully.',
   },
   'hr-advisor-referral-requests': {
     'page-title': 'Referral requests',
