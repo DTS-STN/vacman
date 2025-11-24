@@ -22,6 +22,7 @@ export const LANGUAGE_ID = {
 export const REQUIRE_OPTIONS = {
   yes: 'yes',
   no: 'no',
+  none: 'none',
 } as const;
 
 export const Acronym = {

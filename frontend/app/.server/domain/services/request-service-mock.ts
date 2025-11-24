@@ -346,6 +346,7 @@ export function getMockRequestService(): RequestService {
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         ...requestUpdate,
+        priorityEntitlement: requestUpdate.priorityEntitlement ?? undefined,
         positionNumber: requestUpdate.positionNumbers ?? existingRequest.positionNumber,
         englishTitle: requestUpdate.englishTitle ?? existingRequest.englishTitle,
         frenchTitle: requestUpdate.frenchTitle ?? existingRequest.frenchTitle,

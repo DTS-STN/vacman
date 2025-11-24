@@ -83,6 +83,7 @@ export default {
   'input-option': {
     yes: 'Oui',
     no: 'Non',
+    none: 'Non applicable',
   },
   'error-summary': {
     header_one: "L'erreur suivante a été trouvée dans le formulaire\u00a0:",
