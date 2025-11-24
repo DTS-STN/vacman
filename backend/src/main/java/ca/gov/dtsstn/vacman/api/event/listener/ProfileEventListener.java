@@ -138,7 +138,7 @@ public class ProfileEventListener {
 		final var lastName = Optional.ofNullable(profile.userLastName()).orElse("");
 		final var rawName = (firstName + " " + lastName).trim();
 		final var name = rawName.isEmpty() ? "Unknown User" : rawName;
-		final var language = Optional.ofNullable(profile.userLanguageCode()).orElse(lookupCodes.languages().english());
+		final var language = Optional.ofNullable(profile.languageOfCorrespondenceCode()).orElse(lookupCodes.languages().english());
 
 		// Gather available emails
 		final var emails = Optional.ofNullable(profile.userEmails()).orElse(List.of());
