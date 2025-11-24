@@ -14,7 +14,7 @@ databaseChangeLog:
       file: db/changelog/changes/000005.data.v2.sql
   - include:
       file: db/changelog/changes/000006.requestcontact.sql
-  # Insert future include's here, by individual file
+  # Insert future includes here, by individual file
 # Test/DummyData/Dev
   - include:
       file: db/changelog/changes/999999.data.test.sql
