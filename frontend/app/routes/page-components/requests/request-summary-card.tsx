@@ -138,9 +138,10 @@ function getClearanceDetails(
   priorityClearanceNumber?: string,
   pscClearanceNumber?: string,
 ): string[] {
-  const details = [
-    `${labelWithColon(t('hr-advisor-referral-requests.vms-clearance-number'), lang)} ${priorityClearanceNumber}`,
-  ];
+  const details = [];
+  if (priorityClearanceNumber) {
+    details.push(`${labelWithColon(t('hr-advisor-referral-requests.vms-clearance-number'), lang)} ${priorityClearanceNumber}`);
+  }
   if (pscClearanceNumber) {
     details.push(`${labelWithColon(t('hr-advisor-referral-requests.psc-clearance-number'), lang)} ${pscClearanceNumber}`);
   }
