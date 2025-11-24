@@ -36,6 +36,7 @@ async function baseFetch(
     const response = await fetch(finalUrl, {
       method: method,
       headers: {
+        'Accept': 'application/json',
         'Authorization': options?.accessToken ? `Bearer ${options.accessToken}` : '',
         'Content-Type': 'application/json',
       },
