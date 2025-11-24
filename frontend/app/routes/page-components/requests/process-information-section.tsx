@@ -65,7 +65,7 @@ export default function ProcessInformationSection({
               ? t('app:process-information.yes')
               : priorityEntitlement === false
                 ? t('app:process-information.no')
-                : t('app:referral-requests.not-provided')}
+                : t('gcweb:input-option.none')}
           </DescriptionListItem>
 
           {priorityEntitlement === true && (
