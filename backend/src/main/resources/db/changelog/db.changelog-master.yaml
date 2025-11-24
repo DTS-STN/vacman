@@ -1,13 +1,20 @@
 ---
 
 databaseChangeLog:
+# Mainline
   - include:
-      file: db/changelog/changes/db.init.changelog.sql
-  - includeAll:
-      path: db/changelog/changes/h2/
-  - includeAll:
-      path: db/changelog/changes/mssql/
-  - includeAll:
-      path: db/changelog/changes/data/
+      file: db/changelog/changes/000001.init.changelog.sql
   - include:
-      file: db/changelog/changes/db.schema.v0001.sql
+      file: db/changelog/changes/000002.h2.init.sql
+  - include:
+      file: db/changelog/changes/000003.mssql.init.sql
+  - include:
+      file: db/changelog/changes/000004.data.v1.sql
+  - include:
+      file: db/changelog/changes/000005.data.v2.sql
+  - include:
+      file: db/changelog/changes/000006.requestcontact.sql
+  # Insert future includes here, by individual file
+# Test/DummyData/Dev
+  - include:
+      file: db/changelog/changes/999999.data.test.sql

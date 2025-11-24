@@ -1,9 +1,9 @@
 --liquibase formatted sql
 
---changeset system:cd_province_territory_on dbms:mssql
+--changeset system:cd_province_territory_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_PROVINCE_TERRITORY ON;
 
---changeset system:cd_province_territory dbms:mssql,h2
+--changeset system:cd_province_territory dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_PROVINCE_TERRITORY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'ON', 'Ontario', 'Ontario', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -20,13 +20,13 @@ VALUES
 (11, 'SK', 'Saskatchewan', 'Saskatchewan', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (12, 'YT', 'Yukon', 'Yukon', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_province_territory_off dbms:mssql
+--changeset system:cd_province_territory_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_PROVINCE_TERRITORY OFF;
 
---changeset system:cd_city_on dbms:mssql
+--changeset system:cd_city_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_CITY ON;
 
---changeset system:cd_city dbms:mssql,h2
+--changeset system:cd_city dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_CITY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [PROVINCE_TERRITORY_ID], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'AB1', 'Brooks', 'Brooks', '1970-01-01 00:00:00', 3, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -321,13 +321,13 @@ VALUES
 (289, 'SK12', 'Yorkton', 'Yorkton', '1970-01-01 00:00:00', 11, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (290, 'YT1', 'Yorkton', 'Yorkton', '1970-01-01 00:00:00', 12, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_city_off dbms:mssql
+--changeset system:cd_city_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_CITY OFF;
 
---changeset system:cd_wfa_status_on dbms:mssql
+--changeset system:cd_wfa_status_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WFA_STATUS ON;
 
---changeset system:cd_wfa_status dbms:mssql,h2
+--changeset system:cd_wfa_status dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_WFA_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [SORT_ORDER], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES (0, 'AFFECTED', 'Affected', 'Touché',3, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'SURPLUS_GRJO', 'Surplus (GRJO)', 'Excédentaire (GOER)', 1, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -337,13 +337,13 @@ VALUES (0, 'AFFECTED', 'Affected', 'Touché',3, '1970-01-01 00:00:00', 'system',
 (5, 'OPTING', 'Opting', 'Optant', 2, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (6, 'OPTING_EX', 'Opting - EX', 'Optant - EX', 2, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_wfa_status_off dbms:mssql
+--changeset system:cd_wfa_status_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WFA_STATUS OFF;
 
---changeset system:cd_classification_on dbms:mssql
+--changeset system:cd_classification_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_CLASSIFICATION ON;
 
---changeset system:cd_classification dbms:mssql,h2
+--changeset system:cd_classification dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_CLASSIFICATION] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES (0, 'AS-01', 'AS-01', 'AS-01', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'AS-02', 'AS-02', 'AS-02', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -430,26 +430,26 @@ VALUES (0, 'AS-01', 'AS-01', 'AS-01', '1970-01-01 00:00:00', 'system', CURRENT_T
 (82, 'TI-05', 'TI-05', 'TI-05', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (83, 'TI-06', 'TI-06', 'TI-06', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_classification_off dbms:mssql
+--changeset system:cd_classification_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_CLASSIFICATION OFF;
 
---changeset system:cd_language_referral_type_on dbms:mssql
+--changeset system:cd_language_referral_type_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_LANGUAGE_REFERRAL_TYPE ON;
 
---changeset system:cd_language_referral_type dbms:mssql,h2
+--changeset system:cd_language_referral_type dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_LANGUAGE_REFERRAL_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'BILINGUAL', 'Bilingual', 'Bilingue', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'ENGLISH', 'English only', 'Anglais seulement', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'FRENCH', 'French only', 'Français seulement', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_language_referral_type_off dbms:mssql
+--changeset system:cd_language_referral_type_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_LANGUAGE_REFERRAL_TYPE OFF;
 
---changeset system:cd_work_unit_on dbms:mssql
+--changeset system:cd_work_unit_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WORK_UNIT ON;
 
---changeset system:cd_work_unit dbms:mssql,h2
+--changeset system:cd_work_unit dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_WORK_UNIT] ([ID], [CODE], [NAME_EN], [NAME_FR], [PARENT_WORK_UNIT_ID], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, '100713', 'Labour - COPD', 'Travail - CODP', NULL, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -721,25 +721,25 @@ VALUES
 (266, '106997', 'Program Strategic Engagement', 'Engagement stratégique du prog', 40, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (267, '107259', 'Programme Management', 'Gestion du programme', 40, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_work_unit_off dbms:mssql
+--changeset system:cd_work_unit_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WORK_UNIT OFF;
 
---changeset system:cd_language_on dbms:mssql
+--changeset system:cd_language_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_LANGUAGE ON;
 
---changeset system:cd_language dbms:mssql,h2
+--changeset system:cd_language dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_LANGUAGE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'EN', 'English', 'Anglais', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'FR', 'French', 'Français', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_language_off dbms:mssql
+--changeset system:cd_language_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_LANGUAGE OFF;
 
---changeset system:cd_appointment_non_advertised_on dbms:mssql
+--changeset system:cd_appointment_non_advertised_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_APPOINTMENT_NON_ADVERTISED ON;
 
---changeset system:cd_appointment_non_advertised dbms:mssql,h2
+--changeset system:cd_appointment_non_advertised dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_APPOINTMENT_NON_ADVERTISED] ([ID], [CODE], [NAME_EN], [NAME_FR], [INTERNAL_IND], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'INT_DIL', 'Objectives related to diversity, inclusion or land claims', 'Objectifs liés à la diversité, l''inclusion ou les revendications territoriales', '1', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -758,13 +758,13 @@ VALUES
 (13, 'EXT_ALA', 'At level appointment from a non PSEA organization (deployment not possible) ', 'Nomination à un poste de même niveau à partir d''une organisation non assujettie à la LEFP (aucune mutation possible) ', '0', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (14, 'EXT_CTRQ', 'Change in tenure to retain a qualified employee in whom the organization has invested', 'Changement de durée d''emploi pour retenir un employé qualifié pour lequel l''organisation a investi', '0', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_appointment_non_advertised_off dbms:mssql
+--changeset system:cd_appointment_non_advertised_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_APPOINTMENT_NON_ADVERTISED OFF;
 
---changeset system:cd_employment_equity_on dbms:mssql
+--changeset system:cd_employment_equity_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_EMPLOYMENT_EQUITY ON;
 
---changeset system:cd_employment_equity dbms:mssql,h2
+--changeset system:cd_employment_equity dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_EMPLOYMENT_EQUITY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'VM-MV', 'Visible Minorities', 'Minorités visibles', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -772,13 +772,13 @@ VALUES
 (2, 'AP-A', 'Aboriginal Peoples', 'Autochtones', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'W-F', 'Women', 'Femmes', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_employment_equity_off dbms:mssql
+--changeset system:cd_employment_equity_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_EMPLOYMENT_EQUITY OFF;
 
---changeset system:cd_employment_opportunity_on dbms:mssql
+--changeset system:cd_employment_opportunity_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_EMPLOYMENT_OPPORTUNITY ON;
 
---changeset system:cd_employment_opportunity dbms:mssql,h2
+--changeset system:cd_employment_opportunity dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_EMPLOYMENT_OPPORTUNITY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'ASSIGNMENT', 'Assignment', 'Affectation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -787,13 +787,13 @@ VALUES
 (3, 'PARTTIME', 'Part-time hours', 'Heures à temps-partiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (4, 'NOTINTERESTED', 'Not interested', 'Pas intéressé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_employment_opportunity_off dbms:mssql
+--changeset system:cd_employment_opportunity_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_EMPLOYMENT_OPPORTUNITY OFF;
 
---changeset system:cd_employment_tenure_on dbms:mssql
+--changeset system:cd_employment_tenure_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE ON;
 
---changeset system:cd_employment_tenure dbms:mssql,h2
+--changeset system:cd_employment_tenure dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_EMPLOYMENT_TENURE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'INDETERMINATE', 'Indeterminate', 'Indéterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -801,13 +801,13 @@ VALUES
 (2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'STUDENT', 'Student', 'Étudiant', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_employment_tenure_off dbms:mssql
+--changeset system:cd_employment_tenure_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE OFF;
 
---changeset system:cd_language_requirement_on dbms:mssql
+--changeset system:cd_language_requirement_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_LANGUAGE_REQUIREMENT ON;
 
---changeset system:cd_language_requirement dbms:mssql,h2
+--changeset system:cd_language_requirement dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_LANGUAGE_REQUIREMENT] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'BI', 'Bilingual Imperative', 'Bilingue impératif', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -817,13 +817,13 @@ VALUES
 (4, 'EF-AF', 'Either/or: English or French', 'Réversible: Anglais ou français', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (5, 'VAR', 'Various', 'Variés', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_language_requirement_off dbms:mssql
+--changeset system:cd_language_requirement_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_LANGUAGE_REQUIREMENT OFF;
 
---changeset system:cd_profile_status_on dbms:mssql
+--changeset system:cd_profile_status_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_PROFILE_STATUS ON;
 
---changeset system:cd_profile_status dbms:mssql,h2
+--changeset system:cd_profile_status dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_PROFILE_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'PENDING', 'Pending approval', 'En attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -831,13 +831,13 @@ VALUES
 (2, 'INCOMPLETE', 'In progress', 'En cours', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'ARCHIVED', 'Archived', 'Archivé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_profile_status_off dbms:mssql
+--changeset system:cd_profile_status_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_PROFILE_STATUS OFF;
 
---changeset system:cd_request_status_on dbms:mssql
+--changeset system:cd_request_status_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_REQUEST_STATUS ON;
 
---changeset system:cd_request_status dbms:mssql,h2
+--changeset system:cd_request_status dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_REQUEST_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'DRAFT', 'Draft', 'Ébauche', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -852,13 +852,13 @@ VALUES
 (9, 'PSC_GRANTED', 'PSC Clearance Granted', 'Autorisation de la CFP accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (10, 'CANCELLED', 'Cancelled', 'Annulée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_request_status_off dbms:mssql
+--changeset system:cd_request_status_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_REQUEST_STATUS OFF;
 
---changeset system:cd_security_clearance_on dbms:mssql
+--changeset system:cd_security_clearance_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_SECURITY_CLEARANCE ON;
 
---changeset system:cd_security_clearance dbms:mssql,h2
+--changeset system:cd_security_clearance dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_SECURITY_CLEARANCE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'R-F', 'Reliability', 'Fiabilité', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -869,13 +869,13 @@ VALUES
 (5, 'ETS-TSA', 'Enhanced Top Secret', 'Très secret approfondie', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (6, 'VAR', 'Various', 'Variés', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_security_clearance_off dbms:mssql
+--changeset system:cd_security_clearance_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_SECURITY_CLEARANCE OFF;
 
---changeset system:cd_selection_process_type_on dbms:mssql
+--changeset system:cd_selection_process_type_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE ON;
 
---changeset system:cd_selection_process_type dbms:mssql,h2
+--changeset system:cd_selection_process_type dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_SELECTION_PROCESS_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'AEP', 'Appointment - ESDC Priority', 'Nomination - Priorité d''EDSC', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -889,13 +889,13 @@ VALUES
 (8, 'DWE', 'Deployment - From within ESDC', 'Mutation - Au sein de EDSC', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (9, 'DAD', 'Deployment - From another department/agency', 'Mutation - D''un autre ministère', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_selection_process_type_off dbms:mssql
+--changeset system:cd_selection_process_type_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE OFF;
 
---changeset system:cd_user_type_on dbms:mssql
+--changeset system:cd_user_type_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_USER_TYPE ON;
 
---changeset system:cd_user_type dbms:mssql,h2
+--changeset system:cd_user_type dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_USER_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'employee', 'Employee', 'Employé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -903,13 +903,13 @@ VALUES
 (2, 'hiring-manager', 'Hiring Manager', 'Gestionnaire de recrutement', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'HRA', 'HR Advisor', 'Conseiller en R.H.', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_user_type_off dbms:mssql
+--changeset system:cd_user_type_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_USER_TYPE OFF;
 
---changeset system:cd_work_schedule_on dbms:mssql
+--changeset system:cd_work_schedule_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WORK_SCHEDULE ON;
 
---changeset system:cd_work_schedule dbms:mssql,h2
+--changeset system:cd_work_schedule dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_WORK_SCHEDULE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'FULL_TIME', 'Full-time', 'Temps plein', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -917,27 +917,27 @@ VALUES
 (2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_work_schedule_off dbms:mssql
+--changeset system:cd_work_schedule_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WORK_SCHEDULE OFF;
 
---changeset system:cd_match_status_on dbms:mssql
+--changeset system:cd_match_status_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_MATCH_STATUS ON;
 
---changeset system:cd_match_status dbms:mssql,h2
+--changeset system:cd_match_status dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_MATCH_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'IP-EC', 'In Progress', 'En cours', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'PA-EAA', 'Pending Approval', 'En attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'A-A', 'Approved', 'Approuvé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_match_status_off dbms:mssql
+--changeset system:cd_match_status_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_MATCH_STATUS OFF;
 
 
---changeset system:cd_match_feedback_on dbms:mssql
+--changeset system:cd_match_feedback_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_MATCH_FEEDBACK ON;
 
---changeset system:cd_match_feedback dbms:mssql,h2
+--changeset system:cd_match_feedback dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_MATCH_FEEDBACK] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'QA-QOA', 'Qualified - Accepted offer (indeterminate)', 'Qualifié - Offre accepté (indéterminé)', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -949,30 +949,30 @@ VALUES
 (6, 'NR-PR', 'No response', 'Pas de réponse', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (7, 'NI-PI', 'Not interested', 'Pas d''intérêt', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_match_feedback_off dbms:mssql
+--changeset system:cd_match_feedback_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_MATCH_FEEDBACK OFF;
 
 
---changeset system:cd_classification_ex_4_5_on dbms:mssql
+--changeset system:cd_classification_ex_4_5_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_CLASSIFICATION ON;
 
---changeset system:cd_classification_ex4_5 dbms:mssql,h2
+--changeset system:cd_classification_ex4_5 dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_CLASSIFICATION] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (84, 'EX-04', 'EX-04', 'EX-04', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (85, 'EX-05', 'EX-05', 'EX-05', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_classification_ex_4_5_off dbms:mssql
+--changeset system:cd_classification_ex_4_5_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_CLASSIFICATION OFF;
 
 
---changeset system:cd_wfa_status_career_transit_on dbms:mssql
+--changeset system:cd_wfa_status_career_transit_on dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WFA_STATUS ON;
 
---changeset system:cd_wfa_status_career_transit dbms:mssql,h2
+--changeset system:cd_wfa_status_career_transit dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 INSERT INTO [CD_WFA_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [SORT_ORDER], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (7, 'CAREERTRANSITION', 'Career Transition', 'Transition de carrière', 3, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_wfa_status_career_transit_off dbms:mssql
+--changeset system:cd_wfa_status_career_transit_off dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v1.sql
 SET IDENTITY_INSERT CD_WFA_STATUS OFF;
