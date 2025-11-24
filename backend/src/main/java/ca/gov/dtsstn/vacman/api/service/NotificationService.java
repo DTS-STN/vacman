@@ -172,7 +172,8 @@ public class NotificationService {
 		final var templateName = switch (requestEvent) {
 			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> "requestAssigned.ftl";
 			case FEEDBACK_PENDING -> "prioritiesIdentified.ftl";
-			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
+			case FEEDBACK_COMPLETED -> "pendingFeedbackApprovalHR.ftl";
+			case PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
 			case COMPLETED -> "feedbackApprovedPSC.ftl";
 			case CANCELLED -> "requestCancelled.ftl";
 		};
@@ -183,7 +184,9 @@ public class NotificationService {
 				recordToMap(new EmailTemplateModel.RequestAssigned(requestId.toString()));
 			case FEEDBACK_PENDING ->
 				recordToMap(new EmailTemplateModel.PrioritiesIdentified(requestId.toString()));
-			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED ->
+			case FEEDBACK_COMPLETED ->
+				recordToMap(new EmailTemplateModel.PendingFeedbackApprovalHR(requestId.toString()));
+			case PSC_NOT_REQUIRED ->
 				recordToMap(new EmailTemplateModel.FeedbackApproved(requestId.toString(), "CL-" + requestId));
 			case COMPLETED ->
 				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(requestId.toString(), "CL-" + requestId, "PSC-" + requestId));
