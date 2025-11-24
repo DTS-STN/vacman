@@ -203,7 +203,7 @@ class ProfileEventListenerTest {
 				.id(222L)
 				.userFirstName("John")
 				.userLastName("Doe")
-				.userLanguageCode("EN")
+				.languageOfCorrespondenceCode("EN")
 				.userEmails(List.of("john.doe@example.com"))
 				.build();
 
@@ -234,7 +234,7 @@ class ProfileEventListenerTest {
 				.id(222L)
 				.userFirstName("John")
 				.userLastName("Doe")
-				.userLanguageCode("EN")
+				.languageOfCorrespondenceCode("EN")
 				.userEmails(List.of("john.doe@example.com", "john.personal@example.com"))
 				.build();
 
@@ -265,7 +265,7 @@ class ProfileEventListenerTest {
 				.id(333L)
 				.userFirstName("Jane")
 				.userLastName("Smith")
-				.userLanguageCode("EN")
+				.languageOfCorrespondenceCode("EN")
 				.userEmails(List.of("jane.personal@example.com"))
 				.build();
 
@@ -296,7 +296,7 @@ class ProfileEventListenerTest {
 				.id(334L)
 				.userFirstName("Jane")
 				.userLastName("Smith")
-				.userLanguageCode("EN")
+				.languageOfCorrespondenceCode("EN")
 				.userEmails(List.of())
 				.build();
 
