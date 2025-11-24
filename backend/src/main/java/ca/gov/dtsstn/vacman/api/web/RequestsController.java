@@ -326,7 +326,7 @@ public class RequestsController {
 		// and determine if the client prefers a spreadsheet response.
 		final var requestedSpreadsheet = MediaType.parseMediaTypes(acceptHeader).stream()
 			.max(comparingDouble(MediaType::getQualityValue))
-			.map(mediaType -> mediaType.isCompatibleWith(OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE))
+			.map(mediaType -> mediaType.equalsTypeAndSubtype(OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE))
 			.orElse(false);
 
 		// if the client requested a spreadsheet, we ignore pagination and return all results
