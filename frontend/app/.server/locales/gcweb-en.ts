@@ -81,6 +81,7 @@ export default {
   'input-option': {
     yes: 'Yes',
     no: 'No',
+    none: 'Not applicable',
   },
   'error-summary': {
     header_one: 'The following error was found in the form:',
