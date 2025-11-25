@@ -626,8 +626,11 @@ export default {
         '<strong>All feedback approved.</strong> Please return to the <InlineLink>Request details page</InlineLink> and select the next action to take',
     },
     'request-details': 'Request details',
-    'page-info':
-      'Review candidate feedback below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action on the request details page.',
+    'page-info': {
+      'hr-advisor':
+        'Review candidate feedback below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action on the request details page.',
+      'hiring-manager': 'Review each candidate, provide your feedback, and submit for approval.',
+    },
     'confirm-info':
       'I confirm that retraining rights were applied and/or taken into account for each affected or surplus priority considered.',
     'approval-completion-progress': 'Approval completion progress',

@@ -638,8 +638,11 @@ export default {
         '<strong>Toutes les rétroactions ont été approuvées.</strong> Veuillez retourner à la <InlineLink>page des détails de la demande</InlineLink> et sélectionner la prochaine action à effectuer',
     },
     'request-details': "L'information sur la demande",
-    'page-info':
-      "Consulter la rétroaction sur les candidat-e-s ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée sur la page l'information sur la demande.",
+    'page-info': {
+      'hr-advisor':
+        "Consulter la rétroaction sur les candidat-e-s ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée sur la page l'information sur la demande.",
+      'hiring-manager': 'Examinez chacune des candidatures, ajoutez votre rétroaction et soumettez pour approbation.',
+    },
     'confirm-info':
       'Je confirme que les droits en matière de recyclage ont été appliqués et/ou pris en compte pour chaque employé-e touché-e ou excédentaire considéré-e.',
     'approval-completion-progress': "État d'avancement de l'approbation",

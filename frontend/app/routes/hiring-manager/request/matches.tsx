@@ -395,7 +395,7 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
         </section>
       )}
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
-      <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
+      <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hiring-manager')}</p>
       {loaderData.feedbackSubmitted ? (
         <AlertMessage ref={alertRef} type="success" role="alert" ariaLive="assertive">
           <p className="font-semibold">{t('app:matches.feedback.success')}</p>

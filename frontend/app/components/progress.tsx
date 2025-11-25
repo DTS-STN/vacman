@@ -27,6 +27,7 @@ const indicatorBaseClassName = 'h-full w-full flex-1 transition-all';
 
 export interface ProgressProps extends React.ComponentProps<typeof ProgressPrimitive.Root> {
   className?: string;
+  progressClassName?: string;
   id?: string;
   size?: keyof typeof sizes;
   variant?: keyof typeof variants;
@@ -36,6 +37,7 @@ export interface ProgressProps extends React.ComponentProps<typeof ProgressPrimi
 
 export function Progress({
   className,
+  progressClassName,
   id = 'progress-label',
   size = 'base',
   variant = 'default',
@@ -46,10 +48,10 @@ export function Progress({
   const { currentLanguage } = useLanguage();
 
   return (
-    <>
+    <div className={className}>
       {label && currentLanguage && <p id={id} className="mb-2">{`${label} ${formatPercent(value, currentLanguage)}`}</p>}
       <ProgressPrimitive.Root
-        className={cn(rootBaseClassName, sizes[size], className)}
+        className={cn(rootBaseClassName, sizes[size], progressClassName)}
         data-testid="progress-root"
         value={value}
         {...props}
@@ -60,6 +62,6 @@ export function Progress({
           style={{ transform: `translateX(-${100 - value}%)` }}
         />
       </ProgressPrimitive.Root>
-    </>
+    </div>
   );
 }
