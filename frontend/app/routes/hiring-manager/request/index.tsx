@@ -249,7 +249,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Process information from Request type
   const requiredProcessInformation = {
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: requestData.priorityEntitlement,
     workSchedule: requestData.workSchedule,
     ...(requestData.priorityEntitlement
       ? {
