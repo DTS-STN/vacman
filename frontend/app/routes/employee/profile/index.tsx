@@ -430,6 +430,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <ProfileCardHeader
             required
             status={incompleteProfile ? (loaderData.employmentInformation.isComplete ? 'complete' : 'in-progress') : undefined}
+            updated={hasEmploymentChanged}
           >
             {t('app:profile.employment.title')}
           </ProfileCardHeader>
@@ -467,6 +468,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <ProfileCardHeader
             required
             status={incompleteProfile ? (loaderData.referralPreferences.isComplete ? 'complete' : 'in-progress') : undefined}
+            updated={hasReferralPreferenceChanged}
           >
             {t('app:profile.referral.title')}
           </ProfileCardHeader>
