@@ -109,13 +109,9 @@ public class RequestEventListener {
 			request.additionalContactEmails(),
 			request.submitterEmails(),
 			request.hiringManagerEmails(),
-			request.subDelegatedManagerEmails()
+			request.subDelegatedManagerEmails(),
+			List.of(applicationProperties.gcnotify().hrGdInboxEmail())
 		).flatMap(List::stream).collect(toSet());
-
-		if (emails.isEmpty()) {
-			log.warn("No email addresses found for request ID: [{}]", request.id());
-			return;
-		}
 
 		emails.forEach(email -> notificationService.sendRequestNotification(
 			email,

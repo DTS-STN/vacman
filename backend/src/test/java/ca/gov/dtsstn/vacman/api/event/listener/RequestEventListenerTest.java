@@ -1,8 +1,8 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
@@ -40,6 +41,9 @@ class RequestEventListenerTest {
 	ApplicationProperties applicationProperties;
 
 	@Mock
+	GcNotifyProperties gcNotifyProperties;
+
+	@Mock
 	EventRepository eventRepository;
 
 	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -55,6 +59,9 @@ class RequestEventListenerTest {
 
 	@BeforeEach
 	void beforeEach() {
+		lenient().when(applicationProperties.gcnotify()).thenReturn(gcNotifyProperties);
+		lenient().when(gcNotifyProperties.hrGdInboxEmail()).thenReturn("hr-inbox@example.com");
+
 		this.requestEventListener = new RequestEventListener(eventRepository, lookupCodes, notificationService, applicationProperties, matchRepository);
 	}
 
@@ -137,6 +144,7 @@ class RequestEventListenerTest {
 			verify(notificationService).sendRequestNotification(eq("submitter@example.com"), eq(789L), eq("Feedback Pending Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 			verify(notificationService).sendRequestNotification(eq("hiringmanager@example.com"), eq(789L), eq("Feedback Pending Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 			verify(notificationService).sendRequestNotification(eq("hrdelegate@example.com"), eq(789L), eq("Feedback Pending Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
+			verify(notificationService).sendRequestNotification(eq("hr-inbox@example.com"), eq(789L), eq("Feedback Pending Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 		@Test
@@ -153,7 +161,7 @@ class RequestEventListenerTest {
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
-			verify(notificationService, times(6)).sendRequestNotification(any(String.class), eq(999L), eq("Multi Email Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
+			verify(notificationService, times(7)).sendRequestNotification(any(String.class), eq(999L), eq("Multi Email Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 		@Test
@@ -172,11 +180,12 @@ class RequestEventListenerTest {
 
 			verify(notificationService).sendRequestNotification(eq("hiringmanager@example.com"), eq(555L), eq("No Submitter Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 			verify(notificationService).sendRequestNotification(eq("hrdelegate@example.com"), eq(555L), eq("No Submitter Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
+			verify(notificationService).sendRequestNotification(eq("hr-inbox@example.com"), eq(555L), eq("No Submitter Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 		@Test
-		@DisplayName("Should not send notification when all roles have no email addresses")
-		void shouldNotSendNotificationWhenNoEmailAddresses() {
+		@DisplayName("Should send notification to HR inbox when all roles have no email addresses")
+		void shouldSendNotificationToHrInboxWhenNoOtherEmailAddresses() {
 			final var request = RequestEventDtoBuilder.builder()
 				.id(222L)
 				.nameEn("No Emails Request")
@@ -188,11 +197,11 @@ class RequestEventListenerTest {
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
-			verify(notificationService, never()).sendRequestNotification(
-				anyList(),
-				any(Long.class),
-				any(String.class),
-				any(RequestEvent.class),
+			verify(notificationService).sendRequestNotification(
+				eq("hr-inbox@example.com"),
+				eq(222L),
+				eq("No Emails Request"),
+				eq(RequestEvent.FEEDBACK_PENDING),
 				any()
 			);
 		}
@@ -211,7 +220,7 @@ class RequestEventListenerTest {
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
-			verify(notificationService, times(3)).sendRequestNotification(any(String.class), eq(333L), eq("Personal Email Only Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
+			verify(notificationService, times(4)).sendRequestNotification(any(String.class), eq(333L), eq("Personal Email Only Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 	}
