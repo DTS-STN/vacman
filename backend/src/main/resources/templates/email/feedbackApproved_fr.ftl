@@ -8,7 +8,7 @@ Merci d'avoir complété la rétroaction pour chaque priorité d'EDSC présenté
 
 Votre rétroaction a été approuvée et le numéro d'autorisation ci-dessous vous a été émis :
 
-Numéro d'autorisation ministérielle : ${clearanceNumber}
+Numéro d'autorisation ministérielle : ${priorityClearanceNumber}
 
 Étant donné qu'une autorisation de la CFP n'est pas requise dans cette situation, vous pouvez maintenant procéder avec votre action de dotation proposée.
 
