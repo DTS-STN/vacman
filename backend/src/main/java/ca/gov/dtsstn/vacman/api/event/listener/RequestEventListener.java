@@ -279,7 +279,7 @@ public class RequestEventListener {
 	}
 
 	/**
-	 * Handles the RequestFeedbackCompletedEvent and sends a notification to the HR advisor.
+	 * Handles the RequestFeedbackCompletedEvent and sends a notification to the HR advisor and the generic HR inbox.
 	 * The notification is sent to the HR advisor's business email address.
 	 * If no HR advisor or business email address is found, a warning is logged.
 	 */
@@ -298,6 +298,16 @@ public class RequestEventListener {
 				language
 			),
 			() -> log.warn("No HR advisor email found for request ID: [{}]", request.id())
+		);
+
+		final var hrEmail = applicationProperties.gcnotify().hrGdInboxEmail();
+
+		notificationService.sendRequestNotification(
+			hrEmail,
+			request.id(),
+			request.nameEn(),
+			RequestEvent.FEEDBACK_COMPLETED,
+			language
 		);
 	}
 
