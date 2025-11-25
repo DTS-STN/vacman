@@ -126,7 +126,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // For process information from Request Model
   const requiredProcessFields = {
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: requestData.priorityEntitlement,
     workSchedule: requestData.workSchedule,
     ...(requestData.priorityEntitlement
       ? {
