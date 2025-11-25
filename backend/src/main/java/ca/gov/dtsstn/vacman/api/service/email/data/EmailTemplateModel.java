@@ -63,6 +63,10 @@ public final class EmailTemplateModel {
 		String requestNumber
 	) {}
 
+	public record PscClearanceRequired(
+		String requestNumber
+	) {}
+
 	public record RequestAssigned(
 		String requestNumber
 	) {}
