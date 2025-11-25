@@ -301,6 +301,8 @@ public class RequestEventListener {
 
 		final var hrEmail = applicationProperties.gcnotify().hrGdInboxEmail();
 
+		log.info("Sending feedback completed notification to generic HR inbox for request ID: [{}]", request.id());
+
 		notificationService.sendRequestNotification(
 			hrEmail,
 			request.id(),
