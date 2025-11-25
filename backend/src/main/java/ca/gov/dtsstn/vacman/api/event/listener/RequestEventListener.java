@@ -279,9 +279,8 @@ public class RequestEventListener {
 	}
 
 	/**
-	 * Handles the RequestFeedbackCompletedEvent and sends a notification to the HR advisor and the generic HR inbox.
-	 * The notification is sent to the HR advisor's business email address.
-	 * If no HR advisor or business email address is found, a warning is logged.
+	 * Handles the RequestFeedbackCompletedEvent and sends a notification to the HR advisor (if their email is available)
+	 * and always sends a notification to the generic HR inbox. If the HR advisor's email is missing, a warning is logged.
 	 */
 	@Async
 	@EventListener({ RequestFeedbackCompletedEvent.class })
