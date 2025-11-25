@@ -332,7 +332,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       {loaderData.feedbackSubmitted ? (
-        <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
+        <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hr-advisor')}</p>
       ) : (
         <p className="sm:w-2/3 md:w-3/4">{t('app:matches.matches-available-hr-advisor-detail')}</p>
       )}
