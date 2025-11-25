@@ -338,7 +338,9 @@ public class RequestEventListener {
 				request.id(),
 				request.nameEn(),
 				RequestEvent.COMPLETED,
-				language
+				language,
+				request.priorityClearanceNumber(),
+				request.pscClearanceNumber()
 			);
 		});
 	}
@@ -408,7 +410,9 @@ public class RequestEventListener {
 			request.id(),
 			request.nameEn(),
 			RequestEvent.PSC_NOT_REQUIRED,
-			language
+			language,
+			request.priorityClearanceNumber(),
+			request.pscClearanceNumber()
 		));
 	}
 

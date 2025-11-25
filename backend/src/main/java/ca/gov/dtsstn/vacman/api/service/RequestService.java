@@ -583,6 +583,7 @@ public class RequestService {
 		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPriorityClearanceNumber(priorityClearanceNumber);
 
+		// TODO: I think we can delete this as the PSC number is assigned later and produced outside of the app
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
@@ -615,10 +616,10 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		// TODO: Real implementation (ADO task 6691)
 		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPriorityClearanceNumber(priorityClearanceNumber);
 
+		// TODO: I think we can delete this as the PSC number is assigned later and produced outside of the app
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
