@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDtoBuilder;
 @DisplayName("RequestEventListener tests")
 class RequestEventListenerTest {
 
-	@Mock
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
 	ApplicationProperties applicationProperties;
 
 	@Mock
@@ -61,8 +62,13 @@ class RequestEventListenerTest {
 	@DisplayName("sendRequestFeedbackCompletedNotification()")
 	class SendRequestFeedbackCompletedNotification {
 
+		@BeforeEach
+		void beforeEach() {
+			when(applicationProperties.gcnotify().hrGdInboxEmail()).thenReturn("generic@example.com");
+		}
+
 		@Test
-		@DisplayName("Should send notification when HR advisor has business email")
+		@DisplayName("Should send notification to HR advisor and generic inbox")
 		void sendNotificationWhenHrAdvisorHasBusinessEmail() {
 			final var request = RequestEventDtoBuilder.builder()
 				.id(123L)
@@ -79,38 +85,31 @@ class RequestEventListenerTest {
 				eq(RequestEvent.FEEDBACK_COMPLETED),
 				any()
 			);
-		}
 
-		@Test
-		@DisplayName("Should not send notification when HR advisor is null")
-		void shouldNotSendNotificationWhenHrAdvisorIsNull() {
-			final var request = RequestEventDtoBuilder.builder()
-				.build();
-
-			requestEventListener.sendRequestFeedbackCompletedNotification(new RequestFeedbackCompletedEvent(request));
-
-			verify(notificationService, never()).sendRequestNotification(
-				any(String.class),
-				any(Long.class),
-				any(String.class),
-				any(RequestEvent.class),
+			verify(notificationService).sendRequestNotification(
+				eq("generic@example.com"),
+				eq(123L),
+				eq("Test Request"),
+				eq(RequestEvent.FEEDBACK_COMPLETED),
 				any()
 			);
 		}
 
 		@Test
-		@DisplayName("Should not send notification when HR advisor business email is null")
-		void shouldNotSendNotificationWhenBusinessEmailIsNull() {
+		@DisplayName("Should send notification to generic inbox even when HR advisor is null")
+		void shouldSendNotificationToGenericInboxWhenHrAdvisorIsNull() {
 			final var request = RequestEventDtoBuilder.builder()
+				.id(123L)
+				.nameEn("Test Request")
 				.build();
 
 			requestEventListener.sendRequestFeedbackCompletedNotification(new RequestFeedbackCompletedEvent(request));
 
-			verify(notificationService, never()).sendRequestNotification(
-				any(String.class),
-				any(Long.class),
-				any(String.class),
-				any(RequestEvent.class),
+			verify(notificationService).sendRequestNotification(
+				eq("generic@example.com"),
+				eq(123L),
+				eq("Test Request"),
+				eq(RequestEvent.FEEDBACK_COMPLETED),
 				any()
 			);
 		}
