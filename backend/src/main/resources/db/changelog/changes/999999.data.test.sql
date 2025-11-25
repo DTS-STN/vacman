@@ -6,11 +6,11 @@
 -- USER DATA INSERTION
 -- =================================================================================================
 
--- changeset system:user_identity_on context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:user_identity_on context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [USER] ON;
 
 -- Insert a set of 15 test users into the USER table for development and testing purposes.
--- changeset system:insert_user_data context:dev dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:insert_user_data context:dev dbms:mssql,h2 logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 INSERT INTO [USER]
   ([ID],       [FIRST_NAME], [LAST_NAME],   [BUSINESS_EMAIL_ADDRESS],       [BUSINESS_PHONE_NUMBER], [LANGUAGE_ID], [MS_ENTRA_ID],                          [PERSONAL_RECORD_IDENTIFIER], [USER_TYPE_ID], [USER_CREATED], [DATE_CREATED])
 VALUES
@@ -30,7 +30,7 @@ VALUES
   (2147400013, 'Test',       'Advisor 004', 'test.advisor.004@example.com', '555-555-0014',          '1',           '00000000-0000-0000-0000-00000000000d', '000000013',                  '3',            'system',       CURRENT_TIMESTAMP),
   (2147400014, 'Test',       'Advisor 005', 'test.advisor.005@example.com', '555-555-0015',          '1',           '00000000-0000-0000-0000-00000000000e', '000000014',                  '3',            'system',       CURRENT_TIMESTAMP);
 
--- changeset system:user_identity_off context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:user_identity_off context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [USER] OFF;
 
 
@@ -39,11 +39,11 @@ SET IDENTITY_INSERT [USER] OFF;
 -- PROFILE DATA INSERTION
 -- =================================================================================================
 
--- changeset system:profile_identity_on context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:profile_identity_on context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [PROFILE] ON;
 
 -- Insert a corresponding profile for each test employee created above.
--- changeset system:insert_profile_data context:dev dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:insert_profile_data context:dev dbms:mssql,h2 logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 INSERT INTO [PROFILE]
   ([ID],       [USER_ID],  [USER_ID_HR_ADVISOR], [WFA_STATUS_ID], [CLASSIFICATION_ID], [CITY_ID], [WORK_UNIT_ID], [LANGUAGE_ID], [PROFILE_STATUS_ID], [PERSONAL_PHONE_NUMBER], [PERSONAL_EMAIL_ADDRESS],   [PRIVACY_CONSENT_IND], [AVAILABLE_FOR_REFERRAL_IND], [INTERESTED_IN_ALTERNATION_IND], [ADDITIONAL_COMMENT],               [USER_CREATED], [DATE_CREATED],    [WFA_START_DATE],  [WFA_END_DATE])
 VALUES
@@ -58,7 +58,7 @@ VALUES
   (2147400008, 2147400008, 2147400013,           8,               1,                   1,        50,              1,             2,                   '555-555-0009',          'personal.009@example.com', 'false',               'false',                      'false',                         'Generic user profile comment.',    'system',       CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   (2147400009, 2147400009, 2147400014,           0,               1,                   1,        51,              1,             2,                   '555-555-0010',          'personal.010@example.com', 'false',               'false',                      'false',                         'Generic user profile comment.',    'system',       CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- changeset system:profile_identity_off context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:profile_identity_off context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [PROFILE] OFF;
 
 
@@ -67,11 +67,11 @@ SET IDENTITY_INSERT [PROFILE] OFF;
 -- PROFILE JOIN TABLE DATA
 -- =================================================================================================
 
--- changeset system:profile_city_identity_on context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:profile_city_identity_on context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [PROFILE_CITY] ON;
 
 -- Insert records into the PROFILE_CITY join table, linking each test profile to a city.
--- changeset system:insert_profile_city_data context:dev dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:insert_profile_city_data context:dev dbms:mssql,h2 logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 INSERT INTO [PROFILE_CITY]
   ([ID],       [PROFILE_ID], [CITY_ID], [USER_CREATED], [DATE_CREATED],    [USER_UPDATED], [DATE_UPDATED])
 VALUES
@@ -86,14 +86,14 @@ VALUES
   (2147400008, 2147400008,    9,        'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP),
   (2147400009, 2147400009,   10,        'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP);
 
--- changeset system:profile_city_identity_off context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:profile_city_identity_off context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [PROFILE_CITY] OFF;
 
--- changeset system:profile_language_referral_type_identity_on context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:profile_language_referral_type_identity_on context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [PROFILE_LANGUAGE_REFERRAL_TYPE] ON;
 
 -- Insert records into the PROFILE_LANGUAGE_REFERRAL_TYPE join table, linking profiles to language referral types.
--- changeset system:insert_profile_language_referral_type_data context:dev dbms:mssql,h2 logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:insert_profile_language_referral_type_data context:dev dbms:mssql,h2 logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 INSERT INTO [PROFILE_LANGUAGE_REFERRAL_TYPE]
   ([id],       [PROFILE_ID], [LANGUAGE_REFERRAL_TYPE_ID], [USER_CREATED], [DATE_CREATED],    [USER_UPDATED], [DATE_UPDATED])
 VALUES
@@ -108,7 +108,7 @@ VALUES
   (2147400008, 2147400008,   1,                           'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP),
   (2147400009, 2147400009,   2,                           'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP);
 
--- changeset system:profile_language_referral_type_identity_off context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset system:profile_language_referral_type_identity_off context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 SET IDENTITY_INSERT [PROFILE_LANGUAGE_REFERRAL_TYPE] OFF;
 
 
@@ -123,7 +123,7 @@ SET IDENTITY_INSERT [PROFILE_LANGUAGE_REFERRAL_TYPE] OFF;
 -- 'splitStatements:false' is required so Liquibase runs this as a single batch.
 -- =================================================================================================
 
--- changeset splitStatements:false system:reseed_mssql context:dev dbms:mssql logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset splitStatements:false system:reseed_mssql context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 DECLARE @max_user_id BIGINT;
 SELECT @max_user_id = ISNULL(MAX([ID]), 0) FROM [USER] WHERE [ID] < 2147400000;
 DBCC CHECKIDENT ([USER], RESEED, @max_user_id);
@@ -150,7 +150,7 @@ DBCC CHECKIDENT ([PROFILE_LANGUAGE_REFERRAL_TYPE], RESEED, @max_profile_language
 -- environment where no production data exists.
 -- =================================================================================================
 
--- changeset splitStatements:false system:reseed_h2 context:dev dbms:h2 logicalFilePath:db/changelog/changes/data/db.data.v9999.test.sql
+-- changeset splitStatements:false system:reseed_h2 context:dev dbms:h2 logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
 ALTER TABLE [USER] ALTER COLUMN [ID] RESTART WITH 1;
 ALTER TABLE [PROFILE] ALTER COLUMN [ID] RESTART WITH 1;
 ALTER TABLE [PROFILE_CITY] ALTER COLUMN [ID] RESTART WITH 1;
