@@ -1,7 +1,12 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import java.lang.reflect.RecordComponent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,7 +177,7 @@ public class NotificationService {
 	 * @param requestTitle the title of the request; must not be blank or null
 	 * @param requestEvent the event that triggered the notification
 	 * @param language the language code for the notification (e.g., "en", "fr")
-	 * @param priorityClearanceNumber the priority clearance number (optional)
+	 * @param priorityClearanceNumber "Departmental" clearance number (optional)
 	 * @param pscClearanceNumber the PSC clearance number (optional)
 	 * @return the notification receipt from GC Notify containing details about the sent email
 	 */
@@ -259,7 +264,7 @@ public class NotificationService {
 	 * @param requestTitle the title of the request; must not be blank or null
 	 * @param requestEvent the event that triggered the notification
 	 * @param language the language code for the notification (e.g., "en", "fr")
-	 * @param priorityClearanceNumber the priority clearance number (optional)
+	 * @param priorityClearanceNumber "Departmental" priority number (optional)
 	 * @param pscClearanceNumber the PSC clearance number (optional)
 	 * @return a list of notification receipts, one for each successfully sent email
 	 */
