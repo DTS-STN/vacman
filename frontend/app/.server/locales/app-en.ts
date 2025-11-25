@@ -337,6 +337,8 @@ export default {
   'hiring-manager-referral-requests': {
     'page-title': 'Priority clearance request',
     'create-title': 'Create priority clearance request',
+    'create-success-msg': 'Priority clearance request created successfully.',
+    'copy-success-msg': 'Priority clearance request copied successfully.',
     'request-details': 'Request details',
     'request-id': 'Request ID',
     'request-date': 'Request date',

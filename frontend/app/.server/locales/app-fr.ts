@@ -340,6 +340,8 @@ export default {
   'hiring-manager-referral-requests': {
     'page-title': "Demande d'autorisation en matière de priorité",
     'create-title': "Créer une demande d'autorisation en matière de priorité",
+    'create-success-msg': "Demande d'autorisation en matière de priorité créée avec succès.",
+    'copy-success-msg': "Demande d'autorisation en matière de priorité copiée avec succès.",
     'request-details': 'Information sur la demande',
     'request-id': 'No. de la demande',
     'request-date': 'Date de la demande',

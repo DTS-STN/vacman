@@ -52,7 +52,10 @@ export async function action({ context, request }: Route.ActionArgs) {
       const newRequestResult = await getRequestService().createRequest(session.authState.accessToken);
       const requestId = newRequestResult.into()?.id.toString();
 
-      return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params: { requestId } });
+      return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+        params: { requestId },
+        search: new URLSearchParams({ success: 'create-request' }),
+      });
     }
     case 'copy': {
       const copiedRequestId = formString(formData.get('requestId'));
@@ -109,7 +112,10 @@ export async function action({ context, request }: Route.ActionArgs) {
         throw updateResult.unwrapErr();
       }
 
-      return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params: { requestId } });
+      return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+        params: { requestId },
+        search: new URLSearchParams({ success: 'copy-request' }),
+      });
     }
   }
 
