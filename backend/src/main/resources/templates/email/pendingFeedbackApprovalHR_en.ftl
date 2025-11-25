@@ -1,4 +1,4 @@
-<#assign emailSubject>Feedback approved – VMS Request # ${requestNumber}</#assign>
+<#assign emailSubject>Pending feedback approval – VMS Request # ${requestNumber}</#assign>
 
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
