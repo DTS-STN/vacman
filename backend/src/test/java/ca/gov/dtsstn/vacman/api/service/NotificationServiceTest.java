@@ -510,4 +510,42 @@ class NotificationServiceTest {
 			);
 		});
 	}
+
+	@Test
+	@DisplayName("Test send Request notification PSC_NOT_REQUIRED with null priorityClearanceNumber")
+	void sendRequestNotificationPscNotRequiredWithNullPriorityClearanceNumber() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendRequestNotification(
+			"test@example.com",
+			123L,
+			"Test Request",
+			NotificationService.RequestEvent.PSC_NOT_REQUIRED,
+			lookupCodes.languages().english(),
+			null, // null priorityClearanceNumber
+			null
+		);
+
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send Request notification COMPLETED with null clearance numbers")
+	void sendRequestNotificationCompletedWithNullClearanceNumbers() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendRequestNotification(
+			"test@example.com",
+			123L,
+			"Test Request",
+			NotificationService.RequestEvent.COMPLETED,
+			lookupCodes.languages().english(),
+			null, // null priorityClearanceNumber
+			null  // null pscClearanceNumber
+		);
+
+		assertThat(result).isNotNull();
+	}
 }
