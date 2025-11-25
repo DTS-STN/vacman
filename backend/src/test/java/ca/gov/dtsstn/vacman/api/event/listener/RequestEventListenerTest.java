@@ -59,7 +59,7 @@ class RequestEventListenerTest {
 	@BeforeEach
 	void beforeEach() {
 		lenient().when(applicationProperties.gcnotify()).thenReturn(gcNotifyProperties);
-		when(gcNotifyProperties.hrGdInboxEmail()).thenReturn("hr-inbox@example.com");
+		lenient().when(gcNotifyProperties.hrGdInboxEmail()).thenReturn("hr-inbox@example.com");
 
 		this.requestEventListener = new RequestEventListener(eventRepository, lookupCodes, notificationService, applicationProperties, matchRepository);
 	}
