@@ -12,6 +12,9 @@ exports[`error-boundaries > BilingualErrorBoundary > should correctly render the
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      We're having a problem with that page / Nous éprouvons des difficultés avec cette page
+    </title>
     <link
       href="build/stub-path-to-module.js"
       rel="modulepreload"
@@ -159,6 +162,9 @@ exports[`error-boundaries > BilingualErrorBoundary > should correctly render the
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      We're having a problem with that page / Nous éprouvons des difficultés avec cette page
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -307,6 +313,9 @@ exports[`error-boundaries > BilingualNotFound > should correctly render the bili
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      We can't find that page / Nous ne pouvons trouver cette page
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -445,6 +454,9 @@ exports[`error-boundaries > UnilingualErrorBoundary > should correctly render th
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      gcweb:server-error.page-title
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -536,6 +548,9 @@ exports[`error-boundaries > UnilingualErrorBoundary > should correctly render th
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      gcweb:server-error.page-title
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -635,6 +650,9 @@ exports[`error-boundaries > UnilingualNotFound > should correctly render the uni
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      gcweb:not-found.page-title
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />

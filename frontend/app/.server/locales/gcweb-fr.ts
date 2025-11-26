@@ -54,6 +54,12 @@ export default {
     'page-message':
       "Nous sommes désolés que vous ayez abouti ici. Il arrive parfois qu'une page ait été déplacée ou supprimée. Heureusement, nous pouvons vous aider à trouver ce que vous cherchez.",
   },
+  'forbidden': {
+    'page-title': "Vous n'êtes pas autorisé à consulter cette page",
+    'page-subtitle': '(Erreur 403)',
+    'page-message':
+      "Vous n'avez pas la permission d'accéder à cette ressource. Si vous pensez que vous devriez avoir accès, veuillez contacter votre administrateur ou conseiller RH.",
+  },
   'session-timeout': {
     'continue-session': 'Continuer la session',
     'description':

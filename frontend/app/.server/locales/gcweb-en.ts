@@ -52,6 +52,12 @@ export default {
     'page-message':
       "We're sorry you ended up here. Sometimes a page gets moved or deleted, but hopefully we can help you find what you're looking for.",
   },
+  'forbidden': {
+    'page-title': 'You are not authorized to view this page',
+    'page-subtitle': '(Error 403)',
+    'page-message':
+      "You don't have permission to access this resource. If you believe you should have access, please contact your administrator or HR advisor.",
+  },
   'session-timeout': {
     'continue-session': 'Continue session',
     'description':

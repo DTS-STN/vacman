@@ -30,6 +30,7 @@ export function BilingualErrorBoundary({ actionData, error, loaderData, params }
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>We&apos;re having a problem with that page / Nous éprouvons des difficultés avec cette page</title>
         <Meta />
         <Links />
         <script //
@@ -157,6 +158,7 @@ export function BilingualNotFound({ actionData, error, loaderData, params }: Rou
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>We can&apos;t find that page / Nous ne pouvons trouver cette page</title>
         <Meta />
         <Links />
         <script //
@@ -240,6 +242,7 @@ export function UnilingualErrorBoundary({ actionData, error, loaderData, params 
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{t('gcweb:server-error.page-title')}</title>
         <Meta />
         <Links />
         <script //
@@ -327,6 +330,7 @@ export function UnilingualNotFound({ actionData, error, loaderData, params }: Ro
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{t('gcweb:not-found.page-title')}</title>
         <Meta />
         <Links />
         <script //
@@ -358,6 +362,70 @@ export function UnilingualNotFound({ actionData, error, loaderData, params }: Ro
             <small className="block text-2xl font-normal text-neutral-500">{t('gcweb:not-found.page-subtitle')}</small>
           </PageTitle>
           <p className="mb-8 text-lg text-gray-500">{t('gcweb:not-found.page-message')}</p>
+        </main>
+        <footer className="bg-stone-50 print:hidden">
+          <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
+            <div>
+              <img
+                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+                alt={t('gcweb:footer.gc-symbol')}
+                width={300}
+                height={71}
+                className="h-10 w-auto"
+              />
+            </div>
+          </div>
+        </footer>
+        <Scripts nonce={loaderData?.nonce} />
+      </body>
+    </html>
+  );
+}
+
+/**
+ * A unilingual 403 Forbidden page that renders appropriate error messages in the current language.
+ */
+export function UnilingualForbidden({ actionData, error, loaderData, params }: Route.ErrorBoundaryProps) {
+  const { currentLanguage } = useLanguage();
+  const { t } = useTranslation(['gcweb']);
+
+  return (
+    <html lang={currentLanguage}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{t('gcweb:forbidden.page-title')}</title>
+        <Meta />
+        <Links />
+        <script //
+          nonce={loaderData?.nonce}
+          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
+          suppressHydrationWarning={true}
+        />
+      </head>
+      <body>
+        <header className="border-b-[3px] border-slate-700 print:hidden">
+          <div id="wb-bnr">
+            <div className="container flex items-center justify-between gap-6 py-2.5 sm:py-3.5">
+              <AppLink to="https://canada.ca/">
+                <img
+                  className="h-8 w-auto"
+                  src={`https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-${currentLanguage}.svg`}
+                  alt={t('gcweb:header.govt-of-canada.text')}
+                  width="300"
+                  height="28"
+                  decoding="async"
+                />
+              </AppLink>
+            </div>
+          </div>
+        </header>
+        <main className="container">
+          <PageTitle className="my-8">
+            <span>{t('gcweb:forbidden.page-title')}</span>
+            <small className="block text-2xl font-normal text-neutral-500">{t('gcweb:forbidden.page-subtitle')}</small>
+          </PageTitle>
+          <p className="mb-8 text-lg text-gray-500">{t('gcweb:forbidden.page-message')}</p>
         </main>
         <footer className="bg-stone-50 print:hidden">
           <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
