@@ -327,10 +327,13 @@ export function ReferralPreferencesForm({
               errorMessage={tApp(extractValidationKey(formErrors?.isInterestedInAlternation))}
               displayAriaDescribedBy={false}
               helpMessagePrimary={
-                <Collapsible summary={tApp('referral-preferences.what-is-alternation')}>
-                  <p>{tApp('referral-preferences.alternation-description-text-para-1')}</p>
-                  <p>{tApp('referral-preferences.alternation-description-text-para-2')}</p>
-                </Collapsible>
+                <>
+                  <p>{tApp('referral-preferences.alternate-opportunity-help-message')}</p>
+                  <Collapsible summary={tApp('referral-preferences.what-is-alternation')}>
+                    <p>{tApp('referral-preferences.alternation-description-text-para-1')}</p>
+                    <p>{tApp('referral-preferences.alternation-description-text-para-2')}</p>
+                  </Collapsible>
+                </>
               }
             />
 

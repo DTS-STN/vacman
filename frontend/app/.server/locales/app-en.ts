@@ -182,8 +182,10 @@ export default {
     'city': 'City',
     'referral-availibility': 'Are you currently available for referrals?',
     'referral-availibility-help-message-primary':
-      'Select "no" if your current situation does not allow you to consider job offers (for example, extended leave, waiting for a job offer, etc.). Consult the HR advisor indicated on your letter should you need guidance.',
+      'Select "no" if your current situation does not allow you to consider job offers (for example, extended leave, waiting for a job offer, etc.). Consult the HR advisor mentioned in your letter for guidance, if needed.',
     'alternate-opportunity': 'Are you interested in alternation opportunities?',
+    'alternate-opportunity-help-message':
+      'If you have a WFA status of "Opting" or "Surplus - 12 months (Option A)", alternating with an employee not affected by WFA is an interesting avenue to optimize your job search. If you do not have this status, you can still answer yes so your profile is ready in the event that your WFA status changes.',
     'what-is-alternation': 'What is alternation?',
     'alternation-description-text-para-1':
       'An alternation occurs when an opting employee or a surplus employee, having chosen a 12-month surplus priority entitlement (Option A), wishes to remain in the core public administration and exchanges positions with a non-affected employee (the alternate) willing to leave the core public administration with a transition support measure (TSM) (option B) or with a TSM and an Education Allowance (Option C(i)).',
@@ -228,7 +230,8 @@ export default {
     'approval-received':
       'Appropriate level of approval received according to the Workforce Management Committee (WMC) and/or the People Management and Leadership Committee (PMLC) parameters (required)',
     'priority-entitlement':
-      'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
+      'If someone with priority status is appointed to the position, could this result in a new priority status for another employee occupying a position for an indeterminate period?',
+    'priority-entitlement-yes': 'Yes (Discuss about section 43 of the PSEA with your HR Advisor)',
     'priority-entitlement-rationale': 'Please provide the rationale',
     'rationale': 'Rationale',
     'selection-process-type': 'Selection process type',
@@ -464,7 +467,8 @@ export default {
   'position-information': {
     'page-title': 'Position information',
     'position-number': 'Position number',
-    'position-number-instruction': 'Position numbers must be 8 digits. Separate multiple position numbers with a comma.',
+    'position-number-instruction':
+      'Position numbers must be 8 digits. Separate multiple position numbers with a comma. If your request targets more than 10 positions, please use the "Additional comments" box in the "Submission details" section to provide the relevant information.',
     'group-and-level': 'Group and level',
     'title-en': 'Title in English',
     'title-fr': 'Title in French',
@@ -550,7 +554,7 @@ export default {
     },
     'hiring-manager-email': 'Hiring manager email address',
     'hiring-manager-name': 'Hiring manager: {{name}}',
-    'is-hiring-manager-sub-delegate': 'Is the hiring manager staffing sub-delegated manager?',
+    'is-hiring-manager-sub-delegate': 'Is the hiring manager a staffing sub-delegated manager?',
     'sub-delegate-email': 'Staffing sub-delegated manager email address',
     'sub-delegate-name': 'Staffing sub-delegated manager: {{name}}',
     'alternate-contact-email': 'Alternate contact email address',

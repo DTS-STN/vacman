@@ -59,13 +59,13 @@ export default {
       "Veuillez remplir tous les champs obligatoires de la section des informations sur l'emploi avant d'approuver le profil.",
     'profile-referral-preferences-incomplete-for-approval':
       "Veuillez remplir tous les champs obligatoires dans la section des préférences de présentation de candidature avant d'approuver le profil.",
-    'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation.",
+    'profile-submitted': "Profil soumis avec succès! Votre Conseiller-ère RH va maintenant l'examiner pour approbation.",
     'profile-personal-info-saved': 'Informations personnelles enregistrées avec succès.',
     'profile-employment-saved': "Informations sur l'emploi enregistrées avec succès.",
-    'profile-referral-saved': 'Préférences de référence enregistrées avec succès.',
+    'profile-referral-saved': 'Préférences de présentation de candidature enregistrées avec succès.',
     'hr-approved': "Profil de l'employé-e approuvé.",
     'profile-pending-approval':
-      'Les modifications de votre profil nécessiteront une nouvelle approbation de votre conseiller(ère) RH.',
+      'Les modifications de votre profil nécessiteront une nouvelle approbation de votre Conseiller-ère RH.',
     'page-title': 'Profil',
   },
   'employee-profile': {
@@ -185,13 +185,15 @@ export default {
     'city': 'Ville',
     'referral-availibility': 'Êtes-vous actuellement disponible pour être référé-e?',
     'referral-availibility-help-message-primary':
-      "Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d'emploi (par exemple, congé prolongé, en attente d'une offre d'emploi, etc.). Consulter le conseiller RH indiqué sur votre lettre pour de l'orientation au besoin.",
-    'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste?",
+      "Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d'emploi (par exemple, congé prolongé, en attente d'une offre d'emploi, etc.). Consultez le-la conseiller-ère RH indiqué-e sur votre lettre pour obtenir de l'orientation, au besoin.",
+    'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de postes?",
+    'alternate-opportunity-help-message':
+      "Si vous êtes un-e employé-e au statut RE «\u00a0optant\u00a0» ou «\u00a0excédentaire - 12 mois (options A)\u00a0», l'échange de postes avec un-e fonctionnaire non-touché-e par le RE est une avenue intéressante pour optimiser votre recherche d'emploi. Si vous n'avez pas ce statut, vous pouvez tout de même répondre oui pour que votre profil soit prêt advenant que votre statut RE change.",
     'what-is-alternation': "Qu'est-ce qu'un échange de postes?",
     'alternation-description-text-para-1':
       "Un échange de postes a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité d'études (Option C(i)).",
     'alternation-description-text-para-2':
-      "Pour les cadres, l'échange de postes dans le cadre de la transition de carrière permet à un cadre excédentaire ayant choisi l'option 2 (de demeurer au sein de l'administration publique centrale (APC)) en échangeant son poste avec un EX non touché qui accepte de quitter en vertu de la Directive sur les conditions d'emploi pour les cadres supérieurs. L'échange doit se faire au même groupe et niveau, à une date convenue mutuellement, et doit entraîner l'élimination permanente d'une fonction ou d'un poste. Le cadre excédentaire doit satisfaire aux exigences du poste non touché. L'échange de poste est uniquement permise au sein de l'administration publique centrale et n'est pas offerte aux employés des organismes distincts.",
+      "Pour les cadres, l'échange de postes via la transition de carrière permet à un cadre excédentaire ayant choisi l'option 2 (de demeurer au sein de l'administration publique centrale (APC)) en échangeant son poste avec un EX non touché qui accepte de quitter en vertu de la Directive sur les conditions d'emploi pour les cadres supérieurs. L'échange doit se faire au même groupe et niveau, à une date convenue mutuellement, et doit entraîner l'élimination permanente d'une fonction ou d'un poste. Le cadre excédentaire doit satisfaire aux exigences du poste non touché. L'échange de poste est uniquement permise au sein de l'administration publique centrale et n'est pas offerte aux employés des organismes distincts.",
     'select-work-locations':
       'Sélectionnez une province pour voir les villes disponibles. «\u00a0Sélectionner tous les lieux de travail\u00a0» sélectionnera toutes les provinces et toutes les villes disponibles',
     'select-all-cities-help message':
@@ -231,7 +233,8 @@ export default {
     'approval-received':
       "L'approbation au niveau approprié selon les paramètres du Comité de gestion des effectifs (CGE) et/ou du Comité de gestion des personnes et leadership (CGPL) a été obtenue (obligatoire)",
     'priority-entitlement':
-      "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
+      'Si une personne ayant un statut de priorité est nommée à ce poste, est-ce que cela pourrait générer un nouveau statut de priorité à un.e employée.e occupant un poste pour une durée indéterminée?',
+    'priority-entitlement-yes': "Oui (Discutez de l'article 43 avec votre conseiller en RH)",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
     'rationale': 'Justification',
     'selection-process-type': 'Type de processus de sélection',
@@ -329,7 +332,7 @@ export default {
     },
   },
   'hr-advisor-requests': {
-    'page-title': 'Conseiller(ère) - Demandes',
+    'page-title': 'Conseiller-ère - Demandes',
     'back': "Retour à l'information sur la demande",
   },
   'hiring-manager-dashboard': {
@@ -416,7 +419,7 @@ export default {
     'not-provided': 'non fourni',
     'request-position-info-saved': 'Informations sur le poste enregistrées avec succès.',
     'request-process-info-saved': 'Informations sur le processus enregistrées avec succès.',
-    'request-somc-conditions-saved': "Énoncé des critères de mérite et conditions d'emploi enregistrés avec succès.",
+    'request-somc-conditions-saved': "Énoncé des critères de mérite et conditions d'emploi enregistré avec succès.",
     'request-submission-details-saved': 'Détails de la soumission enregistrés avec succès.',
   },
   'hr-advisor-referral-requests': {
@@ -471,7 +474,7 @@ export default {
     'page-title': 'Informations sur le poste',
     'position-number': 'Numéro du poste',
     'position-number-instruction':
-      'Les numéros de postes doivent comporter 8 chiffres. Séparez les numéros de poste par une virgule.',
+      'Les numéros de postes doivent comporter 8 chiffres. Séparez les numéros de poste par une virgule. Si votre demande cible plus de 10 postes, veuillez utiliser la case «\u00a0Commentaires additionnels\u00a0» dans la section «\u00a0Détails de la soumission\u00a0» pour fournir les informations pertinentes.',
     'group-and-level': 'Groupe et niveau',
     'title-en': 'Titre en anglais',
     'title-fr': 'Titre  en français',
@@ -605,7 +608,7 @@ export default {
     'classification': 'Groupe et niveau',
     'work-unit': 'Direction générale',
     'not-assigned': 'non assigné',
-    'hr-advisor': 'Conseiller(ère)',
+    'hr-advisor': 'Conseiller-ère',
     'updated': 'Mis à jour',
     'status': 'Statut',
     'action': 'Action',
@@ -628,7 +631,7 @@ export default {
     'request-id': 'No. de la demande',
     'request-date': 'Date de la demande',
     'hiring-manager': "Gestionnaire d'embauche",
-    'hr-advisor': 'Conseiller(ère)',
+    'hr-advisor': 'Conseiller-ère',
     'back-request-details': "Retour à l'information sur la demande",
     'back-request-candidates': 'Retour aux candidatures de la demande',
     'request-candidates': 'Candidatures de la demande',
@@ -673,7 +676,7 @@ export default {
     },
     'comment-popup': {
       'hiring-manager': "Commentaires du (de la) gestionnaire d'embauche",
-      'hr-advisor': 'Commentaires du (de la) conseiller(ère) RH',
+      'hr-advisor': 'Commentaires du (de la) Conseiller-ère RH',
     },
     'approval-popup': {
       'approved': 'Approuvé',

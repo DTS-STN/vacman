@@ -107,8 +107,9 @@ export default {
       'next-page-aria-label': 'Go to next page',
       'last-page': 'Go to last page',
       'more-pages': 'More pages',
-      'showing-result': 'Showing {{start}}-{{end}} of {{total}} {{title}}',
-      'showing-result-one': 'Showing {{count}} of {{total}} {{title}}',
+      'showing-result_zero': 'Showing {{count}} {{title}}',
+      'showing-result_one': 'Showing {{count}} of {{total}} {{title}}',
+      'showing-result_other': 'Showing {{start}}-{{end}} of {{total}} {{title}}',
       'results': 'results',
     },
     'sorting': {
