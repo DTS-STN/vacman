@@ -1,7 +1,9 @@
 --liquibase formatted sql
 
 --changeset system:alter-event-detail-to-nvarcharmax dbms:mssql,h2
+-- WARNING: This change increases the column size and may be irreversible if data exceeds the original length.
 ALTER TABLE EVENT ALTER COLUMN DETAIL NVARCHAR(MAX);
+--rollback ALTER TABLE EVENT ALTER COLUMN DETAIL NVARCHAR(255);
 
 --changeset system:cd_match_feedback_ncpc_on dbms:mssql
 SET IDENTITY_INSERT CD_MATCH_FEEDBACK ON;
