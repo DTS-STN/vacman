@@ -210,8 +210,8 @@ public class NotificationService {
 			case COMPLETED ->
 				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(
 					requestId.toString(),
-					Optional.ofNullable(priorityClearanceNumber).orElse(""),
-					Optional.ofNullable(pscClearanceNumber).orElse("")
+					Optional.ofNullable(priorityClearanceNumber).orElse("Pending"),
+					Optional.ofNullable(pscClearanceNumber).orElse("Pending")
 				));
 			case CANCELLED ->
 				recordToMap(new EmailTemplateModel.RequestCancelled(requestId.toString()));
