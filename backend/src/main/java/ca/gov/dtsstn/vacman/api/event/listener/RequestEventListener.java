@@ -262,9 +262,7 @@ public class RequestEventListener {
 		final var newStatusCode = event.newStatusCode();
 
 		// Determine which users () notify based on the status change
-		if ("PENDING_PSC_NO_VMS".equals(newStatusCode)) {
-			sendPscRequiredNotification(request);
-		} else if ("PENDING_PSC".equals(newStatusCode)) {
+		if ("PENDING_PSC_NO_VMS".equals(newStatusCode) || "PENDING_PSC".equals(newStatusCode)) {
 			sendPscRequiredNotification(request);
 		} else if ("CLR_GRANTED".equals(newStatusCode)) {
 			sendPscNotRequiredNotification(request);
