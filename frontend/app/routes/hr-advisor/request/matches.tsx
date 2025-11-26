@@ -4,6 +4,8 @@ import type { JSX } from 'react';
 import { data, useFetcher, useSearchParams } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Trans, useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
@@ -25,6 +27,7 @@ import { mapMatchToUpdateModelWithOverrides } from '~/.server/utils/request-util
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
+import { ButtonLink } from '~/components/button-link';
 import { InlineLink } from '~/components/links';
 import { LoadingLink } from '~/components/loading-link';
 import { PageTitle } from '~/components/page-title';
@@ -277,6 +280,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
     approvalProgress: getApprovalProgress(requestMatches),
+    search: searchParams.toString(),
     page,
   };
 }
@@ -330,12 +334,30 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       >
         {t('app:matches.back-request-details')}
       </BackLink>
-      <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
-      {loaderData.feedbackSubmitted ? (
-        <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hr-advisor')}</p>
-      ) : (
-        <p className="sm:w-2/3 md:w-3/4">{t('app:matches.matches-available-hr-advisor-detail')}</p>
-      )}
+      <div className="mb-10 justify-between space-y-5 sm:flex sm:space-y-0">
+        <div className="col-span-4 flex flex-col justify-end space-y-2">
+          <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
+          {loaderData.feedbackSubmitted ? (
+            <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hr-advisor')}</p>
+          ) : (
+            <p className="sm:w-2/3 md:w-3/4">{t('app:matches.matches-available-hr-advisor-detail')}</p>
+          )}
+        </div>
+        <div className="flex flex-col justify-end">
+          <ButtonLink
+            variant="alternative"
+            file="routes/export/matches.ts"
+            search={loaderData.search}
+            params={params}
+            className="w-1/2 space-x-1 sm:w-auto"
+            reloadDocument
+          >
+            <FontAwesomeIcon icon={faDownload} />
+            <span>{t('gcweb:download.label')}</span>
+          </ButtonLink>
+        </div>
+      </div>
+
       {loaderData.approvalProgress >= 100 && (
         <AlertMessage ref={alertRef} type="info" role="alert" ariaLive="assertive">
           <Trans

@@ -24,6 +24,7 @@ async function baseFetch(
   context: string,
   method: string,
   options?: baseFetchOptions,
+  headers?: RequestInit['headers'],
 ): Promise<Result<Response, AppError>> {
   try {
     const cleanBase = serverEnvironment.VACMAN_API_BASE_URI.endsWith('/')
@@ -38,6 +39,7 @@ async function baseFetch(
       headers: {
         'Authorization': options?.accessToken ? `Bearer ${options.accessToken}` : '',
         'Content-Type': 'application/json',
+        ...headers,
       },
       body: options?.body ?? undefined,
     });
@@ -86,6 +88,35 @@ export const apiClient = {
       return Err(
         new AppError(
           `Failed to parse JSON response on '${context.toLowerCase()}': ${String(parsingError)}`,
+          ErrorCodes.VACMAN_API_ERROR,
+        ),
+      );
+    }
+  },
+
+  /**
+   * Fetches data from a given path and returns it as an ArrayBuffer.
+   * @template TResponseData The expected type of the data in the successful response.
+   * @param {string} path The API endpoint path.
+   * @param {string} accept The Accept header.
+   * @param {string} context A descriptive string for the action, used in error messages.
+   * @param {string} [token] An optional access token for authorization.
+   * @returns {Promise<Result<ArrayBuffer, AppError>>} A Promise resolving to a Result containing an ArrayBuffer or an AppError.
+   */
+  async getBuffer(path: string, accept: string, context: string, token?: string): Promise<Result<ArrayBuffer, AppError>> {
+    const responseResult = await baseFetch(path, context, 'GET', { accessToken: token }, { Accept: accept });
+    if (responseResult.isErr()) {
+      return responseResult;
+    }
+
+    const response = responseResult.unwrap();
+    try {
+      const buffer = await response.arrayBuffer();
+      return Ok(buffer);
+    } catch (parsingError) {
+      return Err(
+        new AppError(
+          `Failed to parse Buffer response on '${context.toLowerCase()}': ${String(parsingError)}`,
           ErrorCodes.VACMAN_API_ERROR,
         ),
       );

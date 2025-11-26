@@ -279,6 +279,46 @@ export function getDefaultRequestService(): RequestService {
     },
 
     /**
+     * Gets all matches for a request.
+     */
+    async getRequestMatchesDownload(
+      requestId: number,
+      params: MatchQueryParams,
+      accessToken: string,
+    ): Promise<Result<ArrayBuffer, AppError>> {
+      const searchParams = new URLSearchParams();
+
+      if (params.sort?.length) params.sort.forEach((sort) => searchParams.append('sort', sort));
+      if (params.profile?.employeeName) searchParams.append('profile.employeeName', params.profile.employeeName);
+
+      // filters: appended as repeated Id
+      if (params.matchFeedbackId?.length) {
+        for (const id of params.matchFeedbackId) {
+          searchParams.append('matchFeedbackId', id.toString());
+        }
+      }
+      if (params.profile?.wfaStatusId?.length) {
+        for (const id of params.profile.wfaStatusId) {
+          searchParams.append('profile.wfaStatusId', id.toString());
+        }
+      }
+
+      const url = `/requests/${requestId}/matches${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const result = await apiClient.getBuffer(
+        url,
+        'application/vnd.oasis.opendocument.spreadsheet',
+        `retrieve matches for request ID ${requestId}`,
+        accessToken,
+      );
+
+      if (result.isErr()) {
+        return Err(result.unwrapErr());
+      }
+
+      return Ok(result.unwrap());
+    },
+
+    /**
      * Gets a specific match for a request.
      */
     async getRequestMatchById(

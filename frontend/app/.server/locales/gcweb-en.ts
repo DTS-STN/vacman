@@ -83,6 +83,9 @@ export default {
     no: 'No',
     none: 'Not applicable',
   },
+  'download': {
+    label: 'Download',
+  },
   'error-summary': {
     header_one: 'The following error was found in the form:',
     header_other: 'The following {{count}} errors were found in the form:',

@@ -341,6 +341,14 @@ export const i18nRoutes = [
           fr: '/fr/gestionnaire-embauche/demande/:requestId/profil/:profileId',
         },
       },
+      {
+        id: 'EXPO-0001',
+        file: 'routes/export/matches.ts',
+        paths: {
+          en: '/en/export/request/:requestId/matches',
+          fr: '/fr/exporter/demande/:requestId/correspondances',
+        },
+      },
     ],
   },
 ] as const satisfies I18nRoute[];
