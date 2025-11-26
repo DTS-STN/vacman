@@ -109,8 +109,9 @@ export default {
       'next-page-aria-label': 'Aller à la page suivante',
       'last-page': 'Aller à la dernière page',
       'more-pages': 'Plus de pages',
-      'showing-result': 'Affichage de {{start}}-{{end}} sur {{total}} {{title}}',
-      'showing-result-one': 'Affichage de {{count}} sur {{total}} {{title}}',
+      'showing-result_zero': 'Affichage de {{count}} {{title}}',
+      'showing-result_one': 'Affichage de {{count}} sur {{total}} {{title}}',
+      'showing-result_other': 'Affichage {{start}}-{{end}} de {{total}} {{title}}',
       'results': 'résultats',
     },
     'sorting': {

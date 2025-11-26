@@ -138,7 +138,7 @@ export function ProcessInformationForm({
   }));
   const priorityEntitlementOptions: InputRadiosProps['options'] = [
     {
-      children: tGcweb('input-option.yes'),
+      children: tApp('process-information.priority-entitlement-yes'),
       value: REQUIRE_OPTIONS.yes,
       onChange: handlePriorityEntitlementChange,
       defaultChecked: formValues?.priorityEntitlement === true,

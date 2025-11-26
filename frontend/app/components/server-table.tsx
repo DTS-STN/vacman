@@ -131,18 +131,13 @@ export function ServerTable<TData>({
     <>
       {/* ARIA live region for screen reader announcements */}
       <div aria-live="polite" role="status" className="my-2 font-medium">
-        {start === end
-          ? t('gcweb:data-table.pagination.showing-result-one', {
-              count: start,
-              total: page.totalElements,
-              title: title?.toLocaleLowerCase(currentLanguage) ?? t('gcweb:data-table.pagination.results'),
-            })
-          : t('gcweb:data-table.pagination.showing-result', {
-              start: start,
-              end: end,
-              total: page.totalElements,
-              title: title?.toLocaleLowerCase(currentLanguage) ?? t('gcweb:data-table.pagination.results'),
-            })}
+        {t('gcweb:data-table.pagination.showing-result', {
+          count: page.totalElements,
+          start: start,
+          end: end,
+          total: page.totalElements,
+          title: title?.toLocaleLowerCase(currentLanguage) ?? t('gcweb:data-table.pagination.results'),
+        })}
       </div>
       <Table className="rounded-md border-b border-neutral-300">
         <TableHeader className="bg-neutral-200">
