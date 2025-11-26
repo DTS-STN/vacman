@@ -643,8 +643,14 @@ public class RequestService {
 			throw new ResourceConflictException("Request must be in PENDING_PSC or PENDING_PSC_NO_VMS status to be completed");
 		}
 
-		// Set status to PSC_GRANTED
-		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pscClearanceGranted()));
+		if (requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
+			// Set status to PSC_GRANTED_NO_VMS
+			request.setRequestStatus(getRequestStatusByCode(requestStatuses.pscClearanceGrantedNoVms()));
+		} else {
+			// Set status to PSC_GRANTED
+			request.setRequestStatus(getRequestStatusByCode(requestStatuses.pscClearanceGranted()));
+		}
+
 		eventPublisher.publishEvent(new RequestCompletedEvent(requestEntityMapper.toEventDto(request)));
 
 		return request;
