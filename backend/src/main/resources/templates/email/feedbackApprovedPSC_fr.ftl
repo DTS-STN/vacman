@@ -4,7 +4,7 @@ VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par 
 
 Bonjour,
 
-Merci d'avoir soumis la demande SGPV..
+Merci d'avoir soumis la demande SGPV.
 
 Les numéros d'autorisation ci-dessous ont été émis :
 
