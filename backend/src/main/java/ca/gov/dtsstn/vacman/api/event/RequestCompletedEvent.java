@@ -9,10 +9,14 @@ import io.soabase.recordbuilder.core.RecordBuilder;
  * Event that is published when a request is completed (PSC clearance granted).
  */
 @RecordBuilder
-public record RequestCompletedEvent(RequestEventDto dto, Instant timestamp) {
+public record RequestCompletedEvent(RequestEventDto dto, String statusCode, Instant timestamp) {
+
+	public RequestCompletedEvent(RequestEventDto dto, String statusCode) {
+		this(dto, statusCode, Instant.now());
+	}
 
 	public RequestCompletedEvent(RequestEventDto dto) {
-		this(dto, Instant.now());
+		this(dto, null, Instant.now());
 	}
 
 }

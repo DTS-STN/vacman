@@ -68,6 +68,7 @@ public record LookupCodes(
 		@NotBlank String pendingPscClearance,
 		@NotBlank String pendingPscClearanceNoVms,
 		@NotBlank String pscClearanceGranted,
+		@NotBlank String pscClearanceGrantedNoVms,
 		@NotBlank String submitted
 	) {}
 

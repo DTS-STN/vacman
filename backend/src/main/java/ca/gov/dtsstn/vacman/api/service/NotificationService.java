@@ -42,7 +42,7 @@ public class NotificationService {
 	 * The events in the request lifecycle that trigger notifications.
 	 */
 	public enum RequestEvent {
-		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED, PSC_NOT_REQUIRED, PSC_REQUIRED, COMPLETED, CANCELLED
+		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED, PSC_NOT_REQUIRED, PSC_REQUIRED, COMPLETED, COMPLETED_NO_VMS, CANCELLED
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
@@ -195,6 +195,7 @@ public class NotificationService {
 			case FEEDBACK_COMPLETED -> "pendingFeedbackApprovalHR.ftl";
 			case PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
 			case COMPLETED -> "feedbackApprovedPSC.ftl";
+			case COMPLETED_NO_VMS -> "feedbackApprovedPSC.ftl"; // TODO: Change to new template once available
 			case CANCELLED -> "requestCancelled.ftl";
 		};
 
@@ -210,7 +211,7 @@ public class NotificationService {
 				recordToMap(new EmailTemplateModel.PendingFeedbackApprovalHR(requestId.toString()));
 			case PSC_NOT_REQUIRED ->
 				recordToMap(new EmailTemplateModel.FeedbackApproved(requestId.toString(), Optional.ofNullable(priorityClearanceNumber).orElse("")));
-			case COMPLETED ->
+			case COMPLETED, COMPLETED_NO_VMS ->
 				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(
 					requestId.toString(),
 					Optional.ofNullable(priorityClearanceNumber).orElse("Pending"),

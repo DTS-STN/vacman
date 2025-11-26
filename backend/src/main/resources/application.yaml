@@ -332,6 +332,7 @@ codes:
     pending-psc-clearance-no-vms: PENDING_PSC_NO_VMS
     pending-psc-clearance: PENDING_PSC
     psc-clearance-granted: PSC_GRANTED
+    psc-clearance-granted-no-vms: PSC_GRANTED_NO_VMS
     submitted: SUBMIT
   user-types:
     employee: employee
