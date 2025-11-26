@@ -8,7 +8,7 @@ Thank you for submitting the referral feedback for all referred ESDC priorities.
 
 Your feedback has been approved, and the following clearance number has been issued:
 
-Departmental Clearance Number: ${clearanceNumber}
+Departmental Clearance Number: ${priorityClearanceNumber}
 
 As a PSC priority clearance is not required in this situation, you may now proceed with your proposed staffing action.
 

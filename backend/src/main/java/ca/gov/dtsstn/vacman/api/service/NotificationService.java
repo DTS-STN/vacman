@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,6 +165,24 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendRequestNotificationSingle.count")
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
+		return sendRequestNotification(email, requestId, requestTitle, requestEvent, language, null, null);
+	}
+
+	/**
+	 * Sends an email notification for a request event to a single email address.
+	 * The notification content is generated using FreeMarker templates based on the request event.
+	 *
+	 * @param email the recipient's email address; must not be blank or null
+	 * @param requestId the ID of the request; must not be null
+	 * @param requestTitle the title of the request; must not be blank or null
+	 * @param requestEvent the event that triggered the notification
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @param priorityClearanceNumber "Departmental" clearance number (optional)
+	 * @param pscClearanceNumber the PSC clearance number (optional)
+	 * @return the notification receipt from GC Notify containing details about the sent email
+	 */
+	@Counted("service.notification.sendRequestNotificationSingle.count")
+	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent, String language, String priorityClearanceNumber, String pscClearanceNumber) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
@@ -190,9 +209,13 @@ public class NotificationService {
 			case FEEDBACK_COMPLETED ->
 				recordToMap(new EmailTemplateModel.PendingFeedbackApprovalHR(requestId.toString()));
 			case PSC_NOT_REQUIRED ->
-				recordToMap(new EmailTemplateModel.FeedbackApproved(requestId.toString(), "CL-" + requestId));
+				recordToMap(new EmailTemplateModel.FeedbackApproved(requestId.toString(), Optional.ofNullable(priorityClearanceNumber).orElse("")));
 			case COMPLETED ->
-				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(requestId.toString(), "CL-" + requestId, "PSC-" + requestId));
+				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(
+					requestId.toString(),
+					Optional.ofNullable(priorityClearanceNumber).orElse("Pending"),
+					Optional.ofNullable(pscClearanceNumber).orElse("Pending")
+				));
 			case CANCELLED ->
 				recordToMap(new EmailTemplateModel.RequestCancelled(requestId.toString()));
 		};
@@ -232,6 +255,24 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendRequestNotificationMultiple.count")
 	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
+		return sendRequestNotification(emails, requestId, requestTitle, requestEvent, language, null, null);
+	}
+
+	/**
+	 * Sends a request notification to multiple email addresses.
+	 * Notifications are sent in parallel for efficiency, and each email address receives the same notification content.
+	 *
+	 * @param emails the list of recipient email addresses; must not be empty or null, and individual emails must not be blank
+	 * @param requestId the ID of the request; must not be null
+	 * @param requestTitle the title of the request; must not be blank or null
+	 * @param requestEvent the event that triggered the notification
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @param priorityClearanceNumber "Departmental" priority number (optional)
+	 * @param pscClearanceNumber the PSC clearance number (optional)
+	 * @return a list of notification receipts, one for each successfully sent email
+	 */
+	@Counted("service.notification.sendRequestNotificationMultiple.count")
+	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent, String language, String priorityClearanceNumber, String pscClearanceNumber) {
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
@@ -239,7 +280,7 @@ public class NotificationService {
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
-			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent, language))
+			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent, language, priorityClearanceNumber, pscClearanceNumber))
 			.toList();
 	}
 

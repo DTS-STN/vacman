@@ -579,7 +579,6 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.clearanceGranted()));
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		// TODO: Real implementation (ADO task 6691)
 		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPriorityClearanceNumber(priorityClearanceNumber);
 
@@ -615,7 +614,6 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		// TODO: Real implementation (ADO task 6691)
 		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPriorityClearanceNumber(priorityClearanceNumber);
 

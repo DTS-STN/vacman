@@ -9,12 +9,12 @@ public final class EmailTemplateModel {
 
 	public record FeedbackApproved(
 		String requestNumber,
-		String clearanceNumber
+		String priorityClearanceNumber
 	) {}
 
 	public record FeedbackApprovedPSC(
 		String requestNumber,
-		String clearanceNumber,
+		String priorityClearanceNumber,
 		String pscClearanceNumber
 	) {}
 
