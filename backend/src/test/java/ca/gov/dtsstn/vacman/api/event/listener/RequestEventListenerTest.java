@@ -3,7 +3,6 @@ package ca.gov.dtsstn.vacman.api.event.listener;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -260,6 +259,47 @@ class RequestEventListenerTest {
 			requestEventListener.handleRequestUpdated(new RequestUpdatedEvent(request));
 
 			verify(eventRepository).save(any(EventEntity.class));
+		}
+	}
+
+	@Nested
+	@DisplayName("handleRequestCompleted()")
+	class HandleRequestCompleted {
+
+		@Test
+		@DisplayName("Should send notification to HR inbox")
+		void shouldSendNotificationToHrInbox() throws Exception {
+			// Arrange
+			final var hrInboxEmail = "hr-inbox@example.com";
+			when(gcNotifyProperties.hrGdInboxEmail()).thenReturn(hrInboxEmail);
+			when(lookupCodes.requestStatuses().pscClearanceGrantedNoVms()).thenReturn("PSC_GRANTED_NO_VMS");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+				.id(1L)
+				.nameEn("Test Request")
+				.languageCode("en")
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of())
+				.hiringManagerEmails(List.of())
+				.subDelegatedManagerEmails(List.of())
+				.hrAdvisorEmail(null)
+				.build();
+
+			final var event = new ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent(requestDto, "PSC_GRANTED_NO_VMS");
+
+			// Act
+			requestEventListener.handleRequestCompleted(event);
+
+			// Assert
+			verify(notificationService).sendRequestNotification(
+				eq(hrInboxEmail),
+				eq(1L),
+				eq("Test Request"),
+				eq(RequestEvent.COMPLETED_NO_VMS),
+				eq("en"),
+				any(),
+				any()
+			);
 		}
 	}
 
