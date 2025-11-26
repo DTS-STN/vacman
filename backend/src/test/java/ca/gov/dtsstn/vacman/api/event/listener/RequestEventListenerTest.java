@@ -25,6 +25,7 @@ import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
@@ -55,6 +56,9 @@ class RequestEventListenerTest {
 	@Mock
 	NotificationService notificationService;
 
+	@Mock
+	RequestRepository requestRepository;
+
 	RequestEventListener requestEventListener;
 
 	@BeforeEach
@@ -62,7 +66,7 @@ class RequestEventListenerTest {
 		lenient().when(applicationProperties.gcnotify()).thenReturn(gcNotifyProperties);
 		lenient().when(gcNotifyProperties.hrGdInboxEmail()).thenReturn("hr-inbox@example.com");
 
-		this.requestEventListener = new RequestEventListener(eventRepository, lookupCodes, notificationService, applicationProperties, matchRepository);
+		this.requestEventListener = new RequestEventListener(eventRepository, lookupCodes, notificationService, applicationProperties, matchRepository, requestRepository);
 	}
 
 	@Nested

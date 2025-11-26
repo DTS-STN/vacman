@@ -29,6 +29,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.event.MatchStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
@@ -55,6 +56,7 @@ public class RequestEventListener {
 	private final LookupCodes lookupCodes;
 	private final MatchRepository matchRepository;
 	private final NotificationService notificationService;
+	private final RequestRepository requestRepository;
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
 		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -65,12 +67,14 @@ public class RequestEventListener {
 			LookupCodes lookupCodes,
 			NotificationService notificationService,
 			ApplicationProperties applicationProperties,
-			MatchRepository matchRepository) {
+			MatchRepository matchRepository,
+			RequestRepository requestRepository) {
 		this.eventRepository = eventRepository;
 		this.lookupCodes = lookupCodes;
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
 		this.matchRepository = matchRepository;
+		this.requestRepository = requestRepository;
 	}
 
 	@Async
@@ -335,12 +339,17 @@ public class RequestEventListener {
 			return;
 		}
 
+		// Determine the appropriate event type based on the status code in the event
+		final var requestEvent = event.statusCode() != null && event.statusCode().equals(lookupCodes.requestStatuses().pscClearanceGrantedNoVms())
+			? RequestEvent.COMPLETED_NO_VMS
+			: RequestEvent.COMPLETED;
+
 		emails.forEach(email -> {
 			notificationService.sendRequestNotification(
 				email,
 				request.id(),
 				request.nameEn(),
-				RequestEvent.COMPLETED,
+				requestEvent,
 				language,
 				request.priorityClearanceNumber(),
 				request.pscClearanceNumber()
