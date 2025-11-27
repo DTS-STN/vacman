@@ -9,6 +9,8 @@ import { InputCheckbox } from '~/components/input-checkbox';
 import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLegend } from '~/components/input-legend';
+import type { SortOrder } from '~/utils/sort-utils';
+import { sortOptions } from '~/utils/sort-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 const triggerBaseClassName =
@@ -41,6 +43,7 @@ export interface InputMultiSelectProps extends OmitStrict<ComponentProps<'div'>,
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  sortOrder?: SortOrder;
 }
 
 export function InputMultiSelect(props: InputMultiSelectProps) {
@@ -58,6 +61,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
     disabled,
     placeholder,
     name,
+    sortOrder = 'asc',
     ...restDivProps
   } = props;
 
@@ -65,6 +69,8 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const sortedOptions = sortOptions(options, sortOrder, 'label');
 
   const errorId = `${id}-error`;
   const helpId = `${id}-help`;
@@ -101,7 +107,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
       return <span className="text-gray-500">{placeholder}</span>;
     }
     if (value.length === 1) {
-      const selectedOption = options.find((opt) => opt.value === value[0]);
+      const selectedOption = sortedOptions.find((opt) => opt.value === value[0]);
       return selectedOption?.label ?? placeholder;
     }
     return t('gcweb:input.input-items-selected', { count: value.length });
@@ -163,7 +169,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
 
           {isOpen && (
             <div id={dropdownId} className={dropdownClassName}>
-              {options.map((option, index) => {
+              {sortedOptions.map((option, index) => {
                 const optionId = `${id}-option-${index}`;
                 const isChecked = value.includes(option.value);
 

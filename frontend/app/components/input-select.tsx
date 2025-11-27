@@ -4,6 +4,8 @@ import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLabel } from '~/components/input-label';
 import { InputLegend } from '~/components/input-legend';
+import type { SortOrder } from '~/utils/sort-utils';
+import { sortOptions } from '~/utils/sort-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 const inputDisabledClassName =
@@ -29,6 +31,7 @@ export interface InputSelectProps
   name: string;
   options: OmitStrict<ComponentProps<'option'>, 'id'>[];
   ref?: React.Ref<HTMLSelectElement>;
+  sortOrder?: SortOrder;
   variant?: keyof typeof variants;
 }
 
@@ -44,6 +47,7 @@ export function InputSelect(props: InputSelectProps) {
     className,
     required,
     ref,
+    sortOrder = 'asc',
     variant = 'default',
     ...restInputProps
   } = props;
@@ -58,6 +62,8 @@ export function InputSelect(props: InputSelectProps) {
     legend: getSubId('legend'),
     label: getSubId('label'),
   };
+
+  const sortedOptions = sortOptions(options, sortOrder, 'children');
 
   const Container = ariaDescribedbyId ? 'fieldset' : 'div';
   const containerProps = {
@@ -103,7 +109,7 @@ export function InputSelect(props: InputSelectProps) {
         required={required}
         {...restInputProps}
       >
-        {options.map((optionProps) => (
+        {sortedOptions.map((optionProps) => (
           <option key={String(optionProps.value)} {...optionProps} />
         ))}
       </select>
