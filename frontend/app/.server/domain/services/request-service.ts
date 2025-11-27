@@ -51,6 +51,13 @@ export type RequestService = {
     accessToken: string,
   ): Promise<Result<PagedMatchResponse, AppError>>;
 
+  // GET /api/v1/requests/{id}/matches - Get all matches for a request to download
+  getRequestMatchesDownload(
+    requestId: number,
+    params: MatchQueryParams,
+    accessToken: string,
+  ): Promise<Result<ArrayBuffer, AppError>>;
+
   // GET /api/v1/requests/{id}/matches/{matchId} - Get specific match for a request
   getRequestMatchById(requestId: number, matchId: number, accessToken: string): Promise<Result<MatchReadModel, AppError>>;
 

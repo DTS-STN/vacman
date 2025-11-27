@@ -599,6 +599,18 @@ export function getMockRequestService(): RequestService {
     },
 
     /**
+     * Gets all matches for a request.
+     */
+    async getRequestMatchesDownload(
+      requestId: number,
+      params: MatchQueryParams,
+      accessToken: string,
+    ): Promise<Result<ArrayBuffer, AppError>> {
+      //TODO: add proper download mock
+      return Promise.resolve(Ok(new TextEncoder().encode('').buffer));
+    },
+
+    /**
      * Gets a specific match for a request.
      */
     async getRequestMatchById(

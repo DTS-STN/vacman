@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 import { data, useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
@@ -20,6 +22,7 @@ import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-sc
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
+import { ButtonLink } from '~/components/button-link';
 import { InputCheckbox } from '~/components/input-checkbox';
 import { AnchorLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
@@ -289,6 +292,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
     feedbackProgress: getFeedbackProgress(requestMatches),
+    search: searchParams.toString(),
     page,
   };
 }
@@ -394,25 +398,40 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
           </ol>
         </section>
       )}
+
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hiring-manager')}</p>
+
       {loaderData.feedbackSubmitted ? (
         <AlertMessage ref={alertRef} type="success" role="alert" ariaLive="assertive">
           <p className="font-semibold">{t('app:matches.feedback.success')}</p>
         </AlertMessage>
       ) : (
         <fetcher.Form method="post" noValidate>
-          <div className="mt-10 justify-between space-y-5 md:grid md:grid-cols-2 md:space-y-0">
-            <InputCheckbox
-              id="confirm-retraining"
-              name="confirmRetraining"
-              errorMessage={t(extractValidationKey(formErrors?.confirmRetraining))}
-              required
-            >
-              {t('app:matches.confirm-info')}
-            </InputCheckbox>
-            <div className="flex justify-end">
-              <div className="mt-auto space-x-3">
+          <div className="mt-10 justify-between space-y-5 md:flex md:space-y-0">
+            <div className="md:w-1/2">
+              <InputCheckbox
+                id="confirm-retraining"
+                name="confirmRetraining"
+                errorMessage={t(extractValidationKey(formErrors?.confirmRetraining))}
+                required
+              >
+                {t('app:matches.confirm-info')}
+              </InputCheckbox>
+            </div>
+            <div className="flex">
+              <div className="mt-auto flex w-full flex-col justify-end space-y-5 sm:flex-row sm:flex-nowrap sm:space-y-0 sm:space-x-3">
+                <ButtonLink
+                  variant="alternative"
+                  file="routes/export/matches.ts"
+                  search={loaderData.search}
+                  params={params}
+                  className="space-x-1"
+                  reloadDocument
+                >
+                  <FontAwesomeIcon icon={faDownload} />
+                  <span>{t('gcweb:download.label')}</span>
+                </ButtonLink>
                 <Button variant="alternative" type="submit" value="save" name="action">
                   {t('app:form.save-and-exit')}
                 </Button>
