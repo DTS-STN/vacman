@@ -9,6 +9,8 @@ import { InputCheckbox } from '~/components/input-checkbox';
 import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLegend } from '~/components/input-legend';
+import type { SortOrder } from '~/utils/sort-utils';
+import { sortOptions } from '~/utils/sort-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 const triggerBaseClassName =
@@ -41,7 +43,7 @@ export interface InputMultiSelectProps extends OmitStrict<ComponentProps<'div'>,
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
-  sortOrder?: 'asc' | 'desc' | 'none';
+  sortOrder?: SortOrder;
 }
 
 export function InputMultiSelect(props: InputMultiSelectProps) {
@@ -68,24 +70,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const sortedOptions =
-    sortOrder === 'none'
-      ? options
-      : (() => {
-          // Separate empty value options (placeholders) from the rest
-          const placeholderOptions = options.filter((opt) => !opt.value || opt.value === '');
-          const regularOptions = options.filter((opt) => opt.value && opt.value !== '');
-
-          // Sort only the regular options
-          const sorted = regularOptions.sort((a, b) => {
-            const textA = String(a.label).toLowerCase();
-            const textB = String(b.label).toLowerCase();
-            return sortOrder === 'asc' ? textA.localeCompare(textB) : textB.localeCompare(textA);
-          });
-
-          // Return placeholders first, then sorted options
-          return [...placeholderOptions, ...sorted];
-        })();
+  const sortedOptions = sortOptions(options, sortOrder, 'label');
 
   const errorId = `${id}-error`;
   const helpId = `${id}-help`;

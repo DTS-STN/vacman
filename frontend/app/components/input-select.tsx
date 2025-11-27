@@ -4,6 +4,8 @@ import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLabel } from '~/components/input-label';
 import { InputLegend } from '~/components/input-legend';
+import type { SortOrder } from '~/utils/sort-utils';
+import { sortOptions } from '~/utils/sort-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 const inputDisabledClassName =
@@ -29,7 +31,7 @@ export interface InputSelectProps
   name: string;
   options: OmitStrict<ComponentProps<'option'>, 'id'>[];
   ref?: React.Ref<HTMLSelectElement>;
-  sortOrder?: 'asc' | 'desc' | 'none';
+  sortOrder?: SortOrder;
   variant?: keyof typeof variants;
 }
 
@@ -61,24 +63,7 @@ export function InputSelect(props: InputSelectProps) {
     label: getSubId('label'),
   };
 
-  const sortedOptions =
-    sortOrder === 'none'
-      ? options
-      : (() => {
-          // Separate empty value options (placeholders) from the rest
-          const placeholderOptions = options.filter((opt) => !opt.value || opt.value === '');
-          const regularOptions = options.filter((opt) => opt.value && opt.value !== '');
-
-          // Sort only the regular options
-          const sorted = regularOptions.sort((a, b) => {
-            const textA = String(a.children ?? a.value ?? '').toLowerCase();
-            const textB = String(b.children ?? b.value ?? '').toLowerCase();
-            return sortOrder === 'asc' ? textA.localeCompare(textB) : textB.localeCompare(textA);
-          });
-
-          // Return placeholders first, then sorted options
-          return [...placeholderOptions, ...sorted];
-        })();
+  const sortedOptions = sortOptions(options, sortOrder, 'children');
 
   const Container = ariaDescribedbyId ? 'fieldset' : 'div';
   const containerProps = {
