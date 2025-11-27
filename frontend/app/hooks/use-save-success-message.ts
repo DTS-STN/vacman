@@ -17,7 +17,7 @@ export function useSaveSuccessMessage({
   navigate: ReturnType<typeof useNavigate>;
   i18nNamespace: readonly ('gcweb' | 'app')[];
   backLinkSearchParams?: string;
-  fetcherData: unknown;
+  fetcherData?: unknown;
 }) {
   const { t } = useTranslation(i18nNamespace);
 
@@ -33,6 +33,8 @@ export function useSaveSuccessMessage({
     'delete-request': t('app:hiring-manager-referral-requests.delete-request.success-msg'),
     'create-request': t('app:hiring-manager-referral-requests.create-success-msg'),
     'copy-request': t('app:hiring-manager-referral-requests.copy-success-msg'),
+    'save-profile': t('app:profile.profile-saved'),
+    'save-request': t('app:referral-requests.request-saved'),
   };
 
   // Determine the success message based on URL params

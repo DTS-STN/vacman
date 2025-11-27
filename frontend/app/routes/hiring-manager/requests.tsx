@@ -226,7 +226,6 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
     location,
     navigate,
     i18nNamespace: handle.i18nNamespace,
-    fetcherData: undefined,
   });
 
   return (

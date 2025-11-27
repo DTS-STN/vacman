@@ -63,6 +63,7 @@ export default {
     'profile-personal-info-saved': 'Informations personnelles enregistrées avec succès.',
     'profile-employment-saved': "Informations sur l'emploi enregistrées avec succès.",
     'profile-referral-saved': 'Préférences de présentation de candidature enregistrées avec succès.',
+    'profile-saved': 'Profie enregistrées avec succès.',
     'hr-approved': "Profil de l'employé-e approuvé.",
     'profile-pending-approval':
       'Les modifications de votre profil nécessiteront une nouvelle approbation de votre Conseiller-ère RH.',
@@ -79,7 +80,7 @@ export default {
     'cancel': 'Annuler',
     'cancel-request': 'Annuler la demande',
     'save': 'Enregistrer',
-    'save-and-exit': 'Quitter',
+    'save-and-exit': 'Enregistrer et quitter',
     'submit': 'Soumettre',
     'select': 'Sélectionner',
     'select-option': 'Sélectionner une option',
@@ -421,6 +422,7 @@ export default {
     'request-process-info-saved': 'Informations sur le processus enregistrées avec succès.',
     'request-somc-conditions-saved': "Énoncé des critères de mérite et conditions d'emploi enregistré avec succès.",
     'request-submission-details-saved': 'Détails de la soumission enregistrés avec succès.',
+    'request-saved': "Demande d'autorisation en matière de priorité enregistrés avec succès.",
   },
   'hr-advisor-referral-requests': {
     'page-title': "Demande d'autorisation en matière de priorité",

@@ -15,10 +15,10 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
-import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import {
   Dialog,
@@ -199,6 +199,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const formData = await request.formData();
 
   switch (formData.get('action')) {
+    case 'save': {
+      return i18nRedirect('routes/hr-advisor/requests.tsx', request, {
+        search: new URLSearchParams({ success: 'save-request' }),
+      });
+    }
+
     case 'cancel-request': {
       const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
 
@@ -708,15 +714,9 @@ function RenderButtonsByStatus({
             {t('form.cancel-request')}
           </Button>
 
-          <ButtonLink
-            className="mt-4 w-full"
-            variant="alternative"
-            file="routes/hr-advisor/requests.tsx"
-            id="save"
-            disabled={isSubmitting}
-          >
+          <Button value="save" name="action" className="mt-4 w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
-          </ButtonLink>
+          </Button>
 
           <LoadingButton
             className="mt-4 w-full"
@@ -750,15 +750,9 @@ function RenderButtonsByStatus({
           <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
-          <ButtonLink
-            className="mt-4 w-full"
-            variant="alternative"
-            file="routes/hr-advisor/requests.tsx"
-            id="save"
-            disabled={isSubmitting}
-          >
+          <Button value="save" name="action" className="mt-4 w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
-          </ButtonLink>
+          </Button>
         </div>
       );
 
@@ -769,15 +763,9 @@ function RenderButtonsByStatus({
           <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
-          <ButtonLink
-            className="mt-4 w-full"
-            variant="alternative"
-            file="routes/hr-advisor/requests.tsx"
-            id="save"
-            disabled={isSubmitting}
-          >
+          <Button value="save" name="action" className="mt-4 w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
-          </ButtonLink>
+          </Button>
           <LoadingButton
             className="mt-4 w-full"
             name="action"
