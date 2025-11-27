@@ -1,12 +1,12 @@
-<#assign emailSubject>Rétroaction approuvée – # de demande du SGPV ${requestNumber}</#assign>
+<#assign emailSubject>Autorisation ministérielle et de la CFP accordée – Demande du SGPV # ${requestNumber}</#assign>
 
 VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.
 
 Bonjour,
 
-Merci d'avoir complété la rétroaction pour chaque priorité d'EDSC et de la CFP présentée, le cas échéant.
+Merci d'avoir soumis la demande SGPV.
 
-Votre rétroaction a été approuvée et les numéros d'autorisations ci-dessous vous sont émis :
+Les numéros d'autorisation ci-dessous ont été émis :
 
 Numéro d'autorisation ministérielle : ${priorityClearanceNumber}
 Numéro d'autorisation de la CFP : ${pscClearanceNumber}
