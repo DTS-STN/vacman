@@ -195,7 +195,7 @@ public class NotificationService {
 			case FEEDBACK_COMPLETED -> "pendingFeedbackApprovalHR.ftl";
 			case PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
 			case COMPLETED -> "feedbackApprovedPSC.ftl";
-			case COMPLETED_NO_VMS -> "feedbackApprovedPSC.ftl"; // TODO: Change to new template once available
+			case COMPLETED_NO_VMS -> "feedbackApprovedPscNoVms.ftl";
 			case CANCELLED -> "requestCancelled.ftl";
 		};
 

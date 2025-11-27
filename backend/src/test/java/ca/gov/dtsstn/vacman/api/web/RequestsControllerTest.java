@@ -1366,6 +1366,36 @@ class RequestsControllerTest {
 		}
 
 		@Test
+		@DisplayName("Should complete request as HR Advisor (PENDING_PSC_NO_VMS -> PSC_GRANTED_NO_VMS)")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testCompleteNoVmsByHrAdvisor() throws Exception {
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.requestNumber("RS-007-NV")
+				.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().pendingPscClearanceNoVms()).orElseThrow())
+				.submitter(hiringManager)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			final var statusUpdate = new RequestStatusUpdateModel("complete");
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(statusUpdate)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().pscClearanceGrantedNoVms())));
+
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pscClearanceGrantedNoVms());
+		}
+
+		@Test
 		@DisplayName("Should return 404 when request does not exist")
 		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
 		void testUpdateStatusRequestNotFound() throws Exception {

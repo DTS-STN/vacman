@@ -333,7 +333,8 @@ public class RequestEventListener {
 			request.submitterEmails(),
 			request.hiringManagerEmails(),
 			request.subDelegatedManagerEmails(),
-			Optional.ofNullable(request.hrAdvisorEmail()).map(List::of).orElse(List.<String>of())
+			Optional.ofNullable(request.hrAdvisorEmail()).map(List::of).orElse(List.<String>of()),
+			List.of(applicationProperties.gcnotify().hrGdInboxEmail())
 		).flatMap(List::stream).collect(toSet());
 
 		if (emails.isEmpty()) {
