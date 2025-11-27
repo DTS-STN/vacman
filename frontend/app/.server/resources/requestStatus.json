@@ -131,6 +131,18 @@
       "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
       "lastModifiedDate": "2025-08-29T12:36:04.29Z"
+    },
+    {
+      "id": 11,
+      "code": "PSC_GRANTED_NO_VMS",
+      "nameEn": "PSC Clearance Granted - No VMS",
+      "nameFr": "Autorisation de la CFP accordée - Pas de VMS",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-29T12:36:04.29Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     }
   ]
 }
