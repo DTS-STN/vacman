@@ -198,6 +198,11 @@ export const REQUEST_STATUSES = [
     code: 'CANCELLED',
     category: REQUEST_CATEGORY.inactive,
   },
+  {
+    id: 11,
+    code: 'PSC_GRANTED_NO_VMS',
+    category: REQUEST_CATEGORY.inactive,
+  },
 ] as const;
 
 type StatusCode = (typeof REQUEST_STATUSES)[number]['code'];

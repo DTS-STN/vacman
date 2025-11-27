@@ -90,6 +90,7 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
   const styleMap: Record<string, TagStyle> = {
     [REQUEST_STATUS_CODE.CLR_GRANTED]: TagVariants.inactive,
     [REQUEST_STATUS_CODE.PSC_GRANTED]: TagVariants.inactive,
+    [REQUEST_STATUS_CODE.PSC_GRANTED_NO_VMS]: TagVariants.inactive,
     [REQUEST_STATUS_CODE.CANCELLED]: TagVariants.inactive,
     ...(view === 'hr-advisor'
       ? {
