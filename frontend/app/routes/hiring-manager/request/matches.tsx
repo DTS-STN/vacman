@@ -70,10 +70,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw new Response('Request matches not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
-  const requestMatches = requestMatchesResult.unwrap().content;
-
   const requestId = requestData.id;
-  const allFeedbacks = await getMatchFeedbackService().listAll();
   const formData = await request.formData();
 
   switch (formData.get('action')) {
@@ -84,6 +81,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       });
     }
     case 'submit': {
+      const requestMatches = requestMatchesResult.unwrap().content;
       const matchesSubmitSchema = v.object({
         confirmRetraining: v.pipe(v.boolean('app:matches.errors.retraining-required')),
         feedbackMissing: v.custom((val) => val === false, 'app:matches.errors.feedback-missing'),
@@ -116,6 +114,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       return data({ success: true, errors: undefined });
     }
     case 'feedback': {
+      if (requestData.status?.code !== REQUEST_STATUS_CODE.FDBK_PENDING) {
+        throw new Response('Feedback not updatable', { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const allFeedbacks = await getMatchFeedbackService().listAll();
       const parseResult = v.safeParse(
         v.object({
           matchId: v.pipe(
@@ -293,6 +296,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
     feedbackProgress: getFeedbackProgress(requestMatches),
+    feedbackReadonly: requestData.status?.code !== REQUEST_STATUS_CODE.FDBK_PENDING,
     search: searchParams.toString(),
     page,
   };

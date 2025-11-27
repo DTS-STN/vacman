@@ -28,6 +28,7 @@ interface MatchesTablesProps {
   submit: FetcherSubmitFunction;
   lang: 'en' | 'fr';
   isUpdating?: boolean;
+  feedbackReadonly?: boolean;
   errors?: Errors;
   page: PageMetadata;
 }
@@ -41,6 +42,7 @@ export default function MatchesTables({
   submit,
   lang,
   isUpdating = false,
+  feedbackReadonly,
   errors,
   page,
 }: MatchesTablesProps): JSX.Element {
@@ -61,6 +63,7 @@ export default function MatchesTables({
 
   const updateFeedback = useCallback(
     (id: number, feedback: string) => {
+      if (feedbackReadonly) return;
       const formData = new FormData();
       formData.set('action', 'feedback');
       formData.set('matchId', id.toString());
@@ -186,7 +189,7 @@ export default function MatchesTables({
                   value={feedbackValue ?? ''}
                   aria-label={t('matches-tables.feedback')}
                   variant="alternative"
-                  disabled={isUpdating}
+                  disabled={isUpdating || feedbackReadonly}
                   onChange={(event: ChangeEvent<HTMLSelectElement>) => updateFeedback(match.id, event.target.value)}
                 />
               );
