@@ -63,7 +63,7 @@ export default {
     'profile-personal-info-saved': 'Informations personnelles enregistrées avec succès.',
     'profile-employment-saved': "Informations sur l'emploi enregistrées avec succès.",
     'profile-referral-saved': 'Préférences de présentation de candidature enregistrées avec succès.',
-    'profile-saved': 'Profie enregistrées avec succès.',
+    'profile-saved': 'Profil enregistrées avec succès.',
     'hr-approved': "Profil de l'employé-e approuvé.",
     'profile-pending-approval':
       'Les modifications de votre profil nécessiteront une nouvelle approbation de votre Conseiller-ère RH.',
