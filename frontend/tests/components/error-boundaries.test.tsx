@@ -7,6 +7,7 @@ import {
   BilingualErrorBoundary,
   BilingualNotFound,
   UnilingualErrorBoundary,
+  UnilingualForbidden,
   UnilingualNotFound,
 } from '~/components/error-boundaries';
 import { AppError } from '~/errors/app-error';
@@ -121,6 +122,25 @@ describe('error-boundaries', () => {
       ]);
 
       render(<RoutesStub />);
+
+      expect(document.documentElement).toMatchSnapshot('expected html');
+    });
+  });
+
+  describe('UnilingualForbidden', () => {
+    it('should correctly render the unilingual 403 when it catches a 403 error', () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const RoutesStub = createRoutesStub([
+        {
+          path: '/en',
+          Component: () => (
+            <UnilingualForbidden params={{}} error={new Response('Forbidden', { status: HttpStatusCodes.FORBIDDEN })} />
+          ),
+        },
+      ]);
+
+      render(<RoutesStub initialEntries={['/en']} />);
 
       expect(document.documentElement).toMatchSnapshot('expected html');
     });
