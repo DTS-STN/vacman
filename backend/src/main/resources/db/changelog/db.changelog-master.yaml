@@ -16,6 +16,8 @@ databaseChangeLog:
       file: db/changelog/changes/000006.requestContact.sql
   - include:
       file: db/changelog/changes/000007.eventAndData.sql
+  - include:
+      file: db/changelog/changes/000008.data.v3.sql
 
   # Insert future includes here, by individual file
 # Test/DummyData/Dev
