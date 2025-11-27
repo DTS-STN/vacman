@@ -12,6 +12,9 @@ exports[`error-boundaries > BilingualErrorBoundary > should correctly render the
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      We're having a problem with that page / Nous éprouvons des difficultés avec cette page
+    </title>
     <link
       href="build/stub-path-to-module.js"
       rel="modulepreload"
@@ -159,6 +162,9 @@ exports[`error-boundaries > BilingualErrorBoundary > should correctly render the
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      We're having a problem with that page / Nous éprouvons des difficultés avec cette page
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -307,6 +313,9 @@ exports[`error-boundaries > BilingualNotFound > should correctly render the bili
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      We can't find that page / Nous ne pouvons trouver cette page
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -445,6 +454,9 @@ exports[`error-boundaries > UnilingualErrorBoundary > should correctly render th
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      gcweb:server-error.page-title
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -536,6 +548,9 @@ exports[`error-boundaries > UnilingualErrorBoundary > should correctly render th
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      gcweb:server-error.page-title
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />
@@ -625,6 +640,100 @@ exports[`error-boundaries > UnilingualErrorBoundary > should correctly render th
 </html>
 `;
 
+exports[`error-boundaries > UnilingualForbidden > should correctly render the unilingual 403 when it catches a 403 error > expected html 1`] = `
+<html
+  lang="en"
+>
+  <head>
+    <meta
+      charset="utf-8"
+    />
+    <meta
+      content="width=device-width, initial-scale=1"
+      name="viewport"
+    />
+    <title>
+      gcweb:forbidden.page-title
+    </title>
+    <script
+      src="/api/client-env?v=undefined"
+    />
+  </head>
+  <body>
+    <div>
+      <header
+        class="border-b-[3px] border-slate-700 print:hidden"
+      >
+        <div
+          id="wb-bnr"
+        >
+          <div
+            class="container flex items-center justify-between gap-6 py-2.5 sm:py-3.5"
+          >
+            <a
+              href="https://canada.ca/"
+            >
+              <img
+                alt="gcweb:header.govt-of-canada.text"
+                class="h-8 w-auto"
+                decoding="async"
+                height="28"
+                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg"
+                width="300"
+              />
+            </a>
+          </div>
+        </div>
+      </header>
+      <main
+        class="container"
+      >
+        <div
+          class="mt-10 mb-8"
+        >
+          <h1
+            class="font-lato text-3xl font-bold focus-visible:ring-3 my-8"
+            id="wb-cont"
+            tabindex="-1"
+          >
+            <span>
+              gcweb:forbidden.page-title
+            </span>
+            <small
+              class="block text-2xl font-normal text-neutral-500"
+            >
+              gcweb:forbidden.page-subtitle
+            </small>
+          </h1>
+        </div>
+        <p
+          class="mb-8 text-lg text-gray-500"
+        >
+          gcweb:forbidden.page-message
+        </p>
+      </main>
+      <footer
+        class="bg-stone-50 print:hidden"
+      >
+        <div
+          class="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5"
+        >
+          <div>
+            <img
+              alt="gcweb:footer.gc-symbol"
+              class="h-10 w-auto"
+              height="71"
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              width="300"
+            />
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
+`;
+
 exports[`error-boundaries > UnilingualNotFound > should correctly render the unilingual 404 when it catches a 404 error > expected html 1`] = `
 <html>
   <head>
@@ -635,6 +744,9 @@ exports[`error-boundaries > UnilingualNotFound > should correctly render the uni
       content="width=device-width, initial-scale=1"
       name="viewport"
     />
+    <title>
+      gcweb:not-found.page-title
+    </title>
     <script
       src="/api/client-env?v=undefined"
     />

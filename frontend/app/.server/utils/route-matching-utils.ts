@@ -12,7 +12,7 @@ function createBilingualRouteMatcher(englishPath: string, frenchPath: string) {
 export const isProfileRoute = createBilingualRouteMatcher('employee/[^/]+/profile', 'employe/[^/]+/profil');
 export const isEmployeeRoute = createBilingualRouteMatcher('employee', 'employe');
 export const isHiringManagerPath = createBilingualRouteMatcher('hiring-manager', 'gestionnaire-embauche');
-export const isHrAdvisorPath = createBilingualRouteMatcher('hr-advisor', 'hr-advisor');
+export const isHrAdvisorPath = createBilingualRouteMatcher('hr-advisor', 'conseiller-rh');
 export const isPrivacyConsentPath = createBilingualRouteMatcher(
   'employee/profile/privacy-consent',
   'employe/profil/consentement-a-la-confidentialite',

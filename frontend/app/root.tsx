@@ -10,8 +10,10 @@ import {
   BilingualErrorBoundary,
   BilingualNotFound,
   UnilingualErrorBoundary,
+  UnilingualForbidden,
   UnilingualNotFound,
 } from '~/components/error-boundaries';
+import { isAppError } from '~/errors/app-error';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useLanguage } from '~/hooks/use-language';
 import indexStyleSheet from '~/index.css?url';
@@ -91,6 +93,13 @@ export function ErrorBoundary(props: Route.ErrorBoundaryProps) {
       : <BilingualNotFound {...props} />;
   }
 
+  if (isForbiddenError(props.error)) {
+    // prettier-ignore
+    return currentLanguage
+      ? <UnilingualForbidden {...props} />
+      : <BilingualErrorBoundary {...props} />;
+  }
+
   // prettier-ignore
   return currentLanguage
     ? <UnilingualErrorBoundary {...props} />
@@ -99,4 +108,11 @@ export function ErrorBoundary(props: Route.ErrorBoundaryProps) {
 
 function isNotFoundError(error: Route.ErrorBoundaryProps['error']) {
   return isRouteErrorResponse(error) && error.status === HttpStatusCodes.NOT_FOUND;
+}
+
+function isForbiddenError(error: Route.ErrorBoundaryProps['error']) {
+  return (
+    (isRouteErrorResponse(error) && error.status === HttpStatusCodes.FORBIDDEN) ||
+    (isAppError(error) && error.httpStatusCode === HttpStatusCodes.FORBIDDEN)
+  );
 }
