@@ -16,7 +16,7 @@ public class LiquibaseConfig {
      * is explicitly set on the SpringLiquibase bean before it is initialized.
      * This prevents accidental execution of migrations without specifying
      * which environments/contexts they apply to.
-     * * @return A BeanPostProcessor instance for Liquibase context validation.
+     * @return A BeanPostProcessor instance for Liquibase context validation.
      */
     @Bean
     BeanPostProcessor liquibaseContextValidationPostProcessor() {
