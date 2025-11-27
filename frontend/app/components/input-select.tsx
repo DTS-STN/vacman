@@ -29,6 +29,7 @@ export interface InputSelectProps
   name: string;
   options: OmitStrict<ComponentProps<'option'>, 'id'>[];
   ref?: React.Ref<HTMLSelectElement>;
+  sortOrder?: 'asc' | 'desc' | 'none';
   variant?: keyof typeof variants;
 }
 
@@ -44,6 +45,7 @@ export function InputSelect(props: InputSelectProps) {
     className,
     required,
     ref,
+    sortOrder = 'asc',
     variant = 'default',
     ...restInputProps
   } = props;
@@ -58,6 +60,25 @@ export function InputSelect(props: InputSelectProps) {
     legend: getSubId('legend'),
     label: getSubId('label'),
   };
+
+  const sortedOptions =
+    sortOrder === 'none'
+      ? options
+      : (() => {
+          // Separate empty value options (placeholders) from the rest
+          const placeholderOptions = options.filter((opt) => !opt.value || opt.value === '');
+          const regularOptions = options.filter((opt) => opt.value && opt.value !== '');
+
+          // Sort only the regular options
+          const sorted = regularOptions.sort((a, b) => {
+            const textA = String(a.children ?? a.value ?? '').toLowerCase();
+            const textB = String(b.children ?? b.value ?? '').toLowerCase();
+            return sortOrder === 'asc' ? textA.localeCompare(textB) : textB.localeCompare(textA);
+          });
+
+          // Return placeholders first, then sorted options
+          return [...placeholderOptions, ...sorted];
+        })();
 
   const Container = ariaDescribedbyId ? 'fieldset' : 'div';
   const containerProps = {
@@ -103,7 +124,7 @@ export function InputSelect(props: InputSelectProps) {
         required={required}
         {...restInputProps}
       >
-        {options.map((optionProps) => (
+        {sortedOptions.map((optionProps) => (
           <option key={String(optionProps.value)} {...optionProps} />
         ))}
       </select>
