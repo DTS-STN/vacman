@@ -80,6 +80,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     case 'save': {
       return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
         params,
+        search: new URLSearchParams({ success: 'save-request' }),
       });
     }
     case 'submit': {

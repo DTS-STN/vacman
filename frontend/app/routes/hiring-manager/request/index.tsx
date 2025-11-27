@@ -15,7 +15,6 @@ import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
-import { ButtonLink } from '~/components/button-link';
 import { ContextualAlert } from '~/components/contextual-alert';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import {
@@ -95,6 +94,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const formAction = formData.get('action');
+
+  if (formAction === 'save') {
+    return i18nRedirect('routes/hiring-manager/requests.tsx', request, {
+      search: new URLSearchParams({ success: 'save-request' }),
+    });
+  }
 
   if (formAction === 'delete') {
     const { t } = await getTranslation(request, handle.i18nNamespace);
@@ -752,15 +757,16 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     {t('app:hiring-manager-referral-requests.delete-request.delete')}
                   </Button>
 
-                  <ButtonLink
+                  <Button
+                    value="save"
+                    name="action"
                     className="mt-4 w-full"
                     variant="alternative"
-                    file="routes/hiring-manager/requests.tsx"
                     id="save"
                     disabled={isSubmitting}
                   >
                     {t('app:form.save-and-exit')}
-                  </ButtonLink>
+                  </Button>
 
                   <LoadingButton
                     className="mt-4 w-full"

@@ -18,8 +18,9 @@ import {
   getHrAdvisors,
   omitObjectProperties,
 } from '~/.server/utils/profile-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
-import { ButtonLink } from '~/components/button-link';
+import { Button } from '~/components/button';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
@@ -57,6 +58,15 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, request }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
+
+  const formData = await request.formData();
+  const formAction = formData.get('action');
+
+  if (formAction === 'save') {
+    return i18nRedirect('routes/employee/index.tsx', request, {
+      search: new URLSearchParams({ success: 'save-profile' }),
+    });
+  }
 
   const profileParams = { active: true };
   const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
@@ -331,9 +341,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           </p>
         </div>
         <fetcher.Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={isSubmitting}>
+          <Button value="save" name="action" variant="alternative" id="save" disabled={isSubmitting}>
             {t('app:form.save-and-exit')}
-          </ButtonLink>
+          </Button>
           {loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code && (
             <LoadingButton name="action" variant="primary" id="submit" disabled={isSubmitting} loading={isSubmitting}>
               {t('app:form.submit')}

@@ -1,3 +1,6 @@
+import { useRef } from 'react';
+
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { faUser } from '@fortawesome/free-regular-svg-icons';
@@ -9,9 +12,11 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { AlertMessage } from '~/components/alert-message';
 import { DashboardCard } from '~/components/dashboard-card';
 import { PageTitle } from '~/components/page-title';
 import { LANGUAGE_ID } from '~/domain/constants';
+import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { getLanguage } from '~/utils/i18n-utils';
@@ -50,10 +55,25 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
 
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const alertRef = useRef<HTMLDivElement>(null);
+  const successMessage = useSaveSuccessMessage({
+    searchParams,
+    location,
+    navigate,
+    i18nNamespace: handle.i18nNamespace,
+  });
+
   return (
-    <>
+    <div className="space-y-8">
       <PageTitle>{t('app:employee-dashboard.page-heading')}</PageTitle>
+      {successMessage && (
+        <AlertMessage ref={alertRef} type="success" message={successMessage} role="alert" ariaLive="assertive" />
+      )}
       <DashboardCard file="routes/employee/profile/index.tsx" icon={faUser} title={t('app:profile.view-profile')} />
-    </>
+    </div>
   );
 }
