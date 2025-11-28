@@ -1,7 +1,10 @@
+import React from 'react';
+
 import type { RouteHandle } from 'react-router';
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
 
 import { config as fontAwesomeConfig } from '@fortawesome/fontawesome-svg-core';
+import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/root';
 
@@ -58,15 +61,36 @@ export function loader({ context }: Route.LoaderArgs) {
   return { nonce, clientEnvRevision: clientEnvironment.revision };
 }
 
+function AppMeta() {
+  const { t } = useTranslation(['gcweb']);
+  const meta = Meta();
+  return React.cloneElement(
+    meta,
+    {},
+    React.Children.map(meta.props.children, (child) => {
+      if (!React.isValidElement(child)) return child;
+      switch (child.type) {
+        // Formats the document title as `[document title] - [app title]`
+        case 'title': {
+          const titleProps = child.props as React.ComponentProps<'title'>;
+          if (!titleProps.children) break;
+          if (typeof titleProps.children !== 'string') break;
+          return React.cloneElement(child, titleProps, `${titleProps.children} - ${t('gcweb:app.title')}`);
+        }
+      }
+      return child;
+    }),
+  );
+}
+
 export default function App({ loaderData }: Route.ComponentProps) {
   const { currentLanguage } = useLanguage();
-
   return (
     <html lang={currentLanguage}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
+        <AppMeta />
         <Links />
         <script //
           nonce={loaderData.nonce}

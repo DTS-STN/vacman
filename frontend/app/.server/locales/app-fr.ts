@@ -333,7 +333,7 @@ export default {
     },
   },
   'hr-advisor-requests': {
-    'page-title': 'Conseiller-ère - Demandes',
+    'page-title': 'Conseiller-ère demandes',
     'back': "Retour à l'information sur la demande",
   },
   'hiring-manager-dashboard': {
@@ -530,7 +530,7 @@ export default {
     },
   },
   'hiring-manager-requests': {
-    'page-title': "Gestionnaire d'embauche - Demandes",
+    'page-title': "Gestionnaire d'embauche demandes",
     'back': "Retour à l'information sur la demande",
     'back-to-dashboard': 'Retour au tableau de bord',
   },

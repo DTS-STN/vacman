@@ -330,7 +330,7 @@ export default {
     },
   },
   'hr-advisor-requests': {
-    'page-title': 'HR advisor - Requests',
+    'page-title': 'HR advisor requests',
     'back': 'Back to request details',
   },
   'hiring-manager-dashboard': {
@@ -524,7 +524,7 @@ export default {
     },
   },
   'hiring-manager-requests': {
-    'page-title': 'Hiring manager - Requests',
+    'page-title': 'Hiring manager requests',
     'back': 'Back to request details',
     'back-to-dashboard': 'Back to dashboard',
   },
