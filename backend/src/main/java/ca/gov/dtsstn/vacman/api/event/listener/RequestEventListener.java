@@ -456,7 +456,7 @@ public class RequestEventListener {
 
 	/**
 	 * Sends a notification when a request is cancelled.
-	 * The notification is sent to the submitter, hiring manager, and HR delegate.
+	 * The notification is sent to the submitter, hiring manager, HR delegate, HR advisor and the generic HR inbox.
 	 *
 	 * @param request The request DTO
 	 */
@@ -468,7 +468,9 @@ public class RequestEventListener {
 			request.additionalContactEmails(),
 			request.submitterEmails(),
 			request.hiringManagerEmails(),
-			request.subDelegatedManagerEmails()
+			request.subDelegatedManagerEmails(),
+			Optional.ofNullable(request.hrAdvisorEmail()).map(List::of).orElse(List.of()),
+			List.of(applicationProperties.gcnotify().hrGdInboxEmail())
 		).flatMap(List::stream).collect(toSet());
 
 		emails.forEach(email -> notificationService.sendRequestNotification(

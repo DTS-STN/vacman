@@ -303,4 +303,41 @@ class RequestEventListenerTest {
 		}
 	}
 
+	@Nested
+	@DisplayName("handleRequestStatusChange()")
+	class HandleRequestStatusChange {
+
+		@Test
+		@DisplayName("Should send cancelled notification to all contacts and HR inbox")
+		void shouldSendCancelledNotificationToAllContactsAndHrInbox() throws Exception {
+			// Arrange
+			final var hrInboxEmail = "hr-inbox@example.com";
+			when(gcNotifyProperties.hrGdInboxEmail()).thenReturn(hrInboxEmail);
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+				.id(1L)
+				.nameEn("Test Request")
+				.languageCode("en")
+				.additionalContactEmails(List.of("additional@example.com"))
+				.submitterEmails(List.of("submitter@example.com"))
+				.hiringManagerEmails(List.of("manager@example.com"))
+				.subDelegatedManagerEmails(List.of("delegate@example.com"))
+				.hrAdvisorEmail("advisor@example.com")
+				.build();
+
+			final var event = new ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CANCELLED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendRequestNotification(eq("additional@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
+			verify(notificationService).sendRequestNotification(eq("submitter@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
+			verify(notificationService).sendRequestNotification(eq("manager@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
+			verify(notificationService).sendRequestNotification(eq("delegate@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
+			verify(notificationService).sendRequestNotification(eq("advisor@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
+			verify(notificationService).sendRequestNotification(eq(hrInboxEmail), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
+		}
+	}
+
 }
