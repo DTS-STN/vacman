@@ -6,11 +6,10 @@ import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLegend } from '~/components/input-legend';
 
-export interface InputCheckboxesOption
-  extends OmitStrict<
-    ComponentProps<typeof InputCheckbox>,
-    'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-required' | 'id' | 'name' | 'required'
-  > {
+export interface InputCheckboxesOption extends OmitStrict<
+  ComponentProps<typeof InputCheckbox>,
+  'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-required' | 'id' | 'name' | 'required'
+> {
   value: string;
 }
 
