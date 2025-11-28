@@ -3,16 +3,13 @@ package ca.gov.dtsstn.vacman.api.service.mapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.util.StringUtils;
 
 import ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDto;
@@ -117,22 +114,34 @@ public interface RequestEntityMapper {
 
 	@Named("submitterEmails")
 	default List<String> submitterEmails(RequestEntity entity) {
-		return getEmployeeEmails(entity.getSubmitter());
+		return Optional.ofNullable(entity.getSubmitter())
+			.map(UserEntity::getBusinessEmailAddress)
+			.map(List::of)
+			.orElse(List.of());
 	}
 
 	@Named("hiringManagerEmails")
 	default List<String> hiringManagerEmails(RequestEntity entity) {
-		return getEmployeeEmails(entity.getHiringManager());
+		return Optional.ofNullable(entity.getHiringManager())
+			.map(UserEntity::getBusinessEmailAddress)
+			.map(List::of)
+			.orElse(List.of());
 	}
 
 	@Named("additionalContactEmails")
 	default List<String> additionalContactEmails(RequestEntity entity) {
-		return getEmployeeEmails(entity.getAdditionalContact());
+		return Optional.ofNullable(entity.getAdditionalContact())
+			.map(UserEntity::getBusinessEmailAddress)
+			.map(List::of)
+			.orElse(List.of());
 	}
 
 	@Named("subDelegatedManagerEmails")
 	default List<String> subDelegatedManagerEmails(RequestEntity entity) {
-		return getEmployeeEmails(entity.getSubDelegatedManager());
+		return Optional.ofNullable(entity.getSubDelegatedManager())
+			.map(UserEntity::getBusinessEmailAddress)
+			.map(List::of)
+			.orElse(List.of());
 	}
 
 	@Named("bilingual")
@@ -141,25 +150,6 @@ public interface RequestEntityMapper {
 			.map(AbstractCodeEntity::getCode).orElse("");
 
 		return "BI".equals(code) || "BNI".equals(code);
-	}
-
-	private List<String> getEmployeeEmails(UserEntity employee) {
-		if (employee == null) { return List.of(); }
-
-		final var businessEmail = Optional.ofNullable(employee.getBusinessEmailAddress())
-			.filter(StringUtils::hasText);
-
-		final var personalEmail = Optional.ofNullable(employee.getProfiles())
-			.map(profiles -> profiles.stream()
-				.map(ProfileEntity::getPersonalEmailAddress)
-				.filter(StringUtils::hasText)
-				.findFirst())
-			.orElse(Optional.empty());
-
-		return Stream.of(businessEmail, personalEmail)
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.toList();
 	}
 
 }
