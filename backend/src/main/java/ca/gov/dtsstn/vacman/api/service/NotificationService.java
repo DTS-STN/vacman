@@ -83,6 +83,7 @@ public class NotificationService {
 	 * @return the formatted request number
 	 */
 	public String formatRequestNumber(Long requestId) {
+		Assert.notNull(requestId, "requestId must not be null");
 		return "0000-0000-" + requestId;
 	}
 
