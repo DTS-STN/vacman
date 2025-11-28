@@ -1,4 +1,4 @@
-<#assign emailSubject>Occasion d'emploi - # de demande du SGPV ${requestNumber}</#assign>
+<#assign emailSubject>Occasion d'emploi - Demande du SGPV # ${requestNumber}</#assign>
 
 Titre du poste : ${positionTitle}
 Durée des fonctions : Durée indéterminée
