@@ -13,7 +13,7 @@ SET IDENTITY_INSERT CD_REQUEST_STATUS OFF;
 
 --changeset system:update-cd-request-status-names-nov-2025 dbms:mssql,h2
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'No match - HR Review', NAME_FR = 'Aucun profil repéré - Revue RH' WHERE CODE = 'NO_MATCH_HR_REVIEW';
-UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Approved -  Assessment Feedback Pending', NAME_FR = 'Approuvée - En attente de rétroaction d''évaluation' WHERE CODE = 'FDBK_PENDING';
+UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Approved - Assessment Feedback Pending', NAME_FR = 'Approuvée - En attente de rétroaction d''évaluation' WHERE CODE = 'FDBK_PENDING';
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Pending - Feedback Pending Approval', NAME_FR = 'En attente - rétroaction d''évaluation en attente d''approbation' WHERE CODE = 'FDBK_PEND_APPR';
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'VMS request on Hold - Pending PSC clearance', NAME_FR = 'Demande VMS en suspens - En attente de l''autorisation de la CFP' WHERE CODE = 'PENDING_PSC';
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'VMS not required - Pending PSC clearance', NAME_FR = 'Demande VMS non-requise - En attente de l''autorisation de la CFP' WHERE CODE = 'PENDING_PSC_NO_VMS';
