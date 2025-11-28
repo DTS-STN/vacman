@@ -26,6 +26,5 @@ UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Pending Feedback Approval (HR)', NAME_FR
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Pending PSC Clearance', NAME_FR = 'Attente autorisation CFP' WHERE CODE = 'PENDING_PSC';
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Pending PSC Clearance', NAME_FR = 'Attente autorisation CFP' WHERE CODE = 'PENDING_PSC_NO_VMS';
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Clearance Granted', NAME_FR = 'Autorisation accordée' WHERE CODE = 'CLR_GRANTED';
-UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Clearance Granted', NAME_FR = 'Autorisation accordée' WHERE CODE = 'PSC_GRANTED';	 	
+UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Clearance Granted', NAME_FR = 'Autorisation accordée' WHERE CODE = 'PSC_GRANTED';
 UPDATE CD_REQUEST_STATUS SET NAME_EN = 'Clearance Granted', NAME_FR = 'Autorisation accordée' WHERE CODE = 'PSC_GRANTED_NO_VMS';
-	 	
