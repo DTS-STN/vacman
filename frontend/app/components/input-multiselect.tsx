@@ -21,11 +21,10 @@ const triggerErrorClassName = 'border-red-500 focus:border-red-500 focus:ring-re
 const dropdownClassName =
   'absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none';
 
-export interface MultiSelectOption
-  extends OmitStrict<
-    ComponentProps<typeof InputCheckbox>,
-    'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-required' | 'id' | 'name' | 'required'
-  > {
+export interface MultiSelectOption extends OmitStrict<
+  ComponentProps<typeof InputCheckbox>,
+  'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-required' | 'id' | 'name' | 'required'
+> {
   label: ReactNode;
   value: string;
 }
