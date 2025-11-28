@@ -194,6 +194,45 @@
       "lastModifiedBy": "system",
       "lastModifiedDate": "2025-08-14T17:26:29.2166667Z",
       "internalInd": false
+    },
+    {
+      "id": 15,
+      "code": "LCPRL_BCLOSRE",
+      "nameEn": "Limited candidate pool - Remote location",
+      "nameFr": "Bassin de candidats limité - Poste situé en région éloignée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-11-28T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-11-28T00:00:00Z",
+      "internalInd": false
+    },
+    {
+      "id": 16,
+      "code": "LCPSG_BCLGP",
+      "nameEn": "Limited candidate pool - Shortage group",
+      "nameFr": "Bassin de candidats limité - Groupe en pénurie",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-11-28T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-11-28T00:00:00Z",
+      "internalInd": false
+    },
+    {
+      "id": 17,
+      "code": "LCPSS_BCLCS",
+      "nameEn": "Limited candidate pool - Specialized skills",
+      "nameFr": "Bassin de candidats limité - Compétences spécialisées",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-11-28T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-11-28T00:00:00Z",
+      "internalInd": false
     }
   ]
 }
