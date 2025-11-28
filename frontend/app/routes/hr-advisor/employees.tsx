@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, useFetcher, useSearchParams } from 'react-router';
@@ -25,6 +25,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '~/components/dialog';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
@@ -247,9 +248,6 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const [searchParams, setSearchParams] = useSearchParams({ filter: 'all', page: '1', size: '10' });
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
-  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
-  const [selectedProfileForArchive, setSelectedProfileForArchive] = useState<Profile | null>(null);
-  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -260,37 +258,6 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       iso ? formatDateTimeInZone(iso, browserTZ ?? loaderData.baseTimeZone, 'yyyy-MM-dd') : '0000-00-00',
     [browserTZ, loaderData.baseTimeZone],
   );
-
-  // Handle archive action
-  const handleArchive = (profile: Profile) => {
-    setSelectedProfileForArchive(profile);
-    setShowArchiveDialog(true);
-  };
-
-  const confirmArchive = useCallback(() => {
-    if (!selectedProfileForArchive || isArchiving) return;
-
-    setIsArchiving(true);
-
-    // Create form data for the archive action
-    const formData = new FormData();
-    formData.set('profileId', selectedProfileForArchive.id.toString());
-    formData.set('action', 'archive');
-
-    // Submit the archive request using archiveFetcher
-    void archiveFetcher.submit(formData, { method: 'put' });
-
-    // Close dialog and reset state
-    setShowArchiveDialog(false);
-    // Announce successful archive action to screen readers
-    setSrAnnouncement(
-      t('app:hr-advisor-employees-table.profile-archived', {
-        profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
-      }),
-    );
-    setSelectedProfileForArchive(null);
-    setIsArchiving(false);
-  }, [selectedProfileForArchive, archiveFetcher, t, isArchiving]);
 
   const employeesOptions = useMemo(
     () => [
@@ -471,6 +438,31 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             const profileId = profile.id.toString();
             const profileUserName = `${profile.profileUser.firstName} ${profile.profileUser.lastName}`;
             const isArchived = profile.profileStatus?.code === 'ARCHIVED';
+            const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+            const [isArchiving, setIsArchiving] = useState(false);
+
+            const handleConfirmArchive = () => {
+              if (isArchiving) return;
+
+              setIsArchiving(true);
+
+              // Create form data for the archive action
+              const formData = new FormData();
+              formData.set('profileId', profile.id.toString());
+              formData.set('action', 'archive');
+
+              // Submit the archive request using archiveFetcher
+              void archiveFetcher.submit(formData, { method: 'put' });
+
+              // Close dialog and announce success
+              setShowArchiveDialog(false);
+              setSrAnnouncement(
+                t('app:hr-advisor-employees-table.profile-archived', {
+                  profileUserName,
+                }),
+              );
+              setIsArchiving(false);
+            };
 
             return (
               <div className="flex items-baseline gap-4">
@@ -486,50 +478,53 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
                   {t('app:hr-advisor-employees-table.view')}
                 </LoadingLink>
                 {!isArchived && (
-                  <Button
-                    variant="alternative"
-                    id="archive-employee"
-                    onClick={() => handleArchive(profile)}
-                    aria-label={t('app:hr-advisor-employees-table.archive-link', {
-                      profileUserName,
-                    })}
-                    size="sm"
-                  >
-                    {t('app:hr-advisor-employees-table.archive')}
-                  </Button>
+                  <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="alternative"
+                        id={`archive-employee-${profile.id}`}
+                        aria-label={t('app:hr-advisor-employees-table.archive-link', {
+                          profileUserName,
+                        })}
+                        size="sm"
+                      >
+                        {t('app:hr-advisor-employees-table.archive')}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent aria-describedby="archive-dialog-description" role="alertdialog">
+                      <DialogHeader>
+                        <DialogTitle id="archive-dialog-title">
+                          {t('app:hr-advisor-employees-table.archive-confirmation.title')}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <DialogDescription id="archive-dialog-description">
+                        {t('app:hr-advisor-employees-table.archive-confirmation.message', {
+                          profileUserName,
+                        })}
+                      </DialogDescription>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="alternative" disabled={isArchiving}>
+                            {t('app:hr-advisor-employees-table.archive-confirmation.cancel')}
+                          </Button>
+                        </DialogClose>
+                        <LoadingButton
+                          variant="primary"
+                          onClick={handleConfirmArchive}
+                          disabled={isArchiving}
+                          loading={isArchiving}
+                        >
+                          {t('app:hr-advisor-employees-table.archive-confirmation.confirm')}
+                        </LoadingButton>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 )}
               </div>
             );
           }}
         />
       </ServerTable>
-
-      {/* Archive Confirmation Dialog */}
-      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
-        <DialogContent aria-describedby="archive-dialog-description" role="alertdialog">
-          <DialogHeader>
-            <DialogTitle id="archive-dialog-title">
-              {t('app:hr-advisor-employees-table.archive-confirmation.title')}
-            </DialogTitle>
-          </DialogHeader>
-          <DialogDescription id="archive-dialog-description">
-            {selectedProfileForArchive &&
-              t('app:hr-advisor-employees-table.archive-confirmation.message', {
-                profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
-              })}
-          </DialogDescription>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="alternative" disabled={isArchiving}>
-                {t('app:hr-advisor-employees-table.archive-confirmation.cancel')}
-              </Button>
-            </DialogClose>
-            <LoadingButton variant="primary" onClick={confirmArchive} disabled={isArchiving} loading={isArchiving}>
-              {t('app:hr-advisor-employees-table.archive-confirmation.confirm')}
-            </LoadingButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
