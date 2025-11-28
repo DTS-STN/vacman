@@ -12,10 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import ca.gov.dtsstn.vacman.api.config.properties.SwaggerUiProperties;
 import ca.gov.dtsstn.vacman.api.json.JsonPatchOperation;
 import io.swagger.v3.core.converter.AnnotatedType;
@@ -28,6 +24,10 @@ import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityScheme.Type;
 import jakarta.json.JsonPatch;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 public class SpringDocConfig {
@@ -40,9 +40,10 @@ public class SpringDocConfig {
 
 	@Autowired SwaggerUiProperties swaggerUiProperties;
 
-	final ObjectMapper objectMapper = new ObjectMapper()
+	final ObjectMapper objectMapper = JsonMapper.builder()
 		.enable(SerializationFeature.INDENT_OUTPUT)
-		.findAndRegisterModules();
+		.findAndAddModules()
+		.build();
 
 	/**
 	 * Centralized constants for referencing example objects in the OpenAPI specification.
@@ -113,8 +114,8 @@ public class SpringDocConfig {
 			problemDetail.setProperty("errorCode", errorCode);
 			return new Example().value(objectMapper.writeValueAsString(problemDetail));
 		}
-		catch (final JsonProcessingException jsonProcessingException) {
-			throw new RuntimeException(jsonProcessingException);
+		catch (final JacksonException jacksonException) {
+			throw new RuntimeException(jacksonException);
 		}
 	}
 
