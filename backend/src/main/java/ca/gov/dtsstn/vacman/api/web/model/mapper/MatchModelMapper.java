@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,6 +13,7 @@ import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.dom.element.style.StyleTableColumnPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.style.OdfStyleFamily;
+import org.odftoolkit.odfdom.pkg.OdfElement;
 
 import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.web.model.MatchReadModel;
@@ -22,6 +24,7 @@ public interface MatchModelMapper {
 
 	@Mapping(target = "profile.firstName", source = "profile.user.firstName")
 	@Mapping(target = "profile.lastName", source = "profile.user.lastName")
+	@Mapping(target = "profile.email", source = "profile.user.businessEmailAddress")
 	@Mapping(target = "request.id", source = "request.id")
 	@Mapping(target = "request.requestStatus", source = "request.requestStatus")
 	@Mapping(target = "request.requestDate", source = "request.createdDate")
@@ -52,8 +55,27 @@ public interface MatchModelMapper {
 	 * Generate an ODS spreadsheet from a collection of match summaries.
 	 */
 	default byte[] toOds(Collection<MatchSummaryReadModel> matches) {
-		// Define the columns for the spreadsheet
-		record Column(String header, Function<MatchSummaryReadModel, String> valueExtractor) {}
+		// A simple data structure to hold column metadata
+		record Column(String header, Function<MatchSummaryReadModel, String> valueExtractor, String validationName) {
+			Column(String header, Function<MatchSummaryReadModel, String> valueExtractor) {
+				this(header, valueExtractor, null);
+			}
+		}
+
+		// The possible values for a Match Feedback (used in dropdown validation)
+		final var matchFeedbackValues = """
+			"No response";
+			"Not interested";
+			"Not qualified - Competency";
+			"Not qualified - Education";
+			"Not qualified - Other";
+			"Qualified - Accepted offer (indeterminate)";
+			"Qualified - Refused offer";
+			"Qualified - Not selected";
+		""";
+
+		// the common XML NS used by the ODS format
+		final var TABLE_NS = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
 
 		//
 		// The idea here is to create an ordered list of headers and column extractors so that
@@ -66,32 +88,51 @@ public interface MatchModelMapper {
 		//
 
 		final var columns = List.of(
-			new Column("Request ID", match -> match.request().id().toString()),
-			new Column("Match ID", match -> match.id().toString()),
-			new Column("Profile ID", match -> match.profile().id().toString()),
 			new Column("First Name", match -> match.profile().firstName()),
 			new Column("Last Name", match -> match.profile().lastName()),
+			new Column("Email", match -> match.profile().email()),
 			new Column("WFA Status", match -> match.profile().wfaStatus().nameEn()),
-			new Column("Request Status", match -> match.request().requestStatus().nameEn()),
-			new Column("Request Date", match -> match.request().requestDate().toString()),
-			new Column("Hiring Manager First Name", match -> match.request().hiringManagerFirstName()),
-			new Column("Hiring Manager Last Name", match -> match.request().hiringManagerLastName()),
-			new Column("Hiring Manager Email", match -> match.request().hiringManagerEmail()),
-			new Column("HR Advisor ID", match -> match.request().hrAdvisorId() != null ? match.request().hrAdvisorId().toString() : ""),
-			new Column("HR Advisor First Name", match -> match.request().hrAdvisorFirstName()),
-			new Column("HR Advisor Last Name", match -> match.request().hrAdvisorLastName()),
-			new Column("HR Advisor Email", match -> match.request().hrAdvisorEmail()),
 			new Column("Match Status", match -> match.matchStatus().nameEn()),
-			new Column("Match Feedback", match -> match.matchFeedback() != null ? match.matchFeedback().nameEn() : ""),
-			new Column("Hiring Manager Comment", match -> match.hiringManagerComment() != null ? match.hiringManagerComment() : ""),
-			new Column("HR Advisor Comment", match -> match.hrAdvisorComment() != null ? match.hrAdvisorComment() : ""),
-			new Column("Created Date", match -> match.createdDate().toString())
+			new Column("Match Feedback", match -> match.matchFeedback() != null ? match.matchFeedback().nameEn() : "", "MatchFeedbackValidation"),
+			new Column("Hiring Manager Comment", match -> match.hiringManagerComment() != null ? match.hiringManagerComment() : "")
 		);
 
 		try {
 			// Create a new spreadsheet document
 			final var spreadsheet = OdfSpreadsheetDocument.newSpreadsheetDocument();
 			final var table = spreadsheet.getTableByName("Sheet1");
+
+			// The Match Feedback validation has to be anchored to a cell, so we find its index here
+			final var matchFeedbackColumnIndex = IntStream.range(0, columns.size())
+				.filter(i -> "MatchFeedbackValidation".equals(columns.get(i).validationName()))
+				.findFirst().orElse(-1);
+
+			if (matchFeedbackColumnIndex != -1) {
+				final var baseCellAddress = String.format("Sheet1.%s1", (char) ('A' + matchFeedbackColumnIndex));
+
+				// disallow values other than those in the list
+				final var errorElement = spreadsheet.getContentDom().createElementNS(TABLE_NS, "table:error-message");
+				errorElement.setAttributeNS(TABLE_NS, "table:message-type", "stop");
+				errorElement.setAttributeNS(TABLE_NS, "table:display", "true");
+
+				// create the content validation element
+				final var validationElement = spreadsheet.getContentDom().createElementNS(TABLE_NS, "table:content-validation");
+				validationElement.setAttributeNS(TABLE_NS, "table:name", "MatchFeedbackValidation");
+				validationElement.setAttributeNS(TABLE_NS, "table:condition", String.format("of:cell-content-is-in-list(%s)", matchFeedbackValues));
+				validationElement.setAttributeNS(TABLE_NS, "table:allow-empty-cell", "true");
+				validationElement.setAttributeNS(TABLE_NS, "table:display-list", "unsorted");
+				validationElement.setAttributeNS(TABLE_NS, "table:base-cell-address", baseCellAddress);
+				validationElement.appendChild(errorElement);
+
+				final var validationsElement = spreadsheet.getContentDom().createElementNS(TABLE_NS, "table:content-validations");
+				validationsElement.appendChild(validationElement);
+
+				// add the validation to the spreadsheet
+				final var root = spreadsheet.getContentDom().getRootElement();
+				final var body = (OdfElement) root.getElementsByTagName("office:body").item(0);
+				final var officeSpreadsheet = body.getElementsByTagName("office:spreadsheet").item(0);
+				officeSpreadsheet.insertBefore(validationsElement, table.getOdfElement());
+			}
 
 			// Create a bold style for the header row
 			final var boldStyle = spreadsheet.getContentDom().getAutomaticStyles().newStyle(OdfStyleFamily.TableCell);
@@ -113,16 +154,21 @@ public interface MatchModelMapper {
 
 				for (int i = 0; i < columns.size(); i++) {
 					final var cell = row.getCellByIndex(i);
-					final var value = columns.get(i).valueExtractor().apply(match);
+					final var column = columns.get(i);
+					final var value = column.valueExtractor().apply(match);
 					cell.setStringValue(value);
 					cell.getOdfElement().setStyleName(normalStyle.getStyleNameAttribute());
+
+					if (column.validationName() != null) {
+						cell.getOdfElement().setAttributeNS(TABLE_NS, "table:content-validation-name", column.validationName());
+					}
 				}
 			}
 
 			// Set the column widths
 			for (int i = 0; i < columns.size(); i++) {
 				final var columnStyle = spreadsheet.getContentDom().getAutomaticStyles().newStyle(OdfStyleFamily.TableColumn);
-				columnStyle.setProperty(StyleTableColumnPropertiesElement.UseOptimalColumnWidth, "true");
+				columnStyle.setProperty(StyleTableColumnPropertiesElement.ColumnWidth, "2.5in");
 				table.getColumnByIndex(i).getOdfElement().setStyleName(columnStyle.getStyleNameAttribute());
 			}
 

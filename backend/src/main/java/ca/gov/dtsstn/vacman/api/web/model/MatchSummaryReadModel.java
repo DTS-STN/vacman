@@ -40,6 +40,7 @@ public record MatchSummaryReadModel(
 		Long id,
 		String firstName,
 		String lastName,
+		String email,
 		CodeSummary wfaStatus
 	) {}
 
@@ -64,4 +65,5 @@ public record MatchSummaryReadModel(
 		String nameEn,
 		String nameFr
 	) {}
+
 }
