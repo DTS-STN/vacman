@@ -13,6 +13,7 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 public record ProfileEventDto(
 	Long id,
 	String additionalComment,
+	String businessEmailAddress,
 	Instant createdDate,
 	Boolean hasConsentedToPrivacyTerms,
 	String hrAdvisorEmail,

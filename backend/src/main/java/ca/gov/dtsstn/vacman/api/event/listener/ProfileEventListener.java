@@ -2,12 +2,14 @@ package ca.gov.dtsstn.vacman.api.event.listener;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -141,7 +143,14 @@ public class ProfileEventListener {
 		final var language = Optional.ofNullable(profile.languageOfCorrespondenceCode()).orElse(lookupCodes.languages().english());
 
 		// Gather available emails
-		final var emails = Optional.ofNullable(profile.userEmails()).orElse(List.of());
+		final var userEmails = Optional.ofNullable(profile.userEmails()).orElse(List.of());
+		final var personalEmail = profile.personalEmailAddress();
+		final var businessEmail = profile.businessEmailAddress();
+
+		final var emails = Stream.concat(userEmails.stream(), Stream.of(personalEmail, businessEmail))
+			.filter(StringUtils::hasText)
+			.distinct()
+			.toList();
 
 		if (!emails.isEmpty()) {
 			notificationService.sendProfileNotification(emails, profileId, name, language, ProfileStatus.APPROVED);

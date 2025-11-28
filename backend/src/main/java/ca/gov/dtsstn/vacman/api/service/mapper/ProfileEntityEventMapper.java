@@ -18,6 +18,7 @@ import ca.gov.dtsstn.vacman.api.service.dto.ProfileEventDto;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface ProfileEntityEventMapper {
 
+	@Mapping(target = "businessEmailAddress", source = "entity", qualifiedByName = "businessEmailAddress")
 	@Mapping(target = "hrAdvisorEmail", source = "entity", qualifiedByName = "hrAdvisorEmail")
 	@Mapping(target = "languageOfCorrespondenceCode", source = "entity", qualifiedByName = "languageOfCorrespondenceCode")
 	@Mapping(target = "personalEmailAddress", source = "entity", qualifiedByName = "personalEmailAddress")
@@ -35,6 +36,13 @@ public interface ProfileEntityEventMapper {
 	default String languageOfCorrespondenceCode(ProfileEntity entity) {
 		return Optional.ofNullable(entity.getLanguageOfCorrespondence())
 			.map(AbstractCodeEntity::getCode)
+			.orElse(null);
+	}
+
+	@Named("businessEmailAddress")
+	default String businessEmailAddress(ProfileEntity entity) {
+		return Optional.ofNullable(entity.getUser())
+			.map(UserEntity::getBusinessEmailAddress)
 			.orElse(null);
 	}
 
