@@ -1,4 +1,4 @@
-<#assign emailSubject>Rétroaction approuvée – # de demande du SGPV ${requestNumber}</#assign>
+<#assign emailSubject>Rétroaction approuvée – Demande du SGPV #${requestNumber}</#assign>
 
 VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.
 

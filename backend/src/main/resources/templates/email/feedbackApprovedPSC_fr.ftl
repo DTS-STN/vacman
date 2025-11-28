@@ -1,4 +1,4 @@
-<#assign emailSubject>Autorisation ministérielle et de la CFP accordée – Demande du SGPV # ${requestNumber}</#assign>
+<#assign emailSubject>Autorisation ministérielle et de la CFP accordée – Demande du SGPV #${requestNumber}</#assign>
 
 VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.
 
