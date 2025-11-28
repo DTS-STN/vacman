@@ -466,8 +466,9 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.nameFr = requestNameFr;
 	}
 
+	// requestNumber is not being returned from the frontend so it is empty 
 	public String getRequestNumber() {
-		return requestNumber;
+		return requestNumber != null ? requestNumber : String.valueOf(this.getId());
 	}
 
 	public void setRequestNumber(String requestNumber) {
