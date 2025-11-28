@@ -61,10 +61,7 @@ export type LocalizedLanguageReferralType = LocalizedLookupModel;
 export type LanguageRequirement = LookupModel;
 export type LocalizedLanguageRequirement = LocalizedLookupModel;
 
-export type NonAdvertisedAppointment = LookupModel &
-  Readonly<{
-    internalInd: boolean;
-  }>;
+export type NonAdvertisedAppointment = LookupModel;
 export type LocalizedNonAdvertisedAppointment = LocalizedLookupModel;
 
 export type LanguageOfCorrespondence = LookupModel;

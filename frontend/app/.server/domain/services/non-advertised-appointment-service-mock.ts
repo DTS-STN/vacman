@@ -10,7 +10,6 @@ const mockData: NonAdvertisedAppointment[] = nonAdvertisedAppointmentData.conten
   code: appointment.code,
   nameEn: appointment.nameEn,
   nameFr: appointment.nameFr,
-  internalInd: appointment.internalInd,
 }));
 
 // Create the service using the shared implementation
