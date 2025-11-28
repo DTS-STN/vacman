@@ -438,7 +438,7 @@ export default {
     'vms-clearance-number': 'VMS clearance number',
     'psc-clearance-received': 'PSC clearance marked as received',
     'pending-psc-clearance-alert-msg': 'Request is now pending PSC clearance.',
-    'no-match-found-alert-msg': 'Matching process ran - no match found. Request is now pending PSC clearance.',
+    'no-match-found-alert-msg': 'Matching process ran - no match found.',
     'clearance-generated-alert-msg': 'Clearance generated successfully!',
     'submit': 'Submit',
     'feedback-available': 'Feedback available',
