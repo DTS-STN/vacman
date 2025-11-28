@@ -438,6 +438,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const navigate = useNavigate();
 
   const alertRef = useRef<HTMLDivElement>(null);
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
   const successMessage = useSaveSuccessMessage({
     searchParams,
@@ -748,6 +749,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               <div className="flex justify-center">
                 <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
                   <Button
+                    ref={deleteButtonRef}
                     type="button"
                     className="w-full"
                     variant="redAlternative"
@@ -784,7 +786,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           )}
         </div>
       </div>
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <Dialog open={showDialog} onOpenChange={setShowDialog} triggerRef={deleteButtonRef}>
         <DialogContent aria-describedby="delete-dialog-description" aria-labelledby="delete-dialog-title" role="alertdialog">
           <DialogHeader>
             <DialogTitle id="delete-dialog-title">{t('app:hiring-manager-referral-requests.delete-request.title')}</DialogTitle>

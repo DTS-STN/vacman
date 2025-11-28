@@ -333,6 +333,8 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const navigate = useNavigate();
 
   const alertRef = useRef<HTMLDivElement>(null);
+  const cancelRequestButtonRef = useRef<HTMLButtonElement>(null);
+  const reAssignButtonRef = useRef<HTMLButtonElement>(null);
 
   const successMessage = useSaveSuccessMessage({
     searchParams,
@@ -558,6 +560,8 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   isSubmitting={isSubmitting}
                   onCancelRequestClick={() => setShowCancelRequestDialog(true)}
                   onReAssignClick={() => setShowReAssignDialog(true)}
+                  cancelRequestButtonRef={cancelRequestButtonRef}
+                  reAssignButtonRef={reAssignButtonRef}
                 />
               </fetcher.Form>
             </ActionDataErrorSummary>
@@ -565,7 +569,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
         </div>
       </div>
 
-      <Dialog open={showCancelRequestDialog} onOpenChange={setShowCancelRequestDialog}>
+      <Dialog open={showCancelRequestDialog} onOpenChange={setShowCancelRequestDialog} triggerRef={cancelRequestButtonRef}>
         <DialogContent aria-describedby="cancel-request-dialog-description" role="alertdialog">
           <DialogHeader>
             <DialogTitle id="cancel-request-dialog-title">
@@ -596,7 +600,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={showReAssignDialog} onOpenChange={setShowReAssignDialog}>
+      <Dialog open={showReAssignDialog} onOpenChange={setShowReAssignDialog} triggerRef={reAssignButtonRef}>
         <DialogContent aria-describedby="re-assign-dialog-description" role="alertdialog">
           <DialogHeader>
             <DialogTitle id="re-assign-dialog-title">
@@ -633,6 +637,8 @@ interface RenderButtonsByStatusProps {
   isSubmitting: boolean;
   onCancelRequestClick: () => void;
   onReAssignClick: () => void;
+  cancelRequestButtonRef?: React.RefObject<HTMLButtonElement | null>;
+  reAssignButtonRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 function RenderButtonsByStatus({
@@ -642,6 +648,8 @@ function RenderButtonsByStatus({
   isSubmitting,
   onCancelRequestClick,
   onReAssignClick,
+  cancelRequestButtonRef,
+  reAssignButtonRef,
 }: RenderButtonsByStatusProps): JSX.Element {
   const { t } = useTranslation('app');
 
@@ -651,7 +659,13 @@ function RenderButtonsByStatus({
   if (code === REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS || code === REQUEST_STATUS_CODE.PENDING_PSC) {
     return (
       <div className="flex flex-col">
-        <Button className="mb-8 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+        <Button
+          ref={cancelRequestButtonRef}
+          className="mb-8 w-full"
+          variant="alternative"
+          id="cancel-request"
+          onClick={onCancelRequestClick}
+        >
           {t('form.cancel-request')}
         </Button>
 
@@ -682,6 +696,7 @@ function RenderButtonsByStatus({
   if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && isActiveRequest) {
     return (
       <LoadingButton
+        ref={reAssignButtonRef}
         className="w-full"
         name="action"
         variant="primary"
@@ -714,7 +729,13 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.HR_REVIEW:
       return (
         <div className="flex flex-col">
-          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+          <Button
+            ref={cancelRequestButtonRef}
+            className="w-full"
+            variant="alternative"
+            id="cancel-request"
+            onClick={onCancelRequestClick}
+          >
             {t('form.cancel-request')}
           </Button>
 
@@ -764,7 +785,13 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
       return (
         <div className="flex flex-col">
-          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+          <Button
+            ref={cancelRequestButtonRef}
+            className="w-full"
+            variant="alternative"
+            id="cancel-request"
+            onClick={onCancelRequestClick}
+          >
             {t('form.cancel-request')}
           </Button>
           <Button value="save" name="action" className="mt-4 w-full" variant="alternative" id="save" disabled={isSubmitting}>

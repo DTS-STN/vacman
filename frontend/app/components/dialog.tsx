@@ -19,6 +19,7 @@
  *
  * @see {@link https://www.radix-ui.com/primitives/docs/components/dialog} for more details.
  */
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type * as React from 'react';
 
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -31,9 +32,79 @@ import { cn } from '~/utils/tailwind-utils';
 
 type HTMLDivProps = React.HTMLAttributes<HTMLDivElement>;
 
-const Dialog = DialogPrimitive.Root;
+// Delay to wait for dialog closing animation before restoring focus
+const DIALOG_CLOSE_ANIMATION_DELAY = 100;
 
-const DialogTrigger = DialogPrimitive.Trigger;
+// Context to track the trigger element for focus management
+interface DialogContextType {
+  triggerRef: React.RefObject<HTMLElement | null> | null;
+  setTriggerRef: (ref: React.RefObject<HTMLElement | null>) => void;
+  externalTriggerRef?: React.RefObject<HTMLElement | null>;
+}
+
+const DialogContext = createContext<DialogContextType>({
+  triggerRef: null,
+  setTriggerRef: () => {},
+});
+
+interface DialogProps extends React.ComponentProps<typeof DialogPrimitive.Root> {
+  /**
+   * Optional ref to the element that triggered the dialog.
+   * Use this when the dialog is controlled and not using DialogTrigger component.
+   */
+  triggerRef?: React.RefObject<HTMLElement | null>;
+}
+
+// Enhanced Dialog root that manages focus restoration
+export function Dialog({ children, open, onOpenChange, triggerRef: externalTriggerRef, ...props }: DialogProps) {
+  const [triggerRef, setTriggerRef] = useState<React.RefObject<HTMLElement | null> | null>(null);
+  const wasOpenRef = useRef(open);
+
+  useEffect(() => {
+    // When dialog closes, restore focus to trigger element
+    // Prefer internal trigger (from DialogTrigger) over external triggerRef prop
+    const targetRef = triggerRef ?? externalTriggerRef;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    if (wasOpenRef.current && open === false && targetRef?.current) {
+      // Delay to allow dialog closing animation to complete
+      timeoutId = setTimeout(() => {
+        targetRef.current?.focus();
+      }, DIALOG_CLOSE_ANIMATION_DELAY);
+    }
+
+    wasOpenRef.current = open;
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [open, triggerRef, externalTriggerRef]);
+
+  return (
+    <DialogContext.Provider value={{ triggerRef, setTriggerRef, externalTriggerRef }}>
+      <DialogPrimitive.Root open={open} onOpenChange={onOpenChange} {...props}>
+        {children}
+      </DialogPrimitive.Root>
+    </DialogContext.Provider>
+  );
+}
+
+// Enhanced DialogTrigger that registers itself for focus management
+export function DialogTrigger({ children, onClick, ...props }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const { setTriggerRef } = useContext(DialogContext);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setTriggerRef(triggerRef);
+    onClick?.(e);
+  };
+
+  return (
+    <DialogPrimitive.Trigger ref={triggerRef} onClick={handleClick} {...props}>
+      {children}
+    </DialogPrimitive.Trigger>
+  );
+}
 
 const DialogPortal = DialogPrimitive.Portal;
 
@@ -94,4 +165,4 @@ export function DialogDescription({ className, ...props }: DialogDescriptionProp
   return <DialogPrimitive.Description className={cn('text-sm text-neutral-500', className)} {...props} />;
 }
 
-export { Dialog, DialogPortal, DialogTrigger, DialogClose };
+export { DialogPortal, DialogClose };
