@@ -10,9 +10,9 @@ import { getQueryClient } from '~/query-client';
 // Mock API data that mirrors the structure returned by the API
 const mockApiData = {
   content: [
-    { id: 1, code: 'NONE', nameEn: 'Not Applicable', nameFr: 'Sans objet' },
-    { id: 2, code: 'EXCEPTIONAL_CASE', nameEn: 'Exceptional Case', nameFr: 'Cas exceptionnel' },
-    { id: 3, code: 'URGENT_REQUIREMENT', nameEn: 'Urgent Requirement', nameFr: 'Besoin urgent' },
+    { id: 1, code: 'NONE', nameEn: 'Not Applicable', nameFr: 'Sans objet', internalInd: false },
+    { id: 2, code: 'EXCEPTIONAL_CASE', nameEn: 'Exceptional Case', nameFr: 'Cas exceptionnel', internalInd: true },
+    { id: 3, code: 'URGENT_REQUIREMENT', nameEn: 'Urgent Requirement', nameFr: 'Besoin urgent', internalInd: false },
   ],
 };
 

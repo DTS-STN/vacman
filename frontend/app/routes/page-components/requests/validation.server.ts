@@ -349,10 +349,12 @@ export async function createProcessInformationSchema() {
   );
 
   const selectedEmploymentTenureForTerm = allEmploymentTenures.filter((c) => c.code === EMPLOYMENT_TENURE.term);
-  const selectedNonAdvertisedAppointmentsForInternal = allNonAdvertisedAppointments.slice(0, 7);
-  const selectedNonAdvertisedAppointmentsForExternal = allNonAdvertisedAppointments
-    .slice(7)
-    .filter((c) => c.code !== 'EXT_LCP');
+  const selectedNonAdvertisedAppointmentsForInternal = allNonAdvertisedAppointments.filter(
+    (c) => (c.internalInd || ['LCPRL_BCLOSRE', 'LCPSG_BCLGP', 'LCPSS_BCLCS'].includes(c.code)) && c.code !== 'INT_LCP',
+  );
+  const selectedNonAdvertisedAppointmentsForExternal = allNonAdvertisedAppointments.filter(
+    (c) => (!c.internalInd || ['LCPRL_BCLOSRE', 'LCPSG_BCLGP', 'LCPSS_BCLCS'].includes(c.code)) && c.code !== 'EXT_LCP',
+  );
 
   return v.pipe(
     v.intersect([
