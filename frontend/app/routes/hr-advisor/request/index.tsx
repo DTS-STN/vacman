@@ -361,6 +361,10 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
       type: 'success',
       message: t('app:hr-advisor-referral-requests.psc-clearance-received'),
     },
+    [REQUEST_STATUS_CODE.PSC_GRANTED_NO_VMS]: {
+      type: 'success',
+      message: t('app:hr-advisor-referral-requests.psc-clearance-received'),
+    },
     [REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW]: {
       type: 'info',
       message: t('app:hr-advisor-referral-requests.no-match-found-alert-msg'),
