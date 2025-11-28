@@ -36,7 +36,7 @@ export function PageTitle({
         ref={headingRef}
         id="wb-cont"
         tabIndex={-1}
-        className={cn('font-lato text-3xl font-bold focus-visible:ring-3', className)}
+        className={cn('font-lato text-3xl font-bold focus:outline-none focus-visible:ring-2', className)}
         {...props}
       >
         {topSubTitle ? <span className={cn('block', subTitleClassName)}>{topSubTitle}</span> : null}
