@@ -227,15 +227,15 @@ export function ReferralPreferencesForm({
               onChange={(values) => setSelectedClassifications(values)}
               placeholder={tApp('form.select-all-that-apply')}
               errorMessage={tApp(extractValidationKey(formErrors?.preferredClassifications))}
-              className="w-full sm:w-1/2"
+              className="w-full"
               required
               helpMessage={
-                <>
-                  {tApp('referral-preferences.classification-group-help-message-primary')}
+                <div className="space-y-2">
+                  <p>{tApp('referral-preferences.classification-group-help-message-primary')}</p>
                   <Collapsible summary={tApp('referral-preferences.guidance-on-groups-and-levels')}>
                     <p>{tApp('referral-preferences.guidance-on-groups-and-levels-description')}</p>
                   </Collapsible>
-                </>
+                </div>
               }
             />
 
@@ -261,7 +261,7 @@ export function ReferralPreferencesForm({
                 </Button>
                 <InputSelect
                   ariaDescribedbyId="workLocationHelpMessage"
-                  className="w-full sm:w-1/2"
+                  className="w-full"
                   id="preferred-province"
                   name="preferredProvince"
                   label=""
@@ -290,7 +290,7 @@ export function ReferralPreferencesForm({
                     onChange={(values) => setSelectedCities(values)}
                     placeholder={tApp('form.select-all-that-apply')}
                     legend=""
-                    className="w-full sm:w-1/2"
+                    className="w-full"
                   />
                 </fieldset>
               )}
@@ -327,13 +327,13 @@ export function ReferralPreferencesForm({
               errorMessage={tApp(extractValidationKey(formErrors?.isInterestedInAlternation))}
               displayAriaDescribedBy={false}
               helpMessagePrimary={
-                <>
+                <div className="space-y-2">
                   <p>{tApp('referral-preferences.alternate-opportunity-help-message')}</p>
                   <Collapsible summary={tApp('referral-preferences.what-is-alternation')}>
                     <p>{tApp('referral-preferences.alternation-description-text-para-1')}</p>
                     <p>{tApp('referral-preferences.alternation-description-text-para-2')}</p>
                   </Collapsible>
-                </>
+                </div>
               }
             />
 
