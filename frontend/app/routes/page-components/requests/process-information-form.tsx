@@ -115,11 +115,14 @@ export function ProcessInformationForm({
     children: name,
     defaultChecked: id === formValues?.nonAdvertisedAppointment?.id,
   }));
-  const externalNonAdvertisedAppointmentOptions = nonAdvertisedAppointments.slice(7).map(({ id, name }) => ({
-    value: String(id),
-    children: name,
-    defaultChecked: id === formValues?.nonAdvertisedAppointment?.id,
-  }));
+  const externalNonAdvertisedAppointmentOptions = nonAdvertisedAppointments
+    .slice(7)
+    .filter((appointment) => appointment.code !== 'EXT_LCP')
+    .map(({ id, name }) => ({
+      value: String(id),
+      children: name,
+      defaultChecked: id === formValues?.nonAdvertisedAppointment?.id,
+    }));
   const employmentTenureOptions = employmentTenures.map(({ id, name }) => ({
     value: String(id),
     children: name,
