@@ -1,16 +1,16 @@
 package ca.gov.dtsstn.vacman.api.config;
 
-import org.springframework.util.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import liquibase.integration.spring.SpringLiquibase;
 
 @Configuration
 public class LiquibaseConfig {
-    
+
     /**
      * Defines a BeanPostProcessor to validate that the 'contexts' property
      * is explicitly set on the SpringLiquibase bean before it is initialized.

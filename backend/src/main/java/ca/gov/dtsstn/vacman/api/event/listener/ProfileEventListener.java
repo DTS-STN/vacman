@@ -10,8 +10,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
@@ -26,6 +24,8 @@ import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
 import ca.gov.dtsstn.vacman.api.service.dto.ProfileEventDto;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Listener for profile-related events.
@@ -41,9 +41,9 @@ public class ProfileEventListener {
 	private final ProfileStatuses profileStatusCodes;
 	private final NotificationService notificationService;
 
-	private final ObjectMapper objectMapper = new ObjectMapper()
-		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-		.findAndRegisterModules();
+	private final ObjectMapper objectMapper = JsonMapper.builder()
+		.findAndAddModules()
+		.build();
 
 	public ProfileEventListener(
 			EventRepository eventRepository,
