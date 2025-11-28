@@ -93,7 +93,9 @@ public interface MatchModelMapper {
 			new Column("Email", match -> match.profile().email()),
 			new Column("WFA Status", match -> match.profile().wfaStatus().nameEn()),
 			new Column("Match Status", match -> match.matchStatus().nameEn()),
-			new Column("Match Feedback", match -> match.matchFeedback() != null ? match.matchFeedback().nameEn() : "", "MatchFeedbackValidation"),
+			// XXX ::: GjB ::: I have intentionally removed the `MatchFeedbackValidation` validator from this column because it doesn't work with excel
+			//                 I am leaving the code that handles the validation here in case we want to revisit this in the future
+			new Column("Match Feedback", match -> match.matchFeedback() != null ? match.matchFeedback().nameEn() : ""),
 			new Column("Hiring Manager Comment", match -> match.hiringManagerComment() != null ? match.hiringManagerComment() : "")
 		);
 
@@ -104,7 +106,9 @@ public interface MatchModelMapper {
 
 			// The Match Feedback validation has to be anchored to a cell, so we find its index here
 			final var matchFeedbackColumnIndex = IntStream.range(0, columns.size())
-				.filter(i -> "MatchFeedbackValidation".equals(columns.get(i).validationName()))
+				// XXX ::: GjB ::: the validator name here is intentionally altered to prevent it from being applied
+				//                 see comment above where the columns are defined (I want to keep the code for future consideration)
+				.filter(i -> "xxMatchFeedbackValidation".equals(columns.get(i).validationName()))
 				.findFirst().orElse(-1);
 
 			if (matchFeedbackColumnIndex != -1) {
