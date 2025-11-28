@@ -178,7 +178,7 @@ public class RequestEventListener {
 			log.info("Sending bulk job opportunity notifications () {} English-speaking recipients for request ID: [{}]", englishEmails.size(), request.id());
 
 			final var jobModelEn = new EmailTemplateModel.JobOpportunity(
-				Optional.ofNullable(request.requestNumber()).orElse(""),
+				notificationService.formatRequestNumber(request.id()),
 				Optional.ofNullable(request.nameEn()).orElse(""),
 				Optional.ofNullable(request.classificationNameEn()).orElse("N/A"),
 				Optional.ofNullable(request.languageRequirementNameEn()).orElse("N/A"),
@@ -207,7 +207,7 @@ public class RequestEventListener {
 			log.info("Sending bulk job opportunity notifications () {} French-speaking recipients for request ID: [{}]", frenchEmails.size(), request.id());
 
 			final var jobModelFr = new EmailTemplateModel.JobOpportunity(
-				Optional.ofNullable(request.requestNumber()).orElse(""),
+				notificationService.formatRequestNumber(request.id()),
 				Optional.ofNullable(request.nameFr()).orElse(""),
 				Optional.ofNullable(request.classificationNameFr()).orElse("N/A"),
 				Optional.ofNullable(request.languageRequirementNameFr()).orElse("N/A"),
@@ -602,7 +602,7 @@ public class RequestEventListener {
 		).orElse("N/A");
 
 		return new EmailTemplateModel.JobOpportunity(
-			request.getRequestNumber(),
+			notificationService.formatRequestNumber(request.getId()),
 			isEnglish ? request.getNameEn() : request.getNameFr(),
 			classification,
 			languageRequirement,
