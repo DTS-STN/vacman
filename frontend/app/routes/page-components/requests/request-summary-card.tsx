@@ -65,7 +65,7 @@ export function RequestSummaryCard({
   // Named booleans for clarity
   const showClearanceCard = code === REQUEST_STATUS_CODE.CLR_GRANTED;
 
-  const showPSCClearanceCard = code === REQUEST_STATUS_CODE.PSC_GRANTED;
+  const showPSCClearanceCard = code === REQUEST_STATUS_CODE.PSC_GRANTED || code === REQUEST_STATUS_CODE.PSC_GRANTED_NO_VMS;
 
   const showMatchesCardHiringManager = code === REQUEST_STATUS_CODE.FDBK_PENDING && view === 'hiring-manager';
 
