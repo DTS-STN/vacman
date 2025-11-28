@@ -47,6 +47,8 @@ public class NotificationService {
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
+	private static final String REQUEST_NUMBER_PREFIX = "0000-0000-";
+
 	private final ApplicationProperties applicationProperties;
 
 	private final RestTemplate restTemplate;
@@ -74,6 +76,17 @@ public class NotificationService {
 			.connectTimeout(applicationProperties.gcnotify().connectTimeout())
 			.readTimeout(applicationProperties.gcnotify().readTimeout())
 			.build();
+	}
+
+	/**
+	 * Formats the request number as 0000-0000-{requestId}.
+	 *
+	 * @param requestId the ID of the request
+	 * @return the formatted request number
+	 */
+	public String formatRequestNumber(Long requestId) {
+		Assert.notNull(requestId, "requestId must not be null");
+		return REQUEST_NUMBER_PREFIX + requestId;
 	}
 
 	/**
@@ -202,23 +215,23 @@ public class NotificationService {
 		// Create the appropriate model based on the request event
 		final var model = switch (requestEvent) {
 			case SUBMITTED, VMS_NOT_REQUIRED ->
-				recordToMap(new EmailTemplateModel.RequestAssigned(requestId.toString()));
+				recordToMap(new EmailTemplateModel.RequestAssigned(formatRequestNumber(requestId)));
 			case PSC_REQUIRED ->
-				recordToMap(new EmailTemplateModel.PscClearanceRequired(requestId.toString()));
+				recordToMap(new EmailTemplateModel.PscClearanceRequired(formatRequestNumber(requestId)));
 			case FEEDBACK_PENDING ->
-				recordToMap(new EmailTemplateModel.PrioritiesIdentified(requestId.toString()));
+				recordToMap(new EmailTemplateModel.PrioritiesIdentified(formatRequestNumber(requestId)));
 			case FEEDBACK_COMPLETED ->
-				recordToMap(new EmailTemplateModel.PendingFeedbackApprovalHR(requestId.toString()));
+				recordToMap(new EmailTemplateModel.PendingFeedbackApprovalHR(formatRequestNumber(requestId)));
 			case PSC_NOT_REQUIRED ->
-				recordToMap(new EmailTemplateModel.FeedbackApproved(requestId.toString(), Optional.ofNullable(priorityClearanceNumber).orElse("")));
+				recordToMap(new EmailTemplateModel.FeedbackApproved(formatRequestNumber(requestId), Optional.ofNullable(priorityClearanceNumber).orElse("")));
 			case COMPLETED, COMPLETED_NO_VMS ->
 				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(
-					requestId.toString(),
+					formatRequestNumber(requestId),
 					Optional.ofNullable(priorityClearanceNumber).orElse("Pending"),
 					Optional.ofNullable(pscClearanceNumber).orElse("Pending")
 				));
 			case CANCELLED ->
-				recordToMap(new EmailTemplateModel.RequestCancelled(requestId.toString()));
+				recordToMap(new EmailTemplateModel.RequestCancelled(formatRequestNumber(requestId)));
 		};
 
 		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);
