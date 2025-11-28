@@ -17,10 +17,11 @@ const variants = {
   default: 'block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500',
 } as const;
 
-export interface InputSelectProps extends OmitStrict<
-  ComponentProps<'select'>,
-  'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-labelledby' | 'aria-required'
-> {
+export interface InputSelectProps
+  extends OmitStrict<
+    ComponentProps<'select'>,
+    'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-labelledby' | 'aria-required'
+  > {
   ariaDescribedbyId?: string;
   errorMessage?: string;
   helpMessage?: ReactNode;
