@@ -26,6 +26,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.AbstractCodeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -150,7 +151,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "cities" })
 	@Counted("service.code.getCities.count")
 	public Page<CityEntity> getCities(Pageable pageable) {
-		return cityRepository.findAll(pageable);
+		return cityRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -162,7 +163,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "classifications" })
 	@Counted("service.code.getClassifications.count")
 	public Page<ClassificationEntity> getClassifications(Pageable pageable) {
-		return classificationRepository.findAll(pageable);
+		return classificationRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -174,7 +175,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-equities" })
 	@Counted("service.code.getEmploymentEquities.count")
 	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable) {
-		return employmentEquityRepository.findAll(pageable);
+		return employmentEquityRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -186,7 +187,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-opportunities" })
 	@Counted("service.code.getEmploymentOpportunities.count")
 	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable) {
-		return employmentOpportunityRepository.findAll(pageable);
+		return employmentOpportunityRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -198,7 +199,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-tenures" })
 	@Counted("service.code.getEmploymentTenures.count")
 	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable) {
-		return employmentTenureRepository.findAll(pageable);
+		return employmentTenureRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -210,7 +211,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "languages" })
 	@Counted("service.code.getLanguages.count")
 	public Page<LanguageEntity> getLanguages(Pageable pageable) {
-		return languageRepository.findAll(pageable);
+		return languageRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -222,7 +223,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "language-referral-types" })
 	@Counted("service.code.getLanguageReferralTypes.count")
 	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
-		return languageReferralTypeRepository.findAll(pageable);
+		return languageReferralTypeRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -234,7 +235,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "language-requirements" })
 	@Counted("service.code.getLanguageRequirements.count")
 	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable) {
-		return languageRequirementRepository.findAll(pageable);
+		return languageRequirementRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -246,7 +247,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "match-feedbacks" })
 	@Counted("service.code.getMatchFeedbacks.count")
 	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
-		return matchFeedbackRepository.findAll(pageable);
+		return matchFeedbackRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -258,7 +259,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "match-statuses" })
 	@Counted("service.code.getMatchStatuses.count")
 	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable) {
-		return matchStatusRepository.findAll(pageable);
+		return matchStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -270,7 +271,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "non-advertised-appointments" })
 	@Counted("service.code.getNonAdvertisedAppointments.count")
 	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable) {
-		return nonAdvertisedAppointmentRepository.findAll(pageable);
+		return nonAdvertisedAppointmentRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -282,7 +283,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "profile-statuses" })
 	@Counted("service.code.getProfileStatuses.count")
 	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable) {
-		return profileStatusRepository.findAll(pageable);
+		return profileStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -294,7 +295,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "provinces" })
 	@Counted("service.code.getProvinces.count")
 	public Page<ProvinceEntity> getProvinces(Pageable pageable) {
-		return provinceRepository.findAll(pageable);
+		return provinceRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -306,7 +307,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "request-statuses" })
 	@Counted("service.code.getRequestStatuses.count")
 	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable) {
-		return requestStatusRepository.findAll(pageable);
+		return requestStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -318,7 +319,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "security-clearances" })
 	@Counted("service.code.getSecurityClearances.count")
 	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable) {
-		return securityClearanceRepository.findAll(pageable);
+		return securityClearanceRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -330,7 +331,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "selection-process-types" })
 	@Counted("service.code.getSelectionProcessTypes.count")
 	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable) {
-		return selectionProcessTypeRepository.findAll(pageable);
+		return selectionProcessTypeRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -342,7 +343,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "user-types" })
 	@Counted("service.code.getUserTypes.count")
 	public Page<UserTypeEntity> getUserTypes(Pageable pageable) {
-		return userTypeRepository.findAll(pageable);
+		return userTypeRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -354,7 +355,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "wfa-statuses" })
 	@Counted("service.code.getWfaStatuses.count")
 	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
-		return wfaStatusRepository.findAll(pageable);
+		return wfaStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -366,7 +367,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "work-schedules" })
 	@Counted("service.code.getWorkSchedules.count")
 	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable) {
-		return workScheduleRepository.findAll(pageable);
+		return workScheduleRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -378,7 +379,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "work-units" })
 	@Counted("service.code.getWorkUnits.count")
 	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable) {
-		return workUnitRepository.findAll(pageable);
+		return workUnitRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 }
