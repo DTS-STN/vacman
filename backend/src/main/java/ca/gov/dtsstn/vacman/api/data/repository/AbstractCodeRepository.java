@@ -22,7 +22,7 @@ public interface AbstractCodeRepository<T extends AbstractCodeEntity> extends Ab
 	static <T extends AbstractCodeEntity> Specification<T> isActive() {
 		return (root, query, cb) -> cb.or(
 			cb.isNull(root.get("expiryDate")),
-			cb.greaterThan(root.get("expiryDate"), Instant.now())
+			cb.greaterThanOrEqualTo(root.get("expiryDate"), Instant.now())
 		);
 	}
 
