@@ -17,7 +17,8 @@ import ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity;
 public interface AbstractCodeRepository<T extends AbstractCodeEntity> extends AbstractBaseRepository<T> {
 
 	/**
-	 * Returns a specification that filters out expired codes.
+	 * Returns a specification that filters codes to include only those without an expiry date
+	 * or with an expiry date in the future.
 	 */
 	static <T extends AbstractCodeEntity> Specification<T> isActive() {
 		return (root, query, cb) -> cb.or(
