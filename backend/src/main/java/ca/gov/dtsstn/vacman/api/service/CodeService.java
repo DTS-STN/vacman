@@ -161,8 +161,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link CityEntity} objects
 	 */
-	@Cacheable(cacheNames = { "cities" })
 	@Counted("service.code.getCities.count")
+	@Cacheable(cacheNames = { "cities" }, key = "#pageable + '_' + #includeInactive")
 	public Page<CityEntity> getCities(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? cityRepository.findAll(pageable)
@@ -188,8 +188,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link ClassificationEntity} objects
 	 */
-	@Cacheable(cacheNames = { "classifications" })
 	@Counted("service.code.getClassifications.count")
+	@Cacheable(cacheNames = { "classifications" }, key = "#pageable + '_' + #includeInactive")
 	public Page<ClassificationEntity> getClassifications(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? classificationRepository.findAll(pageable)
@@ -215,8 +215,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link EmploymentEquityEntity} objects
 	 */
-	@Cacheable(cacheNames = { "employment-equities" })
 	@Counted("service.code.getEmploymentEquities.count")
+	@Cacheable(cacheNames = { "employment-equities" }, key = "#pageable + '_' + #includeInactive")
 	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? employmentEquityRepository.findAll(pageable)
@@ -242,8 +242,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link EmploymentOpportunityEntity} objects
 	 */
-	@Cacheable(cacheNames = { "employment-opportunities" })
 	@Counted("service.code.getEmploymentOpportunities.count")
+	@Cacheable(cacheNames = { "employment-opportunities" }, key = "#pageable + '_' + #includeInactive")
 	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? employmentOpportunityRepository.findAll(pageable)
@@ -269,8 +269,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link EmploymentTenureEntity} objects
 	 */
-	@Cacheable(cacheNames = { "employment-tenures" })
 	@Counted("service.code.getEmploymentTenures.count")
+	@Cacheable(cacheNames = { "employment-tenures" }, key = "#pageable + '_' + #includeInactive")
 	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? employmentTenureRepository.findAll(pageable)
@@ -296,8 +296,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link LanguageEntity} objects
 	 */
-	@Cacheable(cacheNames = { "languages" })
 	@Counted("service.code.getLanguages.count")
+	@Cacheable(cacheNames = { "languages" }, key = "#pageable + '_' + #includeInactive")
 	public Page<LanguageEntity> getLanguages(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? languageRepository.findAll(pageable)
@@ -323,8 +323,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link LanguageReferralTypeEntity} objects
 	 */
-	@Cacheable(cacheNames = { "language-referral-types" })
 	@Counted("service.code.getLanguageReferralTypes.count")
+	@Cacheable(cacheNames = { "language-referral-types" }, key = "#pageable + '_' + #includeInactive")
 	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? languageReferralTypeRepository.findAll(pageable)
@@ -350,8 +350,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link LanguageRequirementEntity} objects
 	 */
-	@Cacheable(cacheNames = { "language-requirements" })
 	@Counted("service.code.getLanguageRequirements.count")
+	@Cacheable(cacheNames = { "language-requirements" }, key = "#pageable + '_' + #includeInactive")
 	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? languageRequirementRepository.findAll(pageable)
@@ -377,8 +377,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link MatchFeedbackEntity} objects
 	 */
-	@Cacheable(cacheNames = { "match-feedbacks" })
 	@Counted("service.code.getMatchFeedbacks.count")
+	@Cacheable(cacheNames = { "match-feedbacks" }, key = "#pageable + '_' + #includeInactive")
 	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? matchFeedbackRepository.findAll(pageable)
@@ -404,8 +404,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link MatchStatusEntity} objects
 	 */
-	@Cacheable(cacheNames = { "match-statuses" })
 	@Counted("service.code.getMatchStatuses.count")
+	@Cacheable(cacheNames = { "match-statuses" }, key = "#pageable + '_' + #includeInactive")
 	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? matchStatusRepository.findAll(pageable)
@@ -431,8 +431,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link NonAdvertisedAppointmentEntity} objects
 	 */
-	@Cacheable(cacheNames = { "non-advertised-appointments" })
 	@Counted("service.code.getNonAdvertisedAppointments.count")
+	@Cacheable(cacheNames = { "non-advertised-appointments" }, key = "#pageable + '_' + #includeInactive")
 	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? nonAdvertisedAppointmentRepository.findAll(pageable)
@@ -458,8 +458,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link ProfileStatusEntity} objects
 	 */
-	@Cacheable(cacheNames = { "profile-statuses" })
 	@Counted("service.code.getProfileStatuses.count")
+	@Cacheable(cacheNames = { "profile-statuses" }, key = "#pageable + '_' + #includeInactive")
 	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? profileStatusRepository.findAll(pageable)
@@ -485,8 +485,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link ProvinceEntity} objects
 	 */
-	@Cacheable(cacheNames = { "provinces" })
 	@Counted("service.code.getProvinces.count")
+	@Cacheable(cacheNames = { "provinces" }, key = "#pageable + '_' + #includeInactive")
 	public Page<ProvinceEntity> getProvinces(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? provinceRepository.findAll(pageable)
@@ -512,8 +512,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link RequestStatusEntity} objects
 	 */
-	@Cacheable(cacheNames = { "request-statuses" })
 	@Counted("service.code.getRequestStatuses.count")
+	@Cacheable(cacheNames = { "request-statuses" }, key = "#pageable + '_' + #includeInactive")
 	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? requestStatusRepository.findAll(pageable)
@@ -539,8 +539,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link SecurityClearanceEntity} objects
 	 */
-	@Cacheable(cacheNames = { "security-clearances" })
 	@Counted("service.code.getSecurityClearances.count")
+	@Cacheable(cacheNames = { "security-clearances" }, key = "#pageable + '_' + #includeInactive")
 	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? securityClearanceRepository.findAll(pageable)
@@ -566,8 +566,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link SelectionProcessTypeEntity} objects
 	 */
-	@Cacheable(cacheNames = { "selection-process-types" })
 	@Counted("service.code.getSelectionProcessTypes.count")
+	@Cacheable(cacheNames = { "selection-process-types" }, key = "#pageable + '_' + #includeInactive")
 	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? selectionProcessTypeRepository.findAll(pageable)
@@ -593,8 +593,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link UserTypeEntity} objects
 	 */
-	@Cacheable(cacheNames = { "user-types" })
 	@Counted("service.code.getUserTypes.count")
+	@Cacheable(cacheNames = { "user-types" }, key = "#pageable + '_' + #includeInactive")
 	public Page<UserTypeEntity> getUserTypes(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? userTypeRepository.findAll(pageable)
@@ -620,8 +620,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link WfaStatusEntity} objects
 	 */
-	@Cacheable(cacheNames = { "wfa-statuses" })
 	@Counted("service.code.getWfaStatuses.count")
+	@Cacheable(cacheNames = { "wfa-statuses" }, key = "#pageable + '_' + #includeInactive")
 	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? wfaStatusRepository.findAll(pageable)
@@ -647,8 +647,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link WorkScheduleEntity} objects
 	 */
-	@Cacheable(cacheNames = { "work-schedules" })
 	@Counted("service.code.getWorkSchedules.count")
+	@Cacheable(cacheNames = { "work-schedules" }, key = "#pageable + '_' + #includeInactive")
 	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? workScheduleRepository.findAll(pageable)
@@ -674,8 +674,8 @@ public class CodeService {
 	 * @param includeInactive whether to include inactive codes
 	 * @return a page of {@link WorkUnitEntity} objects
 	 */
-	@Cacheable(cacheNames = { "work-units" })
 	@Counted("service.code.getWorkUnits.count")
+	@Cacheable(cacheNames = { "work-units" }, key = "#pageable + '_' + #includeInactive")
 	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable, boolean includeInactive) {
 		return includeInactive
 			? workUnitRepository.findAll(pageable)
