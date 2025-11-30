@@ -26,6 +26,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.AbstractCodeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -150,7 +151,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "cities" })
 	@Counted("service.code.getCities.count")
 	public Page<CityEntity> getCities(Pageable pageable) {
-		return cityRepository.findAll(pageable);
+		return getCities(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of cities.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link CityEntity} objects
+	 */
+	@Cacheable(cacheNames = { "cities" })
+	@Counted("service.code.getCities.count")
+	public Page<CityEntity> getCities(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? cityRepository.findAll(pageable)
+			: cityRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -162,7 +178,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "classifications" })
 	@Counted("service.code.getClassifications.count")
 	public Page<ClassificationEntity> getClassifications(Pageable pageable) {
-		return classificationRepository.findAll(pageable);
+		return getClassifications(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of classifications.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link ClassificationEntity} objects
+	 */
+	@Cacheable(cacheNames = { "classifications" })
+	@Counted("service.code.getClassifications.count")
+	public Page<ClassificationEntity> getClassifications(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? classificationRepository.findAll(pageable)
+			: classificationRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -174,7 +205,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-equities" })
 	@Counted("service.code.getEmploymentEquities.count")
 	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable) {
-		return employmentEquityRepository.findAll(pageable);
+		return getEmploymentEquities(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of employment equities.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link EmploymentEquityEntity} objects
+	 */
+	@Cacheable(cacheNames = { "employment-equities" })
+	@Counted("service.code.getEmploymentEquities.count")
+	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? employmentEquityRepository.findAll(pageable)
+			: employmentEquityRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -186,7 +232,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-opportunities" })
 	@Counted("service.code.getEmploymentOpportunities.count")
 	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable) {
-		return employmentOpportunityRepository.findAll(pageable);
+		return getEmploymentOpportunities(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of employment opportunities.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link EmploymentOpportunityEntity} objects
+	 */
+	@Cacheable(cacheNames = { "employment-opportunities" })
+	@Counted("service.code.getEmploymentOpportunities.count")
+	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? employmentOpportunityRepository.findAll(pageable)
+			: employmentOpportunityRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -198,7 +259,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-tenures" })
 	@Counted("service.code.getEmploymentTenures.count")
 	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable) {
-		return employmentTenureRepository.findAll(pageable);
+		return getEmploymentTenures(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of employment tenures.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link EmploymentTenureEntity} objects
+	 */
+	@Cacheable(cacheNames = { "employment-tenures" })
+	@Counted("service.code.getEmploymentTenures.count")
+	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? employmentTenureRepository.findAll(pageable)
+			: employmentTenureRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -210,7 +286,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "languages" })
 	@Counted("service.code.getLanguages.count")
 	public Page<LanguageEntity> getLanguages(Pageable pageable) {
-		return languageRepository.findAll(pageable);
+		return getLanguages(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of languages.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link LanguageEntity} objects
+	 */
+	@Cacheable(cacheNames = { "languages" })
+	@Counted("service.code.getLanguages.count")
+	public Page<LanguageEntity> getLanguages(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? languageRepository.findAll(pageable)
+			: languageRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -222,7 +313,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "language-referral-types" })
 	@Counted("service.code.getLanguageReferralTypes.count")
 	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
-		return languageReferralTypeRepository.findAll(pageable);
+		return getLanguageReferralTypes(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of language referral types.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link LanguageReferralTypeEntity} objects
+	 */
+	@Cacheable(cacheNames = { "language-referral-types" })
+	@Counted("service.code.getLanguageReferralTypes.count")
+	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? languageReferralTypeRepository.findAll(pageable)
+			: languageReferralTypeRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -234,7 +340,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "language-requirements" })
 	@Counted("service.code.getLanguageRequirements.count")
 	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable) {
-		return languageRequirementRepository.findAll(pageable);
+		return getLanguageRequirements(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of language requirements.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link LanguageRequirementEntity} objects
+	 */
+	@Cacheable(cacheNames = { "language-requirements" })
+	@Counted("service.code.getLanguageRequirements.count")
+	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? languageRequirementRepository.findAll(pageable)
+			: languageRequirementRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -246,7 +367,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "match-feedbacks" })
 	@Counted("service.code.getMatchFeedbacks.count")
 	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
-		return matchFeedbackRepository.findAll(pageable);
+		return getMatchFeedbacks(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of match feedback options.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link MatchFeedbackEntity} objects
+	 */
+	@Cacheable(cacheNames = { "match-feedbacks" })
+	@Counted("service.code.getMatchFeedbacks.count")
+	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? matchFeedbackRepository.findAll(pageable)
+			: matchFeedbackRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -258,7 +394,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "match-statuses" })
 	@Counted("service.code.getMatchStatuses.count")
 	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable) {
-		return matchStatusRepository.findAll(pageable);
+		return getMatchStatuses(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of match statuses.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link MatchStatusEntity} objects
+	 */
+	@Cacheable(cacheNames = { "match-statuses" })
+	@Counted("service.code.getMatchStatuses.count")
+	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? matchStatusRepository.findAll(pageable)
+			: matchStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -270,7 +421,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "non-advertised-appointments" })
 	@Counted("service.code.getNonAdvertisedAppointments.count")
 	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable) {
-		return nonAdvertisedAppointmentRepository.findAll(pageable);
+		return getNonAdvertisedAppointments(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of non-advertised appointments.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link NonAdvertisedAppointmentEntity} objects
+	 */
+	@Cacheable(cacheNames = { "non-advertised-appointments" })
+	@Counted("service.code.getNonAdvertisedAppointments.count")
+	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? nonAdvertisedAppointmentRepository.findAll(pageable)
+			: nonAdvertisedAppointmentRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -282,7 +448,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "profile-statuses" })
 	@Counted("service.code.getProfileStatuses.count")
 	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable) {
-		return profileStatusRepository.findAll(pageable);
+		return getProfileStatuses(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of profile statuses.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link ProfileStatusEntity} objects
+	 */
+	@Cacheable(cacheNames = { "profile-statuses" })
+	@Counted("service.code.getProfileStatuses.count")
+	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? profileStatusRepository.findAll(pageable)
+			: profileStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -294,7 +475,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "provinces" })
 	@Counted("service.code.getProvinces.count")
 	public Page<ProvinceEntity> getProvinces(Pageable pageable) {
-		return provinceRepository.findAll(pageable);
+		return getProvinces(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of provinces.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link ProvinceEntity} objects
+	 */
+	@Cacheable(cacheNames = { "provinces" })
+	@Counted("service.code.getProvinces.count")
+	public Page<ProvinceEntity> getProvinces(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? provinceRepository.findAll(pageable)
+			: provinceRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -306,7 +502,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "request-statuses" })
 	@Counted("service.code.getRequestStatuses.count")
 	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable) {
-		return requestStatusRepository.findAll(pageable);
+		return getRequestStatuses(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of request statuses.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link RequestStatusEntity} objects
+	 */
+	@Cacheable(cacheNames = { "request-statuses" })
+	@Counted("service.code.getRequestStatuses.count")
+	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? requestStatusRepository.findAll(pageable)
+			: requestStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -318,7 +529,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "security-clearances" })
 	@Counted("service.code.getSecurityClearances.count")
 	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable) {
-		return securityClearanceRepository.findAll(pageable);
+		return getSecurityClearances(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of security clearances.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link SecurityClearanceEntity} objects
+	 */
+	@Cacheable(cacheNames = { "security-clearances" })
+	@Counted("service.code.getSecurityClearances.count")
+	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? securityClearanceRepository.findAll(pageable)
+			: securityClearanceRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -330,7 +556,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "selection-process-types" })
 	@Counted("service.code.getSelectionProcessTypes.count")
 	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable) {
-		return selectionProcessTypeRepository.findAll(pageable);
+		return getSelectionProcessTypes(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of selection process types.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link SelectionProcessTypeEntity} objects
+	 */
+	@Cacheable(cacheNames = { "selection-process-types" })
+	@Counted("service.code.getSelectionProcessTypes.count")
+	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? selectionProcessTypeRepository.findAll(pageable)
+			: selectionProcessTypeRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -342,7 +583,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "user-types" })
 	@Counted("service.code.getUserTypes.count")
 	public Page<UserTypeEntity> getUserTypes(Pageable pageable) {
-		return userTypeRepository.findAll(pageable);
+		return getUserTypes(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of user types.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link UserTypeEntity} objects
+	 */
+	@Cacheable(cacheNames = { "user-types" })
+	@Counted("service.code.getUserTypes.count")
+	public Page<UserTypeEntity> getUserTypes(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? userTypeRepository.findAll(pageable)
+			: userTypeRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -354,7 +610,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "wfa-statuses" })
 	@Counted("service.code.getWfaStatuses.count")
 	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
-		return wfaStatusRepository.findAll(pageable);
+		return getWfaStatuses(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of WFA statuses.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link WfaStatusEntity} objects
+	 */
+	@Cacheable(cacheNames = { "wfa-statuses" })
+	@Counted("service.code.getWfaStatuses.count")
+	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? wfaStatusRepository.findAll(pageable)
+			: wfaStatusRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -366,7 +637,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "work-schedules" })
 	@Counted("service.code.getWorkSchedules.count")
 	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable) {
-		return workScheduleRepository.findAll(pageable);
+		return getWorkSchedules(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of work schedules.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link WorkScheduleEntity} objects
+	 */
+	@Cacheable(cacheNames = { "work-schedules" })
+	@Counted("service.code.getWorkSchedules.count")
+	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? workScheduleRepository.findAll(pageable)
+			: workScheduleRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 	/**
@@ -378,7 +664,22 @@ public class CodeService {
 	@Cacheable(cacheNames = { "work-units" })
 	@Counted("service.code.getWorkUnits.count")
 	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable) {
-		return workUnitRepository.findAll(pageable);
+		return getWorkUnits(pageable, false);
+	}
+
+	/**
+	 * Retrieves a paginated list of work units.
+	 *
+	 * @param pageable pagination information
+	 * @param includeInactive whether to include inactive codes
+	 * @return a page of {@link WorkUnitEntity} objects
+	 */
+	@Cacheable(cacheNames = { "work-units" })
+	@Counted("service.code.getWorkUnits.count")
+	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable, boolean includeInactive) {
+		return includeInactive
+			? workUnitRepository.findAll(pageable)
+			: workUnitRepository.findAll(AbstractCodeRepository.isActive(), pageable);
 	}
 
 }

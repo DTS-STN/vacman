@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.service.CodeService;
@@ -57,8 +58,8 @@ public class CodesController {
 	@PreAuthorize("permitAll()")
 	@Operation(summary = "Get all city codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "cities" })
-	public CollectionModel<CityReadModel> getCities() {
-		return codeService.getCities(unpaged())
+	public CollectionModel<CityReadModel> getCities(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getCities(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -67,8 +68,8 @@ public class CodesController {
 	@GetMapping({ "/classifications" })
 	@Operation(summary = "Get all classification codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "classifications" })
-	public CollectionModel<ClassificationReadModel> getClassifications() {
-		return codeService.getClassifications(unpaged())
+	public CollectionModel<ClassificationReadModel> getClassifications(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getClassifications(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -77,8 +78,8 @@ public class CodesController {
 	@GetMapping({ "/employment-equities" })
 	@Operation(summary = "Get all employment equity codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "employment_equities" })
-	public CollectionModel<EmploymentEquityReadModel> getEmploymentEquities() {
-		return codeService.getEmploymentEquities(unpaged())
+	public CollectionModel<EmploymentEquityReadModel> getEmploymentEquities(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getEmploymentEquities(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -87,8 +88,8 @@ public class CodesController {
 	@GetMapping({ "/employment-opportunities" })
 	@Operation(summary = "Get all employment opportunity codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "employment_opportunities" })
-	public CollectionModel<EmploymentOpportunityReadModel> getEmploymentOpportunities() {
-		return codeService.getEmploymentOpportunities(unpaged())
+	public CollectionModel<EmploymentOpportunityReadModel> getEmploymentOpportunities(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getEmploymentOpportunities(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -97,8 +98,8 @@ public class CodesController {
 	@GetMapping({ "/employment-tenures" })
 	@Operation(summary = "Get all employment tenure codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "employment_tenures" })
-	public CollectionModel<EmploymentTenureReadModel> getEmploymentTenures() {
-		return codeService.getEmploymentTenures(unpaged())
+	public CollectionModel<EmploymentTenureReadModel> getEmploymentTenures(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getEmploymentTenures(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -107,8 +108,8 @@ public class CodesController {
 	@GetMapping({ "/language-referral-types" })
 	@Operation(summary = "Get all language referral type codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "language_referral_types" })
-	public CollectionModel<LanguageReferralTypeReadModel> getLanguageReferralTypes() {
-		return codeService.getLanguageReferralTypes(unpaged())
+	public CollectionModel<LanguageReferralTypeReadModel> getLanguageReferralTypes(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getLanguageReferralTypes(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -117,8 +118,8 @@ public class CodesController {
 	@GetMapping({ "/language-requirements" })
 	@Operation(summary = "Get all language requirement codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "language_requirements" })
-	public CollectionModel<LanguageRequirementReadModel> getLanguageRequirements() {
-		return codeService.getLanguageRequirements(unpaged())
+	public CollectionModel<LanguageRequirementReadModel> getLanguageRequirements(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getLanguageRequirements(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -127,8 +128,8 @@ public class CodesController {
 	@GetMapping({ "/languages" })
 	@Operation(summary = "Get all language codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "languages" })
-	public CollectionModel<LanguageReadModel> getLanguages() {
-		return codeService.getLanguages(unpaged())
+	public CollectionModel<LanguageReadModel> getLanguages(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getLanguages(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -137,8 +138,8 @@ public class CodesController {
 	@GetMapping({ "/match-feedbacks" })
 	@Operation(summary = "Get all match feedback codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "match_feedbacks" })
-	public CollectionModel<MatchFeedbackReadModel> getMatchFeedbacks() {
-		return codeService.getMatchFeedbacks(unpaged())
+	public CollectionModel<MatchFeedbackReadModel> getMatchFeedbacks(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getMatchFeedbacks(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -147,8 +148,8 @@ public class CodesController {
 	@GetMapping({ "/match-statuses" })
 	@Operation(summary = "Get all match status codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "match_statuses" })
-	public CollectionModel<MatchStatusReadModel> getMatchStatuses() {
-		return codeService.getMatchStatuses(unpaged())
+	public CollectionModel<MatchStatusReadModel> getMatchStatuses(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getMatchStatuses(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -157,8 +158,8 @@ public class CodesController {
 	@GetMapping({ "/non-advertised-appointments" })
 	@Operation(summary = "Get all non-advertised appointment codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "non_advertised_appointments" })
-	public CollectionModel<NonAdvertisedAppointmentReadModel> getNonAdvertisedAppointments() {
-		return codeService.getNonAdvertisedAppointments(unpaged())
+	public CollectionModel<NonAdvertisedAppointmentReadModel> getNonAdvertisedAppointments(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getNonAdvertisedAppointments(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -167,8 +168,8 @@ public class CodesController {
 	@GetMapping({ "/profile-statuses" })
 	@Operation(summary = "Get all profile status codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "profile_statuses" })
-	public CollectionModel<ProfileStatusReadModel> getProfileStatuses() {
-		return codeService.getProfileStatuses(unpaged())
+	public CollectionModel<ProfileStatusReadModel> getProfileStatuses(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getProfileStatuses(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -177,8 +178,8 @@ public class CodesController {
 	@GetMapping({ "/provinces" })
 	@Operation(summary = "Get all province codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "provinces" })
-	public CollectionModel<ProvinceReadModel> getProvinces() {
-		return codeService.getProvinces(unpaged())
+	public CollectionModel<ProvinceReadModel> getProvinces(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getProvinces(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -187,8 +188,8 @@ public class CodesController {
 	@GetMapping({ "/request-statuses" })
 	@Operation(summary = "Get all request status codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "request_statuses" })
-	public CollectionModel<RequestStatusReadModel> getRequestStatuses() {
-		return codeService.getRequestStatuses(unpaged())
+	public CollectionModel<RequestStatusReadModel> getRequestStatuses(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getRequestStatuses(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -197,8 +198,8 @@ public class CodesController {
 	@GetMapping({ "/security-clearances" })
 	@Operation(summary = "Get all security clearance codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "security_clearances" })
-	public CollectionModel<SecurityClearanceReadModel> getSecurityClearances() {
-		return codeService.getSecurityClearances(unpaged())
+	public CollectionModel<SecurityClearanceReadModel> getSecurityClearances(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getSecurityClearances(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -207,8 +208,8 @@ public class CodesController {
 	@GetMapping({ "/selection-process-types" })
 	@Operation(summary = "Get all selection process type codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "selection_process_types" })
-	public CollectionModel<SelectionProcessTypeReadModel> getSelectionProcessTypes() {
-		return codeService.getSelectionProcessTypes(unpaged())
+	public CollectionModel<SelectionProcessTypeReadModel> getSelectionProcessTypes(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getSelectionProcessTypes(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -217,8 +218,8 @@ public class CodesController {
 	@GetMapping({ "/user-types" })
 	@Operation(summary = "Get all user type codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "user_types" })
-	public CollectionModel<UserTypeReadModel> getUserTypes() {
-		return codeService.getUserTypes(unpaged())
+	public CollectionModel<UserTypeReadModel> getUserTypes(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getUserTypes(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -227,8 +228,8 @@ public class CodesController {
 	@GetMapping({ "/wfa-statuses" })
 	@Operation(summary = "Get all WFA status codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "wfa_statuses" })
-	public CollectionModel<WfaStatusReadModel> getWfaStatuses() {
-		return codeService.getWfaStatuses(unpaged())
+	public CollectionModel<WfaStatusReadModel> getWfaStatuses(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getWfaStatuses(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -237,8 +238,8 @@ public class CodesController {
 	@GetMapping({ "/work-schedules" })
 	@Operation(summary = "Get all work schedule codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "work_schedules" })
-	public CollectionModel<WorkScheduleReadModel> getWorkSchedules() {
-		return codeService.getWorkSchedules(unpaged())
+	public CollectionModel<WorkScheduleReadModel> getWorkSchedules(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getWorkSchedules(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
@@ -247,8 +248,8 @@ public class CodesController {
 	@GetMapping({ "/work-units" })
 	@Operation(summary = "Get all work unit codes")
 	@Counted(value = "codes.fetched", extraTags = { "type", "work_units" })
-	public CollectionModel<WorkUnitReadModel> getWorkUnits() {
-		return codeService.getWorkUnits(unpaged())
+	public CollectionModel<WorkUnitReadModel> getWorkUnits(@RequestParam(defaultValue = "false") boolean includeInactive) {
+		return codeService.getWorkUnits(unpaged(), includeInactive)
 			.map(codeMapper::map).stream()
 			.collect(toCollectionModel());
 	}
