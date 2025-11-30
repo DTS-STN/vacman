@@ -89,7 +89,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getCities(unpaged())).thenReturn(new PageImpl<>(List.of(city)));
+		when(codeService.getCities(unpaged(), false)).thenReturn(new PageImpl<>(List.of(city)));
 
 		mockMvc.perform(get("/api/v1/codes/cities"))
 			.andExpect(status().isOk())
@@ -119,7 +119,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getClassifications(unpaged())).thenReturn(new PageImpl<>(List.of(classification)));
+		when(codeService.getClassifications(unpaged(), false)).thenReturn(new PageImpl<>(List.of(classification)));
 
 		mockMvc.perform(get("/api/v1/codes/classifications"))
 			.andExpect(status().isOk())
@@ -145,7 +145,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getEmploymentEquities(unpaged())).thenReturn(new PageImpl<>(List.of(employmentEquity)));
+		when(codeService.getEmploymentEquities(unpaged(), false)).thenReturn(new PageImpl<>(List.of(employmentEquity)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-equities"))
 			.andExpect(status().isOk())
@@ -171,7 +171,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getEmploymentOpportunities(unpaged())).thenReturn(new PageImpl<>(List.of(employmentOpportunity)));
+		when(codeService.getEmploymentOpportunities(unpaged(), false)).thenReturn(new PageImpl<>(List.of(employmentOpportunity)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-opportunities"))
 			.andExpect(status().isOk())
@@ -197,7 +197,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getEmploymentTenures(unpaged())).thenReturn(new PageImpl<>(List.of(employmentTenure)));
+		when(codeService.getEmploymentTenures(unpaged(), false)).thenReturn(new PageImpl<>(List.of(employmentTenure)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-tenures"))
 			.andExpect(status().isOk())
@@ -223,7 +223,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getLanguages(unpaged())).thenReturn(new PageImpl<>(List.of(language)));
+		when(codeService.getLanguages(unpaged(), false)).thenReturn(new PageImpl<>(List.of(language)));
 
 		mockMvc.perform(get("/api/v1/codes/languages"))
 			.andExpect(status().isOk())
@@ -249,7 +249,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getLanguageReferralTypes(unpaged())).thenReturn(new PageImpl<>(List.of(languageReferralType)));
+		when(codeService.getLanguageReferralTypes(unpaged(), false)).thenReturn(new PageImpl<>(List.of(languageReferralType)));
 
 		mockMvc.perform(get("/api/v1/codes/language-referral-types"))
 			.andExpect(status().isOk())
@@ -275,7 +275,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getLanguageRequirements(unpaged())).thenReturn(new PageImpl<>(List.of(languageRequirement)));
+		when(codeService.getLanguageRequirements(unpaged(), false)).thenReturn(new PageImpl<>(List.of(languageRequirement)));
 
 		mockMvc.perform(get("/api/v1/codes/language-requirements"))
 			.andExpect(status().isOk())
@@ -301,7 +301,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getMatchFeedbacks(unpaged())).thenReturn(new PageImpl<>(List.of(matchFeedback)));
+		when(codeService.getMatchFeedbacks(unpaged(), false)).thenReturn(new PageImpl<>(List.of(matchFeedback)));
 
 		mockMvc.perform(get("/api/v1/codes/match-feedbacks"))
 			.andExpect(status().isOk())
@@ -327,7 +327,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getMatchStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(matchStatus)));
+		when(codeService.getMatchStatuses(unpaged(), false)).thenReturn(new PageImpl<>(List.of(matchStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/match-statuses"))
 			.andExpect(status().isOk())
@@ -353,7 +353,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getNonAdvertisedAppointments(unpaged())).thenReturn(new PageImpl<>(List.of(nonAdvertisedAppointment)));
+		when(codeService.getNonAdvertisedAppointments(unpaged(), false)).thenReturn(new PageImpl<>(List.of(nonAdvertisedAppointment)));
 
 		mockMvc.perform(get("/api/v1/codes/non-advertised-appointments"))
 			.andExpect(status().isOk())
@@ -379,7 +379,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getProfileStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(profileStatus)));
+		when(codeService.getProfileStatuses(unpaged(), false)).thenReturn(new PageImpl<>(List.of(profileStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/profile-statuses"))
 			.andExpect(status().isOk())
@@ -405,7 +405,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getProvinces(unpaged())).thenReturn(new PageImpl<>(List.of(province)));
+		when(codeService.getProvinces(unpaged(), false)).thenReturn(new PageImpl<>(List.of(province)));
 
 		mockMvc.perform(get("/api/v1/codes/provinces"))
 			.andExpect(status().isOk())
@@ -431,7 +431,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getRequestStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(requestStatus)));
+		when(codeService.getRequestStatuses(unpaged(), false)).thenReturn(new PageImpl<>(List.of(requestStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/request-statuses"))
 			.andExpect(status().isOk())
@@ -457,7 +457,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getSecurityClearances(unpaged())).thenReturn(new PageImpl<>(List.of(securityClearance)));
+		when(codeService.getSecurityClearances(unpaged(), false)).thenReturn(new PageImpl<>(List.of(securityClearance)));
 
 		mockMvc.perform(get("/api/v1/codes/security-clearances"))
 			.andExpect(status().isOk())
@@ -483,7 +483,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getSelectionProcessTypes(unpaged())).thenReturn(new PageImpl<>(List.of(selectionProcessType)));
+		when(codeService.getSelectionProcessTypes(unpaged(), false)).thenReturn(new PageImpl<>(List.of(selectionProcessType)));
 
 		mockMvc.perform(get("/api/v1/codes/selection-process-types"))
 			.andExpect(status().isOk())
@@ -509,7 +509,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getUserTypes(unpaged())).thenReturn(new PageImpl<>(List.of(userType)));
+		when(codeService.getUserTypes(unpaged(), false)).thenReturn(new PageImpl<>(List.of(userType)));
 
 		mockMvc.perform(get("/api/v1/codes/user-types"))
 			.andExpect(status().isOk())
@@ -535,7 +535,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getWfaStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(wfaStatus)));
+		when(codeService.getWfaStatuses(unpaged(), false)).thenReturn(new PageImpl<>(List.of(wfaStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/wfa-statuses"))
 			.andExpect(status().isOk())
@@ -561,7 +561,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getWorkSchedules(unpaged())).thenReturn(new PageImpl<>(List.of(workSchedule)));
+		when(codeService.getWorkSchedules(unpaged(), false)).thenReturn(new PageImpl<>(List.of(workSchedule)));
 
 		mockMvc.perform(get("/api/v1/codes/work-schedules"))
 			.andExpect(status().isOk())
@@ -587,7 +587,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getWorkUnits(unpaged())).thenReturn(new PageImpl<>(List.of(workUnit)));
+		when(codeService.getWorkUnits(unpaged(), false)).thenReturn(new PageImpl<>(List.of(workUnit)));
 
 		mockMvc.perform(get("/api/v1/codes/work-units"))
 			.andExpect(status().isOk())
