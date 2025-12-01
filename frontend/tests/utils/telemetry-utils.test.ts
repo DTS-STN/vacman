@@ -72,18 +72,22 @@ describe('InstrumentationUtils', () => {
   describe('withSpan', () => {
     it('should create and end a span', async () => {
       const mockSpan = mock<Span>();
-      const mockTracer = mock<Tracer>({ startSpan: vi.fn().mockReturnValue(mockSpan) });
+      const mockTracer = mock<Tracer>({
+        startActiveSpan: vi.fn().mockImplementation((_name, fn) => fn(mockSpan)),
+      });
       vi.mocked(trace.getTracer).mockReturnValue(mockTracer);
 
       await withSpan('test span', () => {});
 
-      expect(mockTracer.startSpan).toHaveBeenCalledWith('test span');
+      expect(mockTracer.startActiveSpan).toHaveBeenCalledWith('test span', expect.any(Function));
       expect(mockSpan.end).toHaveBeenCalled();
     });
 
     it('should execute the given function', async () => {
       const mockSpan = mock<Span>();
-      const mockTracer = mock<Tracer>({ startSpan: vi.fn().mockReturnValue(mockSpan) });
+      const mockTracer = mock<Tracer>({
+        startActiveSpan: vi.fn().mockImplementation((_name, fn) => fn(mockSpan)),
+      });
       vi.mocked(trace.getTracer).mockReturnValue(mockTracer);
       const mockFn = vi.fn().mockResolvedValue('test');
 
@@ -97,7 +101,7 @@ describe('InstrumentationUtils', () => {
       const mockSpan = mock<Span>();
 
       const mockTracer = mock<Tracer>({
-        startSpan: vi.fn().mockReturnValue(mockSpan),
+        startActiveSpan: vi.fn().mockImplementation((_name, fn) => fn(mockSpan)),
       });
 
       vi.mocked(trace.getTracer).mockReturnValue(mockTracer);
