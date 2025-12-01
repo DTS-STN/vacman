@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BackToTop > renders back to top link > expected html 1`] = `
+<div>
+  <div>
+    <a
+      class="font-lato fixed right-0 bottom-0 z-10 mx-2 hidden translate-y-full items-center justify-center rounded-sm border border-slate-700 bg-slate-700 px-5 py-2.5 align-middle text-sm text-white outline-offset-4 transition-all hover:bg-sky-800 focus:-translate-y-2 focus:bg-sky-800 sm:inline-flex"
+      data-testid="anchor-link"
+      href="#top"
+    >
+      gcweb:footer.back-to-top
+    </a>
+    <a
+      class="mt-2 flex w-full items-center justify-center bg-gray-100 py-3 hover:text-blue-700 hover:underline focus:text-blue-700 sm:hidden"
+      data-testid="anchor-link"
+      href="#top"
+    >
+      <span
+        class="flex flex-nowrap space-x-2"
+      >
+        <span>
+          gcweb:footer.back-to-top
+        </span>
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-chevron-up my-auto size-4"
+          data-icon="chevron-up"
+          data-prefix="fas"
+          role="img"
+          viewBox="0 0 448 512"
+        >
+          <path
+            d="M201.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 173.3 54.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
+    </a>
+  </div>
+</div>
+`;
