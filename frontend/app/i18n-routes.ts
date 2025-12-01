@@ -234,7 +234,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/position-information.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId/position-information',
-          fr: '/frconseiller-rh/demande/:requestId/informations-poste',
+          fr: '/fr/conseiller-rh/demande/:requestId/informations-poste',
         },
       },
       {
