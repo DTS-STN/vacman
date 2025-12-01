@@ -1,4 +1,4 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faWarning, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,7 @@ export interface ChoiceTag {
   name: string;
   value: string;
   group?: string;
+  invalid?: boolean;
 }
 
 export type ClearAllEventHandler = () => void;
@@ -22,6 +23,13 @@ export interface ChoiceTagsProps {
   onDelete?: DeleteEventHandler;
   onClearGroup?: ClearGroupEventHandler;
 }
+
+const variants = {
+  default:
+    'inline-flex items-center justify-center rounded-sm border-2 border-gray-900 bg-blue-100 px-2 py-1 align-middle break-all text-gray-900',
+  invalid:
+    'inline-flex items-center justify-center rounded-sm border-2 border-gray-900 bg-red-300 px-2 py-1 align-middle break-all text-red-900',
+};
 
 export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: ChoiceTagsProps) {
   const { t } = useTranslation(['gcweb']);
@@ -75,10 +83,8 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: C
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((choiceTag) => (
-                    <div
-                      key={choiceTag.value}
-                      className="inline-flex items-center justify-center rounded-sm border-2 border-gray-900 bg-blue-100 px-2 py-1 align-middle break-all text-gray-900"
-                    >
+                    <div key={choiceTag.value} className={choiceTag.invalid ? variants.invalid : variants.default}>
+                      {choiceTag.invalid && <FontAwesomeIcon icon={faWarning} className="mr-1" />}
                       <span>{choiceTag.label}</span>
                       <button
                         aria-label={t('gcweb:choice-tag.choice-tag-with-group-added-aria-label', {
@@ -101,10 +107,7 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: C
         // Render ungrouped tags
         <div className="flex flex-wrap gap-2">
           {choiceTags.map((choiceTag) => (
-            <div
-              key={choiceTag.value}
-              className="inline-flex items-center justify-center rounded-sm border-2 border-gray-900 bg-blue-100 px-2 py-1 align-middle break-all text-gray-900"
-            >
+            <div key={choiceTag.value} className={choiceTag.invalid ? variants.invalid : variants.default}>
               <span>{choiceTag.label}</span>
               <button
                 aria-label={t('gcweb:choice-tag.choice-tag-added-aria-label', {

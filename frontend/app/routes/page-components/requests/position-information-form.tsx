@@ -33,9 +33,10 @@ import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
+import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
-import { extractValidationKey } from '~/utils/validation-utils';
+import { extractValidationKey, normalizeErrors } from '~/utils/validation-utils';
 
 interface PositionInformationFormProps {
   cancelLink: I18nRouteFile;
@@ -58,10 +59,12 @@ export function PositionInformationForm({
   provinces,
   cities,
   securityClearances,
-  formErrors,
+  formErrors: baseFormErrors,
   params,
   isSubmitting,
 }: PositionInformationFormProps): JSX.Element {
+  const formErrors = normalizeErrors(baseFormErrors);
+  const { currentLanguage } = useLanguage();
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
@@ -121,15 +124,31 @@ export function PositionInformationForm({
     defaultChecked: formValues?.languageRequirement?.id === id,
   }));
 
-  const citiesChoiceTags: ChoiceTag[] = selectedCities.map((city) => {
-    const selectedC = cities.find((c) => c.id === Number(city));
-    return {
-      label: selectedC?.name ?? city,
-      name: tApp('position-information.choice-tag.city'),
-      value: city,
-      group: selectedC?.provinceTerritory.name,
-    };
-  });
+  // Choice tags for cities
+  const citiesChoiceTags: ChoiceTag[] = selectedCities
+    .map((city) => {
+      const selectedCity = cities.find((c) => c.id === Number(city));
+      if (selectedCity) {
+        return {
+          label: selectedCity.name,
+          name: tApp('position-information.choice-tag.city'),
+          value: city,
+          group: selectedCity.provinceTerritory.name,
+          invalid: false,
+        };
+      }
+      const missingCity = formValues?.cities?.find((c) => c.id === Number(city));
+      if (missingCity) {
+        return {
+          label: currentLanguage === 'en' ? missingCity.nameEn : missingCity.nameFr,
+          name: tApp('position-information.choice-tag.city'),
+          value: city,
+          group: currentLanguage === 'en' ? missingCity.provinceTerritory.nameEn : missingCity.provinceTerritory.nameFr,
+          invalid: true,
+        };
+      }
+    })
+    .filter((cityTag) => cityTag !== undefined);
 
   const handleOnDeleteCityTag: ChoiceTagDeleteEventHandler = (name, label, value, group) => {
     setSrAnnouncement(
