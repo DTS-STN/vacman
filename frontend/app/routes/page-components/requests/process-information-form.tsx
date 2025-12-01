@@ -161,12 +161,6 @@ export function ProcessInformationForm({
       onChange: handlePriorityEntitlementChange,
       defaultChecked: formValues?.priorityEntitlement === false,
     },
-    {
-      children: tGcweb('input-option.none'),
-      value: REQUIRE_OPTIONS.none,
-      onChange: handlePriorityEntitlementChange,
-      defaultChecked: formValues?.priorityEntitlement === undefined,
-    },
   ];
   const performedDutiesOptions: InputRadiosProps['options'] = [
     {

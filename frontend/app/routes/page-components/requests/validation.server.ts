@@ -389,7 +389,7 @@ export async function createProcessInformationSchema() {
             ),
           }),
           v.object({
-            priorityEntitlement: v.union([v.literal(false), v.null()]),
+            priorityEntitlement: v.literal(false),
             priorityEntitlementRationale: v.optional(v.string()),
           }),
         ],
@@ -556,7 +556,6 @@ export async function createProcessInformationSchema() {
 }
 
 export async function parseProcessInformation(formData: FormData) {
-  const priorityEntitlement = formString(formData.get('priorityEntitlement'));
   const projectedStartDateYear = formData.get('projectedStartDateYear')?.toString();
   const projectedStartDateMonth = formData.get('projectedStartDateMonth')?.toString();
   const projectedStartDateDay = formData.get('projectedStartDateDay')?.toString();
@@ -569,10 +568,8 @@ export async function parseProcessInformation(formData: FormData) {
     approvalReceived: formString(formData.get('approvalReceived'))
       ? formString(formData.get('approvalReceived')) === 'on'
       : undefined,
-    priorityEntitlement: priorityEntitlement
-      ? priorityEntitlement === REQUIRE_OPTIONS.none
-        ? null
-        : priorityEntitlement === REQUIRE_OPTIONS.yes
+    priorityEntitlement: formString(formData.get('priorityEntitlement'))
+      ? formString(formData.get('priorityEntitlement')) === REQUIRE_OPTIONS.yes
       : undefined,
     priorityEntitlementRationale: formString(formData.get('priorityEntitlementRationale')),
     selectionProcessType: formString(formData.get('selectionProcessType')),

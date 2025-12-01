@@ -324,7 +324,7 @@ export type RequestUpdateModel = Partial<{
   languageRequirementId: number;
   positionNumbers: string;
   priorityClearanceNumber: string;
-  priorityEntitlement: boolean | null;
+  priorityEntitlement: boolean;
   priorityEntitlementRationale: string;
   projectedEndDate: string;
   projectedStartDate: string;
