@@ -9,6 +9,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
 import { getDashboardFile } from '~/.server/utils/route-utils';
 import { AppBar } from '~/components/app-bar';
+import { BackToTop } from '~/components/back-to-top';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
 import { MenuItem } from '~/components/menu';
@@ -55,6 +56,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="print:hidden">
+        <span tabIndex={-1} id="top" />
         <SkipNavigationLinks />
         <div id="wb-bnr">
           <div className="container flex items-center justify-between gap-6 py-2.5 sm:py-3.5">
@@ -136,11 +138,6 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
                 {t('gcweb:footer.privacy.text')}
               </AppLink>
             </li>
-            <li>
-              <AppLink className={footerLinkClassName} to="#top">
-                {t('gcweb:footer.back-to-top')}
-              </AppLink>
-            </li>
           </ul>
           <div>
             <img
@@ -152,6 +149,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
+        <BackToTop />
       </footer>
     </div>
   );
