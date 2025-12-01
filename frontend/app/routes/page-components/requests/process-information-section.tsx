@@ -10,7 +10,7 @@ interface ProcessInformationSectionProps {
   priorityEntitlementRationale?: string;
   selectionProcessType?: string;
   selectionProcessTypeCode?: string;
-  hasPerformedSameDuties?: boolean;
+  hasPerformedSameDuties?: boolean | null;
   appointmentNonAdvertised?: string;
   employmentTenure?: string;
   employmentTenureCode?: string;
@@ -86,7 +86,7 @@ export default function ProcessInformationSection({
                   ? t('app:process-information.yes')
                   : hasPerformedSameDuties === false
                     ? t('app:process-information.no')
-                    : t('app:referral-requests.not-provided')}
+                    : t('gcweb:input-option.none')}
               </DescriptionListItem>
 
               <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>

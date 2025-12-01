@@ -317,7 +317,7 @@ export type RequestUpdateModel = Partial<{
   frenchLanguageProfile: string;
   frenchStatementOfMerit: string;
   frenchTitle: string;
-  hasPerformedSameDuties: boolean;
+  hasPerformedSameDuties: boolean | null;
   hiringManagerId: number;
   hrAdvisorId: number;
   languageOfCorrespondenceId: number;

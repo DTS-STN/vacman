@@ -141,7 +141,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
     requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
-          hasPerformedSameDuties: requestData.hasPerformedSameDuties,
           appointmentNonAdvertised: requestData.appointmentNonAdvertised,
         }
       : {}),
@@ -264,7 +263,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
     requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
-          hasPerformedSameDuties: requestData.hasPerformedSameDuties,
           appointmentNonAdvertised: requestData.appointmentNonAdvertised,
         }
       : {}),

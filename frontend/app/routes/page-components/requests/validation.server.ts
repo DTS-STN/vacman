@@ -403,7 +403,10 @@ export async function createProcessInformationSchema() {
               stringToIntegerSchema(),
               v.picklist(selectedSelectionProcessTypeForExternalNonAdvertised.map(({ id }) => id)),
             ),
-            performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
+            performedDuties: v.union(
+              [v.literal(true), v.literal(false), v.null()],
+              'app:process-information.errors.performed-duties-required',
+            ),
             nonAdvertisedAppointment: v.pipe(
               stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
               v.picklist(
@@ -417,7 +420,10 @@ export async function createProcessInformationSchema() {
               stringToIntegerSchema(),
               v.picklist(selectedSelectionProcessTypeForInternalNonAdvertised.map(({ id }) => id)),
             ),
-            performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
+            performedDuties: v.union(
+              [v.literal(true), v.literal(false), v.null()],
+              'app:process-information.errors.performed-duties-required',
+            ),
             nonAdvertisedAppointment: v.pipe(
               stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
               v.picklist(
@@ -562,6 +568,7 @@ export async function parseProcessInformation(formData: FormData) {
   const projectedEndDateYear = formData.get('projectedEndDateYear')?.toString();
   const projectedEndDateMonth = formData.get('projectedEndDateMonth')?.toString();
   const projectedEndDateDay = formData.get('projectedEndDateDay')?.toString();
+  const performedDuties = formString(formData.get('performedDuties'));
 
   const formValues = {
     selectionProcessNumber: formString(formData.get('selectionProcessNumber')),
@@ -573,8 +580,12 @@ export async function parseProcessInformation(formData: FormData) {
       : undefined,
     priorityEntitlementRationale: formString(formData.get('priorityEntitlementRationale')),
     selectionProcessType: formString(formData.get('selectionProcessType')),
-    performedDuties: formString(formData.get('performedDuties'))
-      ? formString(formData.get('performedDuties')) === REQUIRE_OPTIONS.yes
+    performedDuties: performedDuties
+      ? performedDuties === REQUIRE_OPTIONS.none
+        ? null
+        : performedDuties === REQUIRE_OPTIONS.yes
+          ? true
+          : false
       : undefined,
     nonAdvertisedAppointment: formString(formData.get('nonAdvertisedAppointment')),
     employmentTenure: formString(formData.get('employmentTenure')),

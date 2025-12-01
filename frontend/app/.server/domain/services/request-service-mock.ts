@@ -366,7 +366,7 @@ export function getMockRequestService(): RequestService {
         languageOfCorrespondence,
         employmentEquities,
         appointmentNonAdvertised,
-        hasPerformedSameDuties: requestUpdate.hasPerformedSameDuties,
+        hasPerformedSameDuties: requestUpdate.hasPerformedSameDuties ?? undefined,
         id: requestId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',
