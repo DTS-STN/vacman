@@ -45,11 +45,22 @@ async function baseFetch(
     });
 
     if (!response.ok) {
+      // Attempt to parse the response body as a ProblemDetail
+      // If it is a ProblemDetail, we can extract the correlationId from it
+      // and use it to create the AppError
+      let correlationId: string | undefined;
+      try {
+        const problemDetail = await response.clone().json();
+        correlationId = problemDetail.correlationId;
+      } catch {
+        // ignore
+      }
+
       return Err(
         new AppError(
           `Failed to ${context.toLowerCase()}. The server responded with status ${response.status}.`,
           ErrorCodes.VACMAN_API_ERROR,
-          { httpStatusCode: response.status as HttpStatusCode },
+          { httpStatusCode: response.status as HttpStatusCode, correlationId },
         ),
       );
     }
