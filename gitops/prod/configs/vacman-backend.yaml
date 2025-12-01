@@ -19,11 +19,7 @@ management:
 
 spring:
   datasource:
-    url: jdbc:sqlserver://esdcvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_PRD;encrypt=true;trustServerCertificate=true;
-    #
-    #  XXX ::: GjB ::: We must switch to the new server once it's ready.
-    #
-    # url: jdbc:sqlserver://esccprodvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_PRD;encrypt=true;trustServerCertificate=true;
+    url: jdbc:sqlserver://esccprodvacmansqlsrv.database.windows.net;databaseName=EsPrdVacManSqldb;encrypt=true;trustServerCertificate=true;
   liquibase:
     contexts: prod
 
