@@ -102,6 +102,9 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendProfileNotification.count")
 	public NotificationReceipt sendProfileNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
+		log.info("Sending notification of profile event; email=[{}]; profileStatus=[{}]; profileId=[{}]; username=[{}]; language=[{}]",
+			email, profileStatus, profileId, username, language);
+
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
@@ -196,6 +199,9 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendRequestNotificationSingle.count")
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent, String language, String priorityClearanceNumber, String pscClearanceNumber) {
+		log.info("Sending notification of request event; email=[{}]; requestId=[{}]; requestTitle=[{}]; requestEvent=[{}]; language=[{}]; priorityClearanceNumber=[{}]; pscClearanceNumber=[{}]",
+			email, requestId, requestTitle, requestEvent, language, priorityClearanceNumber, pscClearanceNumber);
+
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
@@ -317,6 +323,9 @@ public class NotificationService {
 			EmailTemplateModel.JobOpportunity jobModel,
 			String language) {
 
+		log.info("Sending bulk job opportunity notifications; recipientEmails=[{}]; requestId=[{}]; requestTitle=[{}]; language=[{}]",
+			recipientEmails.size(), requestId, requestTitle, language);
+
 		Assert.notEmpty(recipientEmails, "recipientEmails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
@@ -366,6 +375,8 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendJobOpportunityHRNotification.count")
 	public NotificationReceipt sendJobOpportunityHRNotification(String email, EmailTemplateModel.JobOpportunityHR jobOpportunityHR, String language) {
+		log.info("Sending job opportunity HR notification; email=[{}]; language=[{}]", email, language);
+
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
 		Assert.hasText(language, "language is required; it must not be blank or null");
@@ -406,6 +417,8 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendJobOpportunityHRNotificationMultiple.count")
 	public List<NotificationReceipt> sendJobOpportunityHRNotification(List<String> emails, EmailTemplateModel.JobOpportunityHR jobOpportunityHR, String language) {
+		log.info("Sending job opportunity HR notifications; emails=[{}]; language=[{}]", emails, language);
+
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
 		Assert.hasText(language, "language is required; it must not be blank or null");
