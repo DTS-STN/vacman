@@ -108,6 +108,7 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: C
         <div className="flex flex-wrap gap-2">
           {choiceTags.map((choiceTag) => (
             <div key={choiceTag.value} className={choiceTag.invalid ? variants.invalid : variants.default}>
+              {choiceTag.invalid && <FontAwesomeIcon icon={faWarning} className="mr-1" />}
               <span>{choiceTag.label}</span>
               <button
                 aria-label={t('gcweb:choice-tag.choice-tag-added-aria-label', {
