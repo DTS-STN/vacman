@@ -172,4 +172,5 @@ export default {
     },
   },
   'aria-label-for-status': 'Statut: {{label}}',
+  'aria-label-for-required-section': 'Cette section est obligatoire.',
 } satisfies typeof gcwebEn;
