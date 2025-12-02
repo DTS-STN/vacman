@@ -210,7 +210,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/requests.tsx',
         paths: {
           en: '/en/hr-advisor/requests',
-          fr: '/fr/hr-advisor/demandes',
+          fr: '/fr/conseiller-rh/demandes',
         },
       },
       {
@@ -218,7 +218,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/index.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId',
-          fr: '/fr/hr-advisor/demande/:requestId',
+          fr: '/fr/conseiller-rh/demande/:requestId',
         },
       },
       {
@@ -226,7 +226,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/process-information.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId/process-information',
-          fr: '/fr/hr-advisor/demande/:requestId/informations-processus',
+          fr: '/fr/conseiller-rh/demande/:requestId/informations-processus',
         },
       },
       {
@@ -234,7 +234,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/position-information.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId/position-information',
-          fr: '/fr/hr-advisor/demande/:requestId/informations-poste',
+          fr: '/fr/conseiller-rh/demande/:requestId/informations-poste',
         },
       },
       {
@@ -242,7 +242,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/somc-conditions.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId/somc-conditions',
-          fr: '/fr/hr-advisor/demande/:requestId/cmc-conditions',
+          fr: '/fr/conseiller-rh/demande/:requestId/cmc-conditions',
         },
       },
       {
@@ -250,7 +250,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/submission-details.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId/submission-details',
-          fr: '/fr/hr-advisor/demande/:requestId/details-soumission',
+          fr: '/fr/conseiller-rh/demande/:requestId/details-soumission',
         },
       },
       {
@@ -258,7 +258,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/matches.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId/matches',
-          fr: '/fr/hr-advisor/demande/:requestId/correspondances',
+          fr: '/fr/conseiller-rh/demande/:requestId/correspondances',
         },
       },
       {
@@ -266,7 +266,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/request/profile.tsx',
         paths: {
           en: '/en/hr-advisor/request/:requestId/profile/:profileId',
-          fr: '/fr/hr-advisor/demande/:requestId/profil/:profileId',
+          fr: '/fr/conseiller-rh/demande/:requestId/profil/:profileId',
         },
       },
       {
