@@ -41,7 +41,7 @@ export type ProcessInformation = {
   priorityEntitlement?: boolean;
   priorityEntitlementRationale?: string;
   selectionProcessType?: SelectionProcessType;
-  performedDuties?: boolean;
+  performedDuties?: boolean | null;
   nonAdvertisedAppointment?: NonAdvertisedAppointment;
   employmentTenure?: EmploymentTenure;
   projectedStartDate?: string;
@@ -172,6 +172,11 @@ export function ProcessInformationForm({
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
       defaultChecked: formValues?.performedDuties === false,
+    },
+    {
+      children: tGcweb('input-option.none'),
+      value: REQUIRE_OPTIONS.none,
+      defaultChecked: formValues?.performedDuties === undefined,
     },
   ];
   const employmentEquityIdentifiedOptions: InputRadiosProps['options'] = [
