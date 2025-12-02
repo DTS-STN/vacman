@@ -2,6 +2,8 @@ import type { ResourceKey } from 'i18next';
 import type { BaseIssue, BaseSchema } from 'valibot';
 import * as v from 'valibot';
 
+import type { Errors } from '~/routes/page-components/profile/validation.server';
+
 /**
  * Normalizes validation error messages into a single i18next `ResourceKey`.
  *
@@ -23,6 +25,23 @@ export function extractValidationKey<T extends ResourceKey>(
   index?: number,
 ): ResourceKey | undefined {
   return Array.isArray(value) ? value.at(index ?? 0) : value;
+}
+
+/**
+ * Normalize keys in `Errors` by removing the suffix after the first '.' (e.g. "key.12" -> "key").
+ *
+ * @param value - The form errors `Errors`.
+ * @returns The normalized form errors `Errors` or `undefined` if no valid value is provided.
+ */
+export function normalizeErrors(errors: Errors | undefined): Errors | undefined {
+  if (!errors) return errors;
+  const newErrors: Record<string, [string, ...string[]] | undefined> = {};
+  for (const [key, value] of Object.entries(errors)) {
+    const newkey = key.split('.')[0];
+    if (!newkey) continue;
+    newErrors[newkey] = value;
+  }
+  return newErrors;
 }
 
 /**

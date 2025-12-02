@@ -33,9 +33,10 @@ import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
+import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/profile/validation.server';
-import { extractValidationKey } from '~/utils/validation-utils';
+import { extractValidationKey, normalizeErrors } from '~/utils/validation-utils';
 
 interface ReferralPreferencesFormProps {
   cancelLink: I18nRouteFile;
@@ -54,7 +55,7 @@ export function ReferralPreferencesForm({
   cancelLink,
   formValues,
   preferredProvince,
-  formErrors,
+  formErrors: baseFormErrors,
   languageReferralTypes,
   classifications,
   provinces,
@@ -62,6 +63,8 @@ export function ReferralPreferencesForm({
   params,
   isSubmitting,
 }: ReferralPreferencesFormProps): JSX.Element {
+  const formErrors = normalizeErrors(baseFormErrors);
+  const { currentLanguage } = useLanguage();
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
@@ -151,15 +154,30 @@ export function ReferralPreferencesForm({
   };
 
   // Choice tags for cities
-  const citiesChoiceTags: ChoiceTag[] = selectedCities.map((city) => {
-    const selectedC = cities.find((c) => c.id === Number(city));
-    return {
-      label: selectedC?.name ?? city,
-      name: tApp('referral-preferences.choice-tag.city'),
-      value: city,
-      group: selectedC?.provinceTerritory.name,
-    };
-  });
+  const citiesChoiceTags: ChoiceTag[] = selectedCities
+    .map((city) => {
+      const selectedCity = cities.find((c) => c.id === Number(city));
+      if (selectedCity) {
+        return {
+          label: selectedCity.name,
+          name: tApp('referral-preferences.choice-tag.city'),
+          value: city,
+          group: selectedCity.provinceTerritory.name,
+          invalid: false,
+        };
+      }
+      const missingCity = formValues?.preferredCities?.find((c) => c.id === Number(city));
+      if (missingCity) {
+        return {
+          label: currentLanguage === 'en' ? missingCity.nameEn : missingCity.nameFr,
+          name: tApp('referral-preferences.choice-tag.city'),
+          value: city,
+          group: currentLanguage === 'en' ? missingCity.provinceTerritory.nameEn : missingCity.provinceTerritory.nameFr,
+          invalid: true,
+        };
+      }
+    })
+    .filter((cityTag) => cityTag !== undefined);
 
   /**
    * Removes a city from `work locations` and announces the removal to screen readers.
