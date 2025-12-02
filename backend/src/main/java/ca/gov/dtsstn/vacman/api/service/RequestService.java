@@ -110,6 +110,8 @@ public class RequestService {
 
 	private final RequestStatusRepository requestStatusRepository;
 
+	private final LookupCodes.UserTypes userTypes;
+
 	private final SecurityClearanceRepository securityClearanceRepository;
 
 	private final SelectionProcessTypeRepository selectionProcessTypeRepository;
@@ -163,6 +165,7 @@ public class RequestService {
 		this.workUnitRepository = workUnitRepository;
 
 		this.requestStatuses = lookupCodes.requestStatuses();
+		this.userTypes = lookupCodes.userTypes();
 	}
 
 	@Transactional(readOnly = false)
@@ -416,10 +419,11 @@ public class RequestService {
 	 *
 	 * @param request   The request entity to update
 	 * @param eventType The event type that triggered the status change
+	 * @param hrAdvisorId Optional HR advisor ID to assign (only used for requestPickedUp event)
 	 * @return The updated request entity
 	 */
 	@Counted("service.request.updateRequestStatus.count")
-	public RequestEntity updateRequestStatus(RequestEntity request, String eventType) {
+	public RequestEntity updateRequestStatus(RequestEntity request, String eventType, Long hrAdvisorId) {
 		final var currentUser = SecurityUtils.getCurrentUserEntraId()
 			.flatMap(userService::getUserByMicrosoftEntraId)
 			.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
@@ -430,7 +434,7 @@ public class RequestService {
 
 		final var updatedRequest = switch (eventType) {
 			case "requestSubmitted" -> handleRequestSubmitted(request, isOwner, currentStatus);
-			case "requestPickedUp" -> handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
+			case "requestPickedUp" -> handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser, hrAdvisorId);
 			case "vmsNotRequired" -> handleVmsNotRequired(request, isHrAdvisor, currentStatus);
 			case "submitFeedback" -> handleSubmitFeedback(request, isOwner, currentStatus);
 			case "pscNotRequired" -> handlePscNotRequired(request, isHrAdvisor, currentStatus);
@@ -475,9 +479,10 @@ public class RequestService {
 	 * @param isHrAdvisor   Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
 	 * @param currentUser   The current user entity
+	 * @param hrAdvisorId   Optional HR advisor ID to assign. If null, uses currentUser
 	 * @return The updated request entity
 	 */
-	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor, String currentStatus, UserEntity currentUser) {
+	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor, String currentStatus, UserEntity currentUser, Long hrAdvisorId) {
 		if (!isHrAdvisor) {
 			throw new UnauthorizedException("Only HR advisors can pick up requests");
 		}
@@ -486,8 +491,20 @@ public class RequestService {
 			throw new ResourceConflictException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
 		}
 
-		// Set HR advisor
-		request.setHrAdvisor(currentUser);
+		// Set HR advisor - use provided hrAdvisorId if present, otherwise use currentUser
+		if (hrAdvisorId != null) {
+			final var hrAdvisor = userService.getUserById(hrAdvisorId)
+				.orElseThrow(() -> new ResourceNotFoundException("HR advisor with ID " + hrAdvisorId + " not found"));
+
+			// Validate that the user has HR advisor user type
+			if (hrAdvisor.getUserType() == null || !userTypes.hrAdvisor().equals(hrAdvisor.getUserType().getCode())) {
+				throw new UnauthorizedException("User with ID " + hrAdvisorId + " does not have HR advisor user type (either no user type assigned or incorrect user type)");
+			}
+
+			request.setHrAdvisor(hrAdvisor);
+		} else {
+			request.setHrAdvisor(currentUser);
+		}
 
 		// Set status to HR_REVIEW
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.hrReview()));

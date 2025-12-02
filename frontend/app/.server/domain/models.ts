@@ -75,6 +75,7 @@ export type LocalizedRequestStatus = LocalizedLookupModel;
 
 export type RequestStatusUpdate = Readonly<{
   eventType: RequestEventType;
+  hrAdvisorId?: number;
 }>;
 
 export type SecurityClearance = LookupModel;
