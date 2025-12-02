@@ -29,6 +29,7 @@ import {
 } from '~/components/dialog';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
+import { InputLabel } from '~/components/input-label';
 import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { LoadingLink } from '~/components/loading-link';
@@ -291,51 +292,66 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
       <ActionDataErrorSummary actionData={fetcher.data}>
         <h2 className="font-lato mt-8 text-lg font-semibold">{t('app:hr-advisor-employees-table.create-profile')}</h2>
-        <section className="mb-8 flex flex-col justify-between gap-8 sm:flex-row">
-          <fetcher.Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
-            <InputField
-              label={t('app:hr-advisor-employees-table.employee-work-email')}
-              name="email"
-              errorMessage={t(
-                extractValidationKey(fetcher.data && 'errors' in fetcher.data ? fetcher.data.errors?.email : undefined),
-              )}
-              required
-              className="w-full"
-            />
-            <LoadingButton variant="primary" className="w-1/2" disabled={isSubmitting} loading={isSubmitting}>
+        <section className="mb-8 flex flex-col items-end justify-between gap-8 md:flex-row">
+          <fetcher.Form
+            method="post"
+            noValidate
+            className="grid w-full grid-cols-3 place-content-between items-end gap-2 md:w-fit"
+          >
+            <div className="col-span-3 sm:col-span-2">
+              <InputField
+                label={t('app:hr-advisor-employees-table.employee-work-email')}
+                name="email"
+                errorMessage={t(
+                  extractValidationKey(fetcher.data && 'errors' in fetcher.data ? fetcher.data.errors?.email : undefined),
+                )}
+                required
+                className="w-full"
+              />
+            </div>
+            <LoadingButton
+              variant="primary"
+              className="col-span-3 sm:col-span-1"
+              disabled={isSubmitting}
+              loading={isSubmitting}
+            >
               {t('app:hr-advisor-employees-table.create-profile')}
             </LoadingButton>
           </fetcher.Form>
-
-          <InputSelect
-            id="selectEmployees"
-            name="selectEmployees"
-            required={false}
-            options={employeesOptions}
-            label=""
-            title={t('app:hr-advisor-employees-table.filter-by')}
-            defaultValue={searchParams.get('filter') ?? 'all'}
-            onChange={({ target }) => {
-              const size = searchParams.get('size') ?? '10';
-              const existingStatusIds = searchParams.getAll('statusIds');
-              // Reset to page 1 (1-based) on filter change and preserve existing statusIds selection
-              const params = new URLSearchParams({ filter: target.value, page: '1', size });
-              // Preserve existing single sort
-              const sort = searchParams.get('sort');
-              if (sort) params.set('sort', sort);
-              const employeeName = searchParams.get('employeeName');
-              if (employeeName) params.set('employeeName', employeeName);
-              existingStatusIds.forEach((id) => params.append('statusIds', id));
-              setSearchParams(params, { preventScrollReset: true });
-              // Announce table filtering change to screen readers
-              const message =
-                target.value === 'me'
-                  ? t('app:hr-advisor-employees-table.table-updated-my-employees')
-                  : t('app:hr-advisor-employees-table.table-updated-all-employees');
-              setSrAnnouncement(message);
-            }}
-            className="w-full"
-          />
+          <div className="flex w-full flex-col items-end md:w-fit">
+            <InputLabel id="selectEmployeesLabel" htmlFor="selectEmployees" className="mt-2 text-right">
+              {t('app:table.filter-table')}
+            </InputLabel>
+            <InputSelect
+              id="selectEmployees"
+              name="selectEmployees"
+              ariaDescribedbyId="selectEmployeesLabel"
+              required={false}
+              options={employeesOptions}
+              label=""
+              defaultValue={searchParams.get('filter') ?? 'all'}
+              onChange={({ target }) => {
+                const size = searchParams.get('size') ?? '10';
+                const existingStatusIds = searchParams.getAll('statusIds');
+                // Reset to page 1 (1-based) on filter change and preserve existing statusIds selection
+                const params = new URLSearchParams({ filter: target.value, page: '1', size });
+                // Preserve existing single sort
+                const sort = searchParams.get('sort');
+                if (sort) params.set('sort', sort);
+                const employeeName = searchParams.get('employeeName');
+                if (employeeName) params.set('employeeName', employeeName);
+                existingStatusIds.forEach((id) => params.append('statusIds', id));
+                setSearchParams(params, { preventScrollReset: true });
+                // Announce table filtering change to screen readers
+                const message =
+                  target.value === 'me'
+                    ? t('app:hr-advisor-employees-table.table-updated-my-employees')
+                    : t('app:hr-advisor-employees-table.table-updated-all-employees');
+                setSrAnnouncement(message);
+              }}
+              className="w-full"
+            />
+          </div>
         </section>
       </ActionDataErrorSummary>
 
