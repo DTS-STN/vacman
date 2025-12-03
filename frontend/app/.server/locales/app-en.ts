@@ -655,6 +655,7 @@ export default {
     },
   },
   'matches-tables': {
+    'approved': 'Approved',
     'employee': 'Employee',
     'wfa-status': 'WFA/CT status',
     'feedback': 'Feedback',
@@ -670,12 +671,6 @@ export default {
       'hiring-manager': 'Hiring manager comments',
       'hr-advisor': 'HR advisor comments',
     },
-    'approval-popup': {
-      'approved': 'Approved',
-      'approve-feedback': 'Approve feedback?',
-    },
-    'no-candidates': "You don't have any candidates at the moment.",
-    'next-page': 'Next',
   },
   'anywhere-in-canada': 'All work locations in Canada',
   'all-work-locations': 'All work locations',
