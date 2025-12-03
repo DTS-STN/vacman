@@ -285,7 +285,6 @@ export function EmploymentInformationForm({
             </fieldset>
 
             <InputSelect
-              ariaDescribedbyId="wfaDetailsLegend"
               id="hrAdvisorId"
               name="hrAdvisorId"
               errorMessage={t(extractValidationKey(formErrors?.hrAdvisorId))}

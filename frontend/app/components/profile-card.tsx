@@ -212,11 +212,7 @@ function RequiredTag(): JSX.Element {
 
   return (
     <span className="rounded-2xl border border-gray-400 bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
-      <span className="sr-only">
-        {tGcweb('aria-label-for-status', {
-          label: t('profile.required'),
-        })}
-      </span>
+      <span className="sr-only">{tGcweb('aria-label-for-required-section')}</span>
       <span aria-hidden="true">{t('profile.required')}</span>
     </span>
   );

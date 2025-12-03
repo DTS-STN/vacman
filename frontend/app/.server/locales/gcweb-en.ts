@@ -170,4 +170,5 @@ export default {
     },
   },
   'aria-label-for-status': 'Status: {{label}}',
+  'aria-label-for-required-section': 'This is a required section.',
 };
