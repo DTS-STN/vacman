@@ -129,13 +129,26 @@ export function ReferralPreferencesForm({
   // Choice tags for classification
   const classificationChoiceTags: ChoiceTag[] = selectedClassifications
     .map((classification) => {
-      const selectedC = classifications.find((c) => c.id === Number(classification));
-      return {
-        label: selectedC?.name ?? classification,
-        name: tApp('referral-preferences.choice-tag.classification'),
-        value: classification,
-      };
+      const selectedClassification = classifications.find((c) => c.id === Number(classification));
+      if (selectedClassification) {
+        return {
+          label: selectedClassification.name,
+          name: tApp('referral-preferences.choice-tag.classification'),
+          value: classification,
+          invalid: false,
+        };
+      }
+      const missingClassification = formValues?.preferredClassifications?.find((c) => c.id === Number(classification));
+      if (missingClassification) {
+        return {
+          label: currentLanguage === 'en' ? missingClassification.nameEn : missingClassification.nameFr,
+          name: tApp('referral-preferences.choice-tag.classification'),
+          value: classification,
+          invalid: true,
+        };
+      }
     })
+    .filter((classification) => classification !== undefined)
     .toSorted((a, b) => String(a.label).localeCompare(String(b.label)));
 
   /**
