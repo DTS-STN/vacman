@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: vacman-backend
-          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-backend:2.0.0
+          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-backend:2.0.1
           envFrom:
             - secretRef:
                 name: vacman-backend
@@ -48,15 +48,6 @@ spec:
             - name: config
               mountPath: /workspace/BOOT-INF/classes/application-local.yaml
               subPath: application.yaml
-      hostAliases:
-        # Override DNS so that esdcvacmansqlsrv.database.windows.net
-        # always resolves to 10.72.61.197 inside this pod.
-        #
-        # ⚠️ WARNING:
-        # - This hardcodes the IP, so if it ever changes, the pod config must be updated.
-        # - Storing IPs in YAML can reveal internal network details.
-        - hostnames: [esdcvacmansqlsrv.database.windows.net]
-          ip: 10.72.61.197
       volumes:
         - name: config
           configMap:
