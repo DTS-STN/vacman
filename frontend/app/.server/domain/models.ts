@@ -6,6 +6,7 @@ export type LookupModel = Readonly<{
   code: string;
   nameEn: string;
   nameFr: string;
+  expiryDate?: string;
 }>;
 
 export type LocalizedLookupModel = Readonly<{
