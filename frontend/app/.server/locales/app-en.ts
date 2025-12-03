@@ -91,6 +91,9 @@ export default {
     'psc-clearance-not-required': 'PSC clearance not required',
     're-assign-to-me': 'Reassign to me',
   },
+  'table': {
+    'filter-table': 'Filter table',
+  },
   'personal-information': {
     'page-title': 'Personal information',
     'personal-record-identifier': 'Personal record identifier (PRI)',

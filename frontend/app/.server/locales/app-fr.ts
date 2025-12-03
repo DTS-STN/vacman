@@ -94,6 +94,9 @@ export default {
     'psc-clearance-not-required': 'Autorisation CFP non obligatoire',
     're-assign-to-me': 'Réassigner à moi',
   },
+  'table': {
+    'filter-table': 'Filtrer le tableau',
+  },
   'personal-information': {
     'page-title': 'Informations personnelles',
     'personal-record-identifier': "Code d'identification du dossier personnel (CIDP)",

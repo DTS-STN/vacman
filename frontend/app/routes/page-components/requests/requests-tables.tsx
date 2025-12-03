@@ -7,6 +7,7 @@ import { useFetcher, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import type { LocalizedLookupModel, PageMetadata, RequestReadModel, User } from '~/.server/domain/models';
+import { InputLabel } from '~/components/input-label';
 import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { LoadingLink } from '~/components/loading-link';
@@ -113,30 +114,34 @@ export default function RequestsTables({
         )}
         <section className="mt-8 mb-12">
           {enableRequestsFilter ? (
-            <section className="mb-5 flex flex-col items-end justify-between gap-8 sm:flex-row">
+            <section className="xs:flex-row mb-5 flex flex-col justify-between gap-8">
               <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
-              <InputSelect
-                id="selectRequests"
-                name="selectRequests"
-                required={false}
-                options={requestsOptions}
-                title={t('requests-tables.filter-by')}
-                defaultValue={requestsFilter}
-                onChange={({ target }) => {
-                  const params = new URLSearchParams(searchParams.toString());
-                  params.delete('activePage');
-                  params.delete('inactivePage');
-                  params.set('filter', target.value);
-                  setSearchParams(params);
-                  setRequestsFilter(target.value);
-                  const message =
-                    target.value === 'me'
-                      ? t('requests-tables.table-updated.my-requests')
-                      : t('requests-tables.table-updated.all-requests');
-                  setSrAnnouncement(message);
-                }}
-                className="text-left"
-              />
+              <div className="flex flex-col items-end">
+                <InputLabel id="selectRequestsLabel" htmlFor="selectRequests" className="mt-2 text-right">
+                  {t('table.filter-table')}
+                </InputLabel>
+                <InputSelect
+                  id="selectRequests"
+                  name="selectRequests"
+                  ariaDescribedbyId="selectRequestsLabel"
+                  required={false}
+                  options={requestsOptions}
+                  defaultValue={requestsFilter}
+                  onChange={({ target }) => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.delete('activePage');
+                    params.delete('inactivePage');
+                    params.set('filter', target.value);
+                    setSearchParams(params);
+                    setRequestsFilter(target.value);
+                    const message =
+                      target.value === 'me'
+                        ? t('requests-tables.table-updated.my-requests')
+                        : t('requests-tables.table-updated.all-requests');
+                    setSrAnnouncement(message);
+                  }}
+                />
+              </div>
             </section>
           ) : (
             <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
