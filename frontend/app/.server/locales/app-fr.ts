@@ -315,7 +315,6 @@ export default {
     'action': 'Actions',
     'branch': 'Direction générale',
     'next-page': 'Suivant',
-    'filter-by': "Tableau de filtrage par tous les employés ou profil qui m'est attribué",
     'view-link': 'Voir les informations de profil pour {{profileUserName}} ',
     'table-updated-my-employees': 'Tableau mise à jour : affichage de Mes employé-e-s',
     'table-updated-all-employees': 'Tableau mise à jour : affichage de Liste complète des employé-e-s',
@@ -627,7 +626,6 @@ export default {
       'my-requests': 'Tableau mise à jour : affichage de Mes demandes',
       'all-requests': 'Tableau mise à jour : affichage de Toutes les demandes',
     },
-    'filter-by': 'Filtrer par toutes les demandes ou celles qui me sont attribuées',
   },
   'matches': {
     'page-title': 'Candidatures de la demande',
