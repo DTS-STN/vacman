@@ -667,6 +667,7 @@ export default {
     },
   },
   'matches-tables': {
+    'approved': 'Approuvé',
     'employee': 'Employé-e',
     'wfa-status': 'Statut de RE/TC',
     'feedback': 'Rétroaction',
@@ -682,12 +683,6 @@ export default {
       'hiring-manager': "Commentaires du (de la) gestionnaire d'embauche",
       'hr-advisor': 'Commentaires du (de la) Conseiller-ère RH',
     },
-    'approval-popup': {
-      'approved': 'Approuvé',
-      'approve-feedback': 'Approuver la rétroaction?',
-    },
-    'no-candidates': "Vous n'avez aucun candidat pour le moment.",
-    'next-page': 'Suivant',
   },
   'anywhere-in-canada': 'Tous les lieux de travail au Canada',
   'all-work-locations': 'Tous les lieux de travail',

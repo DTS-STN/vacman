@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import type { LocalizedMatchFeedback, LookupModel, MatchSummaryReadModel, PageMetadata } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '~/components/dialog';
-import { InputLabel } from '~/components/input-label';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
 import { LoadingButton } from '~/components/loading-button';
@@ -305,55 +304,26 @@ export default function MatchesTables({
               cell={(info) => {
                 const match = info.row.original;
                 const isApproved = match.matchStatus?.code === MATCH_STATUS.APPROVED.code;
-                const [showApprovalDialog, setShowApprovalDialog] = useState(false);
 
                 const handleApprove = () => {
                   approveRequest(match.id);
-                  setShowApprovalDialog(false);
                 };
 
                 return (
                   <div className="flex items-baseline gap-4">
                     {isApproved ? (
-                      <span>{t('matches-tables.approval-popup.approved')}</span>
+                      <span>{t('matches-tables.approved')}</span>
                     ) : (
-                      <>
-                        <LoadingButton
-                          variant="alternative"
-                          id={`approve-employee-${match.id}`}
-                          onClick={() => setShowApprovalDialog(true)}
-                          size="sm"
-                          disabled={isUpdating}
-                          loading={isUpdating}
-                        >
-                          {t('form.approve')}
-                        </LoadingButton>
-                        {/* Approval Confirmation Dialog */}
-                        <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
-                          <DialogContent className="max-w-86">
-                            <DialogTitle>{t('matches-tables.approval')}</DialogTitle>
-                            <DialogDescription className="space-y-5" asChild>
-                              <div>
-                                <InputLabel id={`approve-feedback-${match.id}`}>
-                                  {t('matches-tables.approval-popup.approve-feedback')}
-                                </InputLabel>
-                                <div className="space-x-4">
-                                  <DialogClose asChild>
-                                    <Button name="cancel" variant="alternative" id={`cancel-button-${match.id}`} type="button">
-                                      {t('form.cancel')}
-                                    </Button>
-                                  </DialogClose>
-                                  <DialogClose asChild>
-                                    <Button variant="primary" id={`approve-button-${match.id}`} onClick={handleApprove}>
-                                      {t('form.approve')}
-                                    </Button>
-                                  </DialogClose>
-                                </div>
-                              </div>
-                            </DialogDescription>
-                          </DialogContent>
-                        </Dialog>
-                      </>
+                      <LoadingButton
+                        variant="alternative"
+                        id={`approve-button-${match.id}`}
+                        onClick={handleApprove}
+                        size="sm"
+                        disabled={isUpdating}
+                        loading={isUpdating}
+                      >
+                        {t('form.approve')}
+                      </LoadingButton>
                     )}
                   </div>
                 );
