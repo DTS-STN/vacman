@@ -194,6 +194,14 @@ export async function action({ context, request, params }: Route.ActionArgs) {
       }
       const { matchId } = parseResult.output;
 
+      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+      if (matchResult.isErr()) {
+        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+      }
+
+      const matchData: MatchReadModel = matchResult.unwrap();
+
       const approveRequestResult = await getRequestService().approveRequestMatch(
         requestId,
         matchId,
@@ -204,7 +212,53 @@ export async function action({ context, request, params }: Route.ActionArgs) {
         throw approveRequestResult.unwrapErr();
       }
 
-      return data({ success: true });
+      const employeeName = matchData.profile?.profileUser
+        ? `${matchData.profile.profileUser.firstName ?? ''} ${matchData.profile.profileUser.lastName ?? ''}`.trim()
+        : 'Unknown User';
+      return data({ success: true, action: 'approve', employeeName });
+    }
+
+    case 'revert-approval': {
+      const parseResult = v.safeParse(
+        v.object({
+          matchId: v.pipe(
+            v.string(),
+            v.transform((val) => parseInt(val, 10)),
+            v.number('app:matches.errors.match-id'),
+          ),
+        }),
+        {
+          matchId: formString(formData.get('matchId')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+      const { matchId } = parseResult.output;
+
+      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+      if (matchResult.isErr()) {
+        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+      }
+
+      const matchData: MatchReadModel = matchResult.unwrap();
+
+      const revertApproveRequestResult = await getRequestService().revertApproveRequestMatch(
+        requestId,
+        matchId,
+        session.authState.accessToken,
+      );
+
+      if (revertApproveRequestResult.isErr()) {
+        throw revertApproveRequestResult.unwrapErr();
+      }
+
+      const employeeName = matchData.profile?.profileUser
+        ? `${matchData.profile.profileUser.firstName ?? ''} ${matchData.profile.profileUser.lastName ?? ''}`.trim()
+        : 'Unknown User';
+      return data({ success: true, action: 'revert-approval', employeeName });
     }
   }
 
@@ -292,6 +346,21 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
   const isUpdating = matchesFetcher.state !== 'idle';
   const requestDate = useFormattedDate(loaderData.requestDate, loaderData.baseTimeZone);
 
+  // Handle success messages for approve/revert-approval actions
+  const getSuccessMessage = () => {
+    if (matchesFetcher.data?.success && matchesFetcher.data?.action && matchesFetcher.data?.employeeName) {
+      const { action, employeeName } = matchesFetcher.data;
+      if (action === 'approve') {
+        return t('app:matches-tables.approved-successfully-msg', { name: employeeName });
+      } else if (action === 'revert-approval') {
+        return t('app:matches-tables.revert-approval-successfully-msg', { name: employeeName });
+      }
+    }
+    return null;
+  };
+
+  const successMessage = getSuccessMessage();
+
   return (
     <div className="mb-8 space-y-4">
       <VacmanBackground variant="top-right">
@@ -357,6 +426,12 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
           </ButtonLink>
         </div>
       </div>
+
+      {successMessage && (
+        <AlertMessage ref={alertRef} type="success" role="alert" ariaLive="assertive">
+          {successMessage}
+        </AlertMessage>
+      )}
 
       {loaderData.approvalProgress >= 100 && (
         <AlertMessage ref={alertRef} type="info" role="alert" ariaLive="assertive">

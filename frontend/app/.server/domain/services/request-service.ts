@@ -80,6 +80,9 @@ export type RequestService = {
   // Convenience method for approving a match
   approveRequestMatch(requestId: number, matchId: number, accessToken: string): Promise<Result<void, AppError>>;
 
+  // Convenience method for  reverting a match approval to pending status
+  revertApproveRequestMatch(requestId: number, matchId: number, accessToken: string): Promise<Result<void, AppError>>;
+
   // GET /api/v1/requests/{id}/profiles/{profileId} - Get a specific candidate profile for a request
   getRequestProfile(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>>;
 
