@@ -6,6 +6,11 @@ export type LookupModel = Readonly<{
   code: string;
   nameEn: string;
   nameFr: string;
+  /**
+   * The date and time when the lookup code expires.
+   * Format: ISO 8601 date string (e.g., '2025-12-03T16:54:45.300Z').
+   * The code is considered expired from this moment onwards.
+   */
   expiryDate?: string | null;
 }>;
 
