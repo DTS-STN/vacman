@@ -202,7 +202,9 @@ management:
   otlp:
     metrics:
       export:
-        enabled: false # set to true and add `spring.otlp.metrics.export.url` to enable metrics export
+        enabled: false # set to true and add `management.otlp.metrics.export.url` to enable metrics export
+    tracing:
+      endpoint:
 
 ---
 
