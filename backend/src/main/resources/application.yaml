@@ -204,7 +204,7 @@ management:
       export:
         enabled: false # set to true and add `management.otlp.metrics.export.url` to enable metrics export
     tracing:
-      endpoint:
+      # endpoint: <set in application-local.yaml or environment-specific config if tracing is required>
 
 ---
 
