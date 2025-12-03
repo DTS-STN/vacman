@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web.model;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
@@ -14,5 +15,9 @@ public record RequestStatusUpdateModel(
 		message = "Invalid event type"
 	)
 	@Schema(description = "The event type that triggered the status change", allowableValues = {"requestSubmitted", "requestPickedUp", "vmsNotRequired", "submitFeedback", "pscNotRequired", "pscRequired", "complete"})
-	String eventType
+	String eventType,
+
+	@Nullable
+	@Schema(description = "Optional HR advisor ID to assign for the requestPickedUp event. If not provided, the authenticated user will be assigned.", nullable = true)
+	Long hrAdvisorId
 ) {}

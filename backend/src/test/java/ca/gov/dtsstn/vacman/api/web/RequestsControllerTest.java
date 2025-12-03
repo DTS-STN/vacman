@@ -1165,7 +1165,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
+			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1196,7 +1196,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
+			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1230,7 +1230,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("vmsNotRequired");
+			final var statusUpdate = new RequestStatusUpdateModel("vmsNotRequired", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1260,7 +1260,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("submitFeedback");
+			final var statusUpdate = new RequestStatusUpdateModel("submitFeedback", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1290,7 +1290,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("pscNotRequired");
+			final var statusUpdate = new RequestStatusUpdateModel("pscNotRequired", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1320,7 +1320,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("pscRequired");
+			final var statusUpdate = new RequestStatusUpdateModel("pscRequired", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1352,7 +1352,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("complete");
+			final var statusUpdate = new RequestStatusUpdateModel("complete", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1382,7 +1382,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("complete");
+			final var statusUpdate = new RequestStatusUpdateModel("complete", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1399,7 +1399,7 @@ class RequestsControllerTest {
 		@DisplayName("Should return 404 when request does not exist")
 		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
 		void testUpdateStatusRequestNotFound() throws Exception {
-			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
+			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", 999999L)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1445,7 +1445,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("invalidEvent");
+			final var statusUpdate = new RequestStatusUpdateModel("invalidEvent", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1457,7 +1457,7 @@ class RequestsControllerTest {
 		@DisplayName("Should return 401 Unauthorized when not authenticated")
 		@WithAnonymousUser
 		void testUpdateStatusUnauthorized() throws Exception {
-			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
+			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", 1L)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1481,7 +1481,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
+			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1505,7 +1505,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
+			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1531,7 +1531,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
+			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp", null);
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
@@ -1556,7 +1556,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
+			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted", null);
 
 			// Implementation throws ResourceNotFoundException (404) - should be ResourceConflictException (409)
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
@@ -1585,7 +1585,7 @@ class RequestsControllerTest {
 			// Step 1: Submit the request (DRAFT -> SUBMIT)
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
-					.content(objectMapper.writeValueAsString(new RequestStatusUpdateModel("requestSubmitted"))))
+					.content(objectMapper.writeValueAsString(new RequestStatusUpdateModel("requestSubmitted", null))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().submitted())));
 
@@ -1750,3 +1750,4 @@ class RequestsControllerTest {
 	}
 
 }
+

@@ -25,7 +25,7 @@ import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-ut
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
-import { REQUEST_CATEGORY, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
+import { REQUEST_CATEGORY, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
 import { getTranslation } from '~/i18n-config.server';
@@ -53,9 +53,39 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const requestData: RequestReadModel = requestResult.unwrap();
+  const requestStatusCode = requestData.status?.code;
   const hrAdvisorId = formData.get('hrAdvisorId');
+
+  // If status is SUBMIT, trigger the pickedUp event to send notifications
+  if (requestStatusCode === REQUEST_STATUS_CODE.SUBMIT) {
+    const submitResult = await getRequestService().updateRequestStatus(
+      requestData.id,
+      {
+        eventType: REQUEST_EVENT_TYPE.pickedUp,
+        hrAdvisorId: hrAdvisorId ? Number(hrAdvisorId) : undefined,
+      },
+      session.authState.accessToken,
+    );
+
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+    const updatedRequest = submitResult.unwrap();
+
+    return {
+      status: 'picked-up',
+      requestStatus: updatedRequest.status,
+    };
+  }
+
+  // Update the HR advisor assignment
   const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-    hrAdvisorId: hrAdvisorId ? Number(formData.get('hrAdvisorId')) : undefined,
+    hrAdvisorId: hrAdvisorId ? Number(hrAdvisorId) : undefined,
   });
 
   const updatedRequestResult = await requestService.updateRequestById(requestId, requestPayload, session.authState.accessToken);

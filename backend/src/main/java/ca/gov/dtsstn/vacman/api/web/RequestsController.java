@@ -237,14 +237,15 @@ public class RequestsController {
 	@Operation(summary = "Update the status of a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody RequestStatusUpdateModel statusUpdate) {
-		log.info("Received request to update request status; ID: [{}], Event: [{}]",  id, statusUpdate.eventType());
+		log.info("Received request to update request status; ID: [{}], Event: [{}], HR Advisor ID: [{}]",
+			id, statusUpdate.eventType(), statusUpdate.hrAdvisorId());
 
 		final var request = requestService.getRequestById(id)
 			.orElseThrow(asResourceNotFoundException("request", id));
 
 		log.trace("Found request: [{}]", request);
 
-		final var updatedEntity = requestService.updateRequestStatus(request, statusUpdate.eventType());
+		final var updatedEntity = requestService.updateRequestStatus(request, statusUpdate.eventType(), statusUpdate.hrAdvisorId());
 
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}

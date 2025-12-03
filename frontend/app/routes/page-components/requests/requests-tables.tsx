@@ -340,10 +340,10 @@ function RequestsColumns({
           return (
             <InputSelect
               id={info.cell.id}
-              name={t('matches-tables.feedback')}
+              name={t('requests-tables.hr-advisor')}
               options={selectOptions}
               value={hrAdvisorValue ?? ''}
-              aria-label={t('matches-tables.feedback')}
+              aria-label={t('requests-tables.hr-advisor')}
               disabled={isSubmitting}
               variant="alternative"
               onChange={(event: ChangeEvent<HTMLSelectElement>) =>
