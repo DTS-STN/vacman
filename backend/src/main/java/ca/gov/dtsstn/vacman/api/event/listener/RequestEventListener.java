@@ -17,8 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
@@ -42,6 +40,8 @@ import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDto;
 import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Listener for request-related events.
@@ -58,9 +58,9 @@ public class RequestEventListener {
 	private final NotificationService notificationService;
 	private final RequestRepository requestRepository;
 
-	private final ObjectMapper objectMapper = new ObjectMapper()
-		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-		.findAndRegisterModules();
+	private final ObjectMapper objectMapper = JsonMapper.builder()
+		.findAndAddModules()
+		.build();
 
 	public RequestEventListener(
 			EventRepository eventRepository,

@@ -24,11 +24,10 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.micrometer.core.annotation.Counted;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * This class functions as both a {@code RestControllerAdvice}, as well as a

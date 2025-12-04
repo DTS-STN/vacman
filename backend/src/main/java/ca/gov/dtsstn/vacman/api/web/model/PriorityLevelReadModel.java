@@ -1,7 +1,8 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value.Immutable;
+
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @Immutable
 @JsonDeserialize(as = ImmutablePriorityLevelReadModel.class)
