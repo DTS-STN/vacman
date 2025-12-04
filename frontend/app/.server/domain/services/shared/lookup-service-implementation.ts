@@ -165,5 +165,6 @@ export function standardLocalize<T extends LookupModel>(entity: T, language: Lan
     id: entity.id,
     code: entity.code,
     name: language === 'fr' ? entity.nameFr : entity.nameEn,
+    expiryDate: entity.expiryDate,
   };
 }
