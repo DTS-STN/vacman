@@ -723,7 +723,6 @@ public class RequestService {
 			newStatus = requestStatuses.hrReview();
 		} else if (requestStatuses.clearanceGranted().equals(currentStatus)) {
 			// CLR_GRANTED → FDBK_PEND_APPR
-			// When undoing from CLR_GRANTED, we always go to FDBK_PEND_APPR
 			newStatus = requestStatuses.feedbackPendingApproval();
 
 			// Loop through all matches and undo the approval and remove the VMS number
@@ -741,6 +740,14 @@ public class RequestService {
 			// PENDING_PSC → FDBK_PEND_APPR or NO_MATCH_HR_REVIEW
 			if (hasMatches(request.getId())) {
 				newStatus = requestStatuses.feedbackPendingApproval();
+
+				// Loop through all matches and undo the approval
+				final var query = MatchQuery.builder().requestId(request.getId()).build();
+				final var matches = findMatches(query);
+				for (MatchEntity match : matches) {
+					match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
+					saveMatch(match);
+				}
 			} else {
 				newStatus = requestStatuses.noMatchHrReview();
 			}

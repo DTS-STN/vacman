@@ -1865,6 +1865,35 @@ class RequestsControllerTest {
 		}
 
 		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes PENDING_PSC to NO_MATCH_HR_REVIEW when no matches exist")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoPendingPscToNoMatchHrReview() throws Exception {
+			final var pendingPscStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().pendingPscClearance()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Pending PSC")
+				.nameFr("Annuler PSC en attente")
+				.requestNumber("UNDO-005")
+				.requestStatus(pendingPscStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().noMatchHrReview())));
+
+			// Verify status changed in database
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().noMatchHrReview());
+		}
+
+		@Test
 		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to FDBK_PEND_APPR")
 		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
 		void testUndoClearanceGrantedToFeedbackPendingApproval() throws Exception {
