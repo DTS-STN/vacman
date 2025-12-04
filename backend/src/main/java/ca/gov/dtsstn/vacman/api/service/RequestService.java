@@ -761,6 +761,7 @@ public class RequestService {
 		} else if (requestStatuses.pscClearanceGrantedNoVms().equals(currentStatus)) {
 			// PSC_GRANTED_NO_VMS → PENDING_PSC_NO_VMS (undo the "complete" action)
 			newStatus = requestStatuses.pendingPscClearanceNoVms();
+			request.setPscClearanceNumber(null);
 		} else if (requestStatuses.feedbackPending().equals(currentStatus)) {
 			// FDBK_PENDING → HR_REVIEW (undo when HR advisor ran matches and matches were found)
 			newStatus = requestStatuses.hrReview();
