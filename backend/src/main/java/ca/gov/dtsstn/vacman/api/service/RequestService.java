@@ -37,8 +37,10 @@ import org.springframework.util.StringUtils;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.MatchStatuses;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -49,6 +51,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
@@ -98,6 +101,8 @@ public class RequestService {
 
 	private final MatchRepository matchRepository;
 
+	private final MatchStatusRepository matchStatusRepository;
+
 	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
 
 	private final RequestEntityMapper requestEntityMapper = Mappers.getMapper(RequestEntityMapper.class);
@@ -107,6 +112,8 @@ public class RequestService {
 	private final RequestRepository requestRepository;
 
 	private final RequestStatuses requestStatuses;
+
+	private final MatchStatuses matchStatuses;
 
 	private final RequestStatusRepository requestStatusRepository;
 
@@ -135,6 +142,7 @@ public class RequestService {
 			LanguageRequirementRepository languageRequirementRepository,
 			LookupCodes lookupCodes,
 			MatchRepository matchRepository,
+			MatchStatusRepository matchStatusRepository,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
 			ProvinceRepository provinceRepository,
 			RequestMatchingService requestMatchingService,
@@ -154,6 +162,7 @@ public class RequestService {
 		this.languageRepository = languageRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.matchRepository = matchRepository;
+		this.matchStatusRepository = matchStatusRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
 		this.requestMatchingService = requestMatchingService;
 		this.requestRepository = requestRepository;
@@ -165,6 +174,7 @@ public class RequestService {
 		this.workUnitRepository = workUnitRepository;
 
 		this.requestStatuses = lookupCodes.requestStatuses();
+		this.matchStatuses = lookupCodes.matchStatuses();
 		this.userTypes = lookupCodes.userTypes();
 	}
 
@@ -705,8 +715,9 @@ public class RequestService {
 
 		// Determine the new status based on the current status according to the undo rules
 		if (requestStatuses.hrReview().equals(currentStatus)) {
-			// HR_REVIEW → SUBMIT (undo picking up the request)
+			// HR_REVIEW → SUBMIT (undo picking up the request and remove HR Advisor id)
 			newStatus = requestStatuses.submitted();
+			request.setHrAdvisor(null);
 		} else if (requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
 			// PENDING_PSC_NO_VMS → HR_REVIEW (undo approve request)
 			newStatus = requestStatuses.hrReview();
@@ -715,6 +726,17 @@ public class RequestService {
 			// Check if there were matches
 			if (hasMatches(request.getId())) {
 				newStatus = requestStatuses.feedbackPendingApproval();
+
+				// Loop through all matches and undo the approval and remove the VMS number
+				final var query = MatchQuery.builder().requestId(request.getId()).build();
+				final var matches = findMatches(query);
+				for (MatchEntity match : matches) {
+					match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
+					saveMatch(match);
+				}
+
+				// Remove the VMS number
+				request.setPriorityClearanceNumber(null);
 			} else {
 				newStatus = requestStatuses.noMatchHrReview();
 			}
@@ -756,6 +778,14 @@ public class RequestService {
 	private RequestStatusEntity getRequestStatusByCode(String code) {
 		return requestStatusRepository.findByCode(code)
 			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
+	}
+
+	/**
+	 * Gets a MatchStatusEntity by its code.
+	 */
+	private MatchStatusEntity getMatchStatusByCode(String code) {
+		return matchStatusRepository.findByCode(code)
+			.orElseThrow(() -> new IllegalStateException("Match status not found: " + code));
 	}
 
 	/**

@@ -1771,9 +1771,10 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
 				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().submitted())));
 
-			// Verify status changed in database
+			// Verify status changed in database and HR advisor is removed
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().submitted());
+			assertThat(updatedRequest.getHrAdvisor()).isNull();
 		}
 
 		@Test
@@ -1861,6 +1862,37 @@ class RequestsControllerTest {
 			// Verify status changed in database
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pendingPscClearanceNoVms());
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to FDBK_PEND_APPR")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoClearanceGrantedToFeedbackPendingApproval() throws Exception {
+			final var clearanceGrantedStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().clearanceGranted()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Clearance Granted")
+				.nameFr("Annuler autorisation accordée")
+				.requestNumber("UNDO-005")
+				.requestStatus(clearanceGrantedStatus)
+				.pscClearanceNumber("TEST-VMS-NUMBER")
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().feedbackPendingApproval())));
+
+			// Verify status changed in database and VMS number is removed
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().feedbackPendingApproval());
+			assertThat(updatedRequest.getPscClearanceNumber()).isNull();
 		}
 
 		@Test
