@@ -159,7 +159,7 @@ public class NotificationService {
 		Assert.hasText(username, "username is required; it must not be blank or null");
 		Assert.hasText(language, "language is required; it must not be blank or null");
 
-		return emails.parallelStream()
+		return emails.stream()
 			.filter(StringUtils::hasText)
 			.map(email -> sendProfileNotification(email, profileId, username, language, profileStatus))
 			.toList();
@@ -292,7 +292,7 @@ public class NotificationService {
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 		Assert.hasText(language, "language is required; it must not be blank or null");
 
-		return emails.parallelStream()
+		return emails.stream()
 			.filter(StringUtils::hasText)
 			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent, language, priorityClearanceNumber, pscClearanceNumber))
 			.toList();
@@ -410,7 +410,7 @@ public class NotificationService {
 		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
 		Assert.hasText(language, "language is required; it must not be blank or null");
 
-		return emails.parallelStream()
+		return emails.stream()
 			.filter(StringUtils::hasText)
 			.map(email -> sendJobOpportunityHRNotification(email, jobOpportunityHR, language))
 			.toList();
