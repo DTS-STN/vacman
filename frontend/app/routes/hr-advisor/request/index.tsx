@@ -316,6 +316,21 @@ export async function action({ context, params, request }: Route.ActionArgs) {
         requestStatus: updatedRequest.status,
       };
     }
+
+    case 'return-to-previous': {
+      const undoResult = await getRequestService().undoRequestStatus(requestData.id, session.authState.accessToken);
+
+      if (undoResult.isErr()) {
+        const error = undoResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      return data({ successMsg: 'app:referral-requests.previous-status.success-msg' }, { status: HttpStatusCodes.OK });
+    }
   }
 
   return undefined;
@@ -381,8 +396,13 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
     },
   };
 
+  const successMsg = fetcher.data && 'successMsg' in fetcher.data ? fetcher.data.successMsg : undefined;
   const statusCode = loaderData.status?.code;
-  const currentAlert = statusCode ? alertConfig[statusCode] : undefined;
+  const currentAlert = successMsg
+    ? { type: 'success' as const, message: t(extractValidationKey(successMsg)) }
+    : statusCode
+      ? alertConfig[statusCode]
+      : undefined;
 
   return (
     <div className="space-y-8">
@@ -658,17 +678,27 @@ function RenderButtonsByStatus({
   // Always show PSC input section for these statuses
   if (code === REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS || code === REQUEST_STATUS_CODE.PENDING_PSC) {
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-4">
         <Button
           ref={cancelRequestButtonRef}
-          className="mb-8 w-full"
+          className="w-full"
           variant="alternative"
           id="cancel-request"
           onClick={onCancelRequestClick}
         >
           {t('form.cancel-request')}
         </Button>
-
+        <LoadingButton
+          className="mb-8 w-full"
+          name="action"
+          variant="alternative"
+          id="return-to-previous"
+          disabled={isSubmitting}
+          loading={isSubmitting}
+          value="return-to-previous"
+        >
+          {t('referral-requests.previous-status.label')}
+        </LoadingButton>
         <InputField
           className="w-full"
           id="psc-clearance-number"
@@ -677,9 +707,8 @@ function RenderButtonsByStatus({
           errorMessage={t(extractValidationKey(formErrors?.pscClearanceNumber?.[0]))}
           required
         />
-
         <Button
-          className="mt-4 w-full"
+          className="w-full"
           name="action"
           variant="primary"
           id="psc-clearance-received"
@@ -728,7 +757,7 @@ function RenderButtonsByStatus({
       );
     case REQUEST_STATUS_CODE.HR_REVIEW:
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
           <Button
             ref={cancelRequestButtonRef}
             className="w-full"
@@ -738,13 +767,11 @@ function RenderButtonsByStatus({
           >
             {t('form.cancel-request')}
           </Button>
-
-          <Button value="save" name="action" className="mt-4 w-full" variant="alternative" id="save" disabled={isSubmitting}>
+          <Button value="save" name="action" className="w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
           </Button>
-
           <LoadingButton
-            className="mt-4 w-full"
+            className="w-full"
             name="action"
             variant="primary"
             id="vms-not-required"
@@ -754,9 +781,8 @@ function RenderButtonsByStatus({
           >
             {t('form.vms-not-required')}
           </LoadingButton>
-
           <LoadingButton
-            className="mt-4 w-full"
+            className="w-full"
             name="action"
             variant="primary"
             id="run-matches"
@@ -771,11 +797,22 @@ function RenderButtonsByStatus({
 
     case REQUEST_STATUS_CODE.FDBK_PENDING:
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
           <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
-          <Button value="save" name="action" className="mt-4 w-full" variant="alternative" id="save" disabled={isSubmitting}>
+          <LoadingButton
+            className="w-full"
+            name="action"
+            variant="alternative"
+            id="return-to-previous"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="return-to-previous"
+          >
+            {t('referral-requests.previous-status.label')}
+          </LoadingButton>
+          <Button value="save" name="action" className="w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
           </Button>
         </div>
@@ -784,7 +821,7 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW:
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
           <Button
             ref={cancelRequestButtonRef}
             className="w-full"
@@ -794,11 +831,22 @@ function RenderButtonsByStatus({
           >
             {t('form.cancel-request')}
           </Button>
-          <Button value="save" name="action" className="mt-4 w-full" variant="alternative" id="save" disabled={isSubmitting}>
+          <LoadingButton
+            className="w-full"
+            name="action"
+            variant="alternative"
+            id="return-to-previous"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="return-to-previous"
+          >
+            {t('referral-requests.previous-status.label')}
+          </LoadingButton>
+          <Button value="save" name="action" className="w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
           </Button>
           <LoadingButton
-            className="mt-4 w-full"
+            className="w-full"
             name="action"
             variant="primary"
             id="psc-clearance-required"
@@ -809,7 +857,7 @@ function RenderButtonsByStatus({
             {t('form.psc-clearance-required')}
           </LoadingButton>
           <LoadingButton
-            className="mt-4 w-full"
+            className="w-full"
             name="action"
             variant="primary"
             id="psc-clearance-not-required"
@@ -818,6 +866,25 @@ function RenderButtonsByStatus({
             value="psc-clearance-not-required"
           >
             {t('form.psc-clearance-not-required')}
+          </LoadingButton>
+        </div>
+      );
+
+    case REQUEST_STATUS_CODE.PSC_GRANTED:
+    case REQUEST_STATUS_CODE.PSC_GRANTED_NO_VMS:
+    case REQUEST_STATUS_CODE.CLR_GRANTED:
+      return (
+        <div className="flex flex-col space-y-4">
+          <LoadingButton
+            className="w-full"
+            name="action"
+            variant="alternative"
+            id="return-to-previous"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="return-to-previous"
+          >
+            {t('referral-requests.previous-status.label')}
           </LoadingButton>
         </div>
       );

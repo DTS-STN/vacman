@@ -828,5 +828,19 @@ export function getMockRequestService(): RequestService {
       const result = await this.getRequestById(requestId, accessToken);
       return result.ok();
     },
+
+    /**
+     * Reverts a request status
+     */
+    async undoRequestStatus(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>> {
+      // TODO: Add mock implementation
+      const request = mockRequests.find((r) => r.id === requestId);
+      if (request) {
+        return Promise.resolve(Ok(request));
+      }
+
+      log.debug(`Request with ID ${requestId} not found`);
+      return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+    },
   };
 }

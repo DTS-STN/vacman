@@ -421,6 +421,10 @@ export default {
     'request-somc-conditions-saved': 'Statement of merit criteria and conditions of employment saved successfully.',
     'request-submission-details-saved': 'Submission details saved successfully.',
     'request-saved': 'Priority clearance request saved successfully.',
+    'previous-status': {
+      'label': 'Return to previous status',
+      'success-msg': 'Request returned to a previous status.',
+    },
   },
   'hr-advisor-referral-requests': {
     'page-title': 'Priority clearance requests',
