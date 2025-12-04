@@ -9,9 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.json.Json;
 import jakarta.json.JsonException;
 import jakarta.json.JsonMergePatch;
@@ -21,6 +18,9 @@ import jakarta.json.JsonValue;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * A component that applies JSON Patch and JSON Merge Patch operations to Java objects.
@@ -37,8 +37,9 @@ public class JsonPatchProcessor {
 
 	private static final Logger log = LoggerFactory.getLogger(JsonPatchProcessor.class);
 
-	private final ObjectMapper objectMapper = new ObjectMapper()
-		.findAndRegisterModules();
+	private final ObjectMapper objectMapper = JsonMapper.builder()
+		.findAndAddModules()
+		.build();
 
 	private final Validator validator;
 
@@ -111,7 +112,7 @@ public class JsonPatchProcessor {
 		}
 		// JsonException can be thrown by Johnzon
 		// JsonProcessingException can be thrown by Jackson
-		catch (final JsonException | JsonProcessingException exception) {
+		catch (final JsonException | JacksonException exception) {
 			throw new JsonPatchException("An error occurred while JSON-Patching", exception);
 		}
 	}
