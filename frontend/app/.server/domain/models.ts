@@ -18,6 +18,12 @@ export type LocalizedLookupModel = Readonly<{
   id: number;
   code: string;
   name: string;
+  /**
+   * The date and time when the lookup code expires.
+   * Format: ISO 8601 date string (e.g., '2025-12-03T16:54:45.300Z').
+   * The code is considered expired from this moment onwards.
+   */
+  expiryDate?: string | null;
 }>;
 
 // Generic type for lookup models with parent relationships

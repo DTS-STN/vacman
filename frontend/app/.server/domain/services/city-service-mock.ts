@@ -24,10 +24,12 @@ function localizeCity(city: City, language: Language): LocalizedCity {
     id: city.id,
     code: city.code,
     name: language === 'fr' ? city.nameFr : city.nameEn,
+    expiryDate: city.expiryDate,
     provinceTerritory: {
       id: city.provinceTerritory.id,
       code: city.provinceTerritory.code,
       name: language === 'fr' ? city.provinceTerritory.nameFr : city.provinceTerritory.nameEn,
+      expiryDate: city.provinceTerritory.expiryDate,
     },
   };
 }
