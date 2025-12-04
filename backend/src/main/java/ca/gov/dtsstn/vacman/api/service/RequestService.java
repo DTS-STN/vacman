@@ -722,24 +722,21 @@ public class RequestService {
 			// PENDING_PSC_NO_VMS → HR_REVIEW (undo approve request)
 			newStatus = requestStatuses.hrReview();
 		} else if (requestStatuses.clearanceGranted().equals(currentStatus)) {
-			// CLR_GRANTED → FDBK_PEND_APPR or NO_MATCH_HR_REVIEW
-			// Check if there were matches
-			if (hasMatches(request.getId())) {
-				newStatus = requestStatuses.feedbackPendingApproval();
+			// CLR_GRANTED → FDBK_PEND_APPR
+			// When undoing from CLR_GRANTED, we always go to FDBK_PEND_APPR
+			newStatus = requestStatuses.feedbackPendingApproval();
 
-				// Loop through all matches and undo the approval and remove the VMS number
-				final var query = MatchQuery.builder().requestId(request.getId()).build();
-				final var matches = findMatches(query);
-				for (MatchEntity match : matches) {
-					match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
-					saveMatch(match);
-				}
-
-				// Remove the VMS number
-				request.setPriorityClearanceNumber(null);
-			} else {
-				newStatus = requestStatuses.noMatchHrReview();
+			// Loop through all matches and undo the approval and remove the VMS number
+			final var query = MatchQuery.builder().requestId(request.getId()).build();
+			final var matches = findMatches(query);
+			for (MatchEntity match : matches) {
+				match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
+				saveMatch(match);
 			}
+
+			// Remove the VMS number
+			request.setPriorityClearanceNumber(null);
+			request.setPscClearanceNumber(null);
 		} else if (requestStatuses.pendingPscClearance().equals(currentStatus)) {
 			// PENDING_PSC → FDBK_PEND_APPR or NO_MATCH_HR_REVIEW
 			if (hasMatches(request.getId())) {
