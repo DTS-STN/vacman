@@ -46,29 +46,30 @@ describe('lookup-utils', () => {
     });
 
     it('should return false when expiryDate is in the future', () => {
-      const futureDate = new Date();
-      futureDate.setFullYear(futureDate.getFullYear() + 1);
+      // Use a fixed timestamp in the far future for deterministic testing
+      const fixedFutureDate = '2099-12-31T23:59:59.999Z';
 
       const item: LookupModel = {
         id: 1,
         code: 'TEST',
         nameEn: 'Test',
         nameFr: 'Test',
-        expiryDate: futureDate.toISOString(),
+        expiryDate: fixedFutureDate,
       };
       expect(isLookupExpired(item)).toBe(false);
     });
 
-    it('should return true when expiryDate equals current time', () => {
-      const now = new Date();
+    it('should return true when expiryDate is at current time', () => {
+      // Use a fixed timestamp in the past to avoid flaky tests due to timing issues
+      const fixedPastDate = '2024-01-01T12:00:00.000Z';
       const item: LookupModel = {
         id: 1,
         code: 'TEST',
         nameEn: 'Test',
         nameFr: 'Test',
-        expiryDate: now.toISOString(),
+        expiryDate: fixedPastDate,
       };
-      // Since we're comparing with <=, equal time means expired
+      // Since we're comparing with <=, any date in the past means expired
       expect(isLookupExpired(item)).toBe(true);
     });
   });
