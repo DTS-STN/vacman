@@ -194,7 +194,7 @@ importers:
         version: 14.6.1(@testing-library/dom@10.4.0)
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^6.0.0
-        version: 6.0.0(prettier@3.7.3)
+        version: 6.0.0(prettier@3.7.4)
       '@types/compression':
         specifier: ^1.8.1
         version: 1.8.1
@@ -256,11 +256,11 @@ importers:
         specifier: ^3.1.11
         version: 3.1.11
       prettier:
-        specifier: ^3.7.3
-        version: 3.7.3
+        specifier: ^3.7.4
+        version: 3.7.4
       prettier-plugin-tailwindcss:
         specifier: ^0.7.2
-        version: 0.7.2(@trivago/prettier-plugin-sort-imports@6.0.0(prettier@3.7.3))(prettier@3.7.3)
+        version: 0.7.2(@trivago/prettier-plugin-sort-imports@6.0.0(prettier@3.7.4))(prettier@3.7.4)
       tailwindcss:
         specifier: ^4.1.17
         version: 4.1.17
@@ -4176,8 +4176,8 @@ packages:
       prettier-plugin-svelte:
         optional: true
 
-  prettier@3.7.3:
-    resolution: {integrity: sha512-QgODejq9K3OzoBbuyobZlUhznP5SKwPqp+6Q6xw6o8gnhr4O85L2U915iM2IDcfF2NPXVaM9zlo9tdwipnYwzg==}
+  prettier@3.7.4:
+    resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -6694,7 +6694,7 @@ snapshots:
       pathe: 1.1.2
       picocolors: 1.1.1
       pkg-types: 2.3.0
-      prettier: 3.7.3
+      prettier: 3.7.4
       react-refresh: 0.14.2
       react-router: 7.10.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       semver: 7.7.3
@@ -6946,7 +6946,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 10.4.0
 
-  '@trivago/prettier-plugin-sort-imports@6.0.0(prettier@3.7.3)':
+  '@trivago/prettier-plugin-sort-imports@6.0.0(prettier@3.7.4)':
     dependencies:
       '@babel/generator': 7.28.5
       '@babel/parser': 7.28.5
@@ -6956,7 +6956,7 @@ snapshots:
       lodash-es: 4.17.21
       minimatch: 9.0.5
       parse-imports-exports: 0.2.4
-      prettier: 3.7.3
+      prettier: 3.7.4
     transitivePeerDependencies:
       - supports-color
 
@@ -9293,13 +9293,13 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-tailwindcss@0.7.2(@trivago/prettier-plugin-sort-imports@6.0.0(prettier@3.7.3))(prettier@3.7.3):
+  prettier-plugin-tailwindcss@0.7.2(@trivago/prettier-plugin-sort-imports@6.0.0(prettier@3.7.4))(prettier@3.7.4):
     dependencies:
-      prettier: 3.7.3
+      prettier: 3.7.4
     optionalDependencies:
-      '@trivago/prettier-plugin-sort-imports': 6.0.0(prettier@3.7.3)
+      '@trivago/prettier-plugin-sort-imports': 6.0.0(prettier@3.7.4)
 
-  prettier@3.7.3: {}
+  prettier@3.7.4: {}
 
   pretty-format@27.5.1:
     dependencies:
