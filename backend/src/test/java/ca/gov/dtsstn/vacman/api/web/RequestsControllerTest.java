@@ -1821,6 +1821,8 @@ class RequestsControllerTest {
 				.nameFr("Annuler PSC accordé")
 				.requestNumber("UNDO-003")
 				.requestStatus(pscGrantedStatus)
+				.priorityClearanceNumber("TEST-PRIORITY-NUMBER")
+				.pscClearanceNumber("TEST-PSC-NUMBER")
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
@@ -1830,9 +1832,11 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
 				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().pendingPscClearance())));
 
-			// Verify status changed in database
+			// Verify status changed in database and both clearance numbers are removed
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pendingPscClearance());
+			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
+			assertThat(updatedRequest.getPscClearanceNumber()).isNull();
 		}
 
 		@Test
