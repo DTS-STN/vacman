@@ -385,6 +385,14 @@ export function getDefaultRequestService(): RequestService {
     },
 
     /**
+     * Convenience method for reverting a match approval to pending status
+     * @returns Result<void, AppError> - API returns 204 No Content on success
+     */
+    async revertApproveRequestMatch(requestId: number, matchId: number, accessToken: string): Promise<Result<void, AppError>> {
+      return this.updateRequestMatchStatus(requestId, matchId, { statusCode: MATCH_STATUS_CODE.pending }, accessToken);
+    },
+
+    /**
      * Get a specific candidate profile for a request.
      */
     async getRequestProfile(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {

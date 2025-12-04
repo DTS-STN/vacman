@@ -90,6 +90,7 @@ export default {
     'psc-clearance-required': 'PSC clearance required',
     'psc-clearance-not-required': 'PSC clearance not required',
     're-assign-to-me': 'Reassign to me',
+    'undo': 'Undo',
   },
   'table': {
     'filter-table': 'Filter table',
@@ -661,6 +662,8 @@ export default {
     'feedback': 'Feedback',
     'comments': 'Comments',
     'approval': 'Approval',
+    'approved-successfully-msg': 'Request candidate {{name}} approved successfully.',
+    'revert-approval-successfully-msg': 'Request candidate {{name}} approval reverted successfully.',
     'comment-label': {
       'add': 'Add Comment',
       'view-add': 'View/add Comment',

@@ -691,6 +691,13 @@ export function getMockRequestService(): RequestService {
     },
 
     /**
+     * Convenience method for reverting a match approval to pending status
+     */
+    async revertApproveRequestMatch(requestId: number, matchId: number, accessToken: string): Promise<Result<void, AppError>> {
+      return this.updateRequestMatchStatus(requestId, matchId, { statusCode: MATCH_STATUS_CODE.pending }, accessToken);
+    },
+
+    /**
      * Get a specific candidate profile for a request.
      */
     async getRequestProfile(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {

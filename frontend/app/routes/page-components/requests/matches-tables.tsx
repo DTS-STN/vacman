@@ -93,6 +93,16 @@ export default function MatchesTables({
     [submit],
   );
 
+  const revertApproveRequest = useCallback(
+    (id: number) => {
+      const formData = new FormData();
+      formData.set('action', 'revert-approval');
+      formData.set('matchId', id.toString());
+      void submit(formData, { method: 'post' });
+    },
+    [submit],
+  );
+
   return (
     <div className="mb-8">
       <section className="mb-8">
@@ -309,10 +319,26 @@ export default function MatchesTables({
                   approveRequest(match.id);
                 };
 
+                const handleUndo = () => {
+                  revertApproveRequest(match.id);
+                };
+
                 return (
                   <div className="flex items-baseline gap-4">
                     {isApproved ? (
-                      <span>{t('matches-tables.approved')}</span>
+                      <div className="space-x-4">
+                        <span>{t('matches-tables.approved')}</span>
+                        <LoadingButton
+                          variant="alternative"
+                          id={`revert-approve-employee-${match.id}`}
+                          onClick={handleUndo}
+                          size="sm"
+                          disabled={isUpdating}
+                          loading={isUpdating}
+                        >
+                          {t('form.undo')}
+                        </LoadingButton>
+                      </div>
                     ) : (
                       <LoadingButton
                         variant="alternative"

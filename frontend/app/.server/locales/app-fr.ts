@@ -93,6 +93,7 @@ export default {
     'psc-clearance-required': 'Autorisation CFP obligatoire',
     'psc-clearance-not-required': 'Autorisation CFP non obligatoire',
     're-assign-to-me': 'Réassigner à moi',
+    'undo': 'Annuler',
   },
   'table': {
     'filter-table': 'Filtrer le tableau',
@@ -671,6 +672,8 @@ export default {
     'feedback': 'Rétroaction',
     'comments': 'Commentaires',
     'approval': 'Approbation',
+    'approved-successfully-msg': 'Candidature de {{name}} approuvée avec succès.',
+    'revert-approval-successfully-msg': 'Approbation de la candidature de {{name}} annulée avec succès.',
     'comment-label': {
       'add': 'Ajouter un commentaire',
       'view-add': 'Voir/ajouter un commentaire',
