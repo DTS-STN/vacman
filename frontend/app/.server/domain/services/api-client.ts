@@ -1,3 +1,4 @@
+import { context, propagation } from '@opentelemetry/api';
 import type { Result } from 'oxide.ts';
 import { Err, Ok } from 'oxide.ts';
 
@@ -21,7 +22,7 @@ type baseFetchOptions = {
  */
 async function baseFetch(
   path: string,
-  context: string,
+  actionContext: string,
   method: string,
   options?: baseFetchOptions,
   headers?: RequestInit['headers'],
@@ -34,11 +35,15 @@ async function baseFetch(
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     const finalUrl = `${cleanBase}/${cleanPath}`;
 
+    const headersWithTrace = {};
+    propagation.inject(context.active(), headersWithTrace);
+
     const response = await fetch(finalUrl, {
       method: method,
       headers: {
         'Authorization': options?.accessToken ? `Bearer ${options.accessToken}` : '',
         'Content-Type': 'application/json',
+        ...headersWithTrace,
         ...headers,
       },
       body: options?.body ?? undefined,
@@ -47,7 +52,7 @@ async function baseFetch(
     if (!response.ok) {
       return Err(
         new AppError(
-          `Failed to ${context.toLowerCase()}. The server responded with status ${response.status}.`,
+          `Failed to ${actionContext.toLowerCase()}. The server responded with status ${response.status}.`,
           ErrorCodes.VACMAN_API_ERROR,
           { httpStatusCode: response.status as HttpStatusCode },
         ),
@@ -58,7 +63,7 @@ async function baseFetch(
   } catch (error) {
     return Err(
       new AppError(
-        `A network error occurred while trying to ${context.toLowerCase()}: ${String(error)}`,
+        `A network error occurred while trying to ${actionContext.toLowerCase()}: ${String(error)}`,
         ErrorCodes.VACMAN_API_ERROR,
       ),
     );

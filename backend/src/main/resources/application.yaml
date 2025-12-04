@@ -196,10 +196,15 @@ management:
   observations:
     annotations:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
   otlp:
     metrics:
       export:
-        enabled: false # set to true and add `spring.otlp.metrics.export.url` to enable metrics export
+        enabled: false # set to true and add `management.otlp.metrics.export.url` to enable metrics export
+    tracing:
+      # endpoint: <set in application-local.yaml or environment-specific config if tracing is required>
 
 ---
 

@@ -100,15 +100,16 @@ export function handleSpanException(error: unknown, span?: Span) {
  */
 export async function withSpan<T>(spanName: string, fn: (span: Span) => Promise<T> | T): Promise<T> {
   const tracer = trace.getTracer(serverEnvironment.OTEL_SERVICE_NAME, serverEnvironment.OTEL_SERVICE_VERSION);
-  const span = tracer.startSpan(spanName);
 
-  try {
-    return await fn(span);
-  } catch (error) {
-    throw handleSpanException(error, span);
-  } finally {
-    span.end();
-  }
+  return tracer.startActiveSpan(spanName, async (span) => {
+    try {
+      return await fn(span);
+    } catch (error) {
+      throw handleSpanException(error, span);
+    } finally {
+      span.end();
+    }
+  });
 }
 
 function getErrorCode(error: unknown): string | undefined {

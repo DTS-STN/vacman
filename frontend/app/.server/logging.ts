@@ -7,6 +7,7 @@
  * environment variables. It also provides a factory for creating and retrieving logger
  * instances for different categories within the application.
  */
+import { context, trace } from '@opentelemetry/api';
 import util from 'node:util';
 import type { Logform, Logger } from 'winston';
 import winston, { format, transports } from 'winston';
@@ -79,7 +80,13 @@ export const LogFactory = {
  */
 function asFormattedInfo(transformableInfo: Logform.TransformableInfo): string {
   const { label, level, message, timestamp, ...rest } = transformableInfo;
-  const formattedInfo = `${timestamp} ${level.toUpperCase().padStart(7)} --- [${formatLabel(`${label}`, 25)}]: ${message}`;
+
+  const spanContext = trace.getSpan(context.active())?.spanContext();
+  const traceId = spanContext?.traceId;
+  const spanId = spanContext?.spanId;
+  const traceInfo = traceId ? ` [${traceId}, ${spanId}]` : '';
+
+  const formattedInfo = `${timestamp} ${level.toUpperCase().padStart(7)} --- [${formatLabel(`${label}`, 25)}]${traceInfo}: ${message}`;
   const sanitizedRest = Object.fromEntries(Object.entries(rest).filter(([key]) => typeof key !== 'symbol'));
   return isEmpty(sanitizedRest) ? formattedInfo : `${formattedInfo} --- ${util.inspect(sanitizedRest, false, null, true)}`;
 }
