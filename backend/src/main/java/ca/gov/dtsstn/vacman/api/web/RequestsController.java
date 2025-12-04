@@ -285,6 +285,26 @@ public class RequestsController {
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
 
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@PostMapping({ "/{id}/status-undo" })
+	@ApiResponses.ResourceNotFoundError
+	@ApiResponses.UnprocessableEntityError
+	@Operation(summary = "Undo the last status change of a request.")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
+	public ResponseEntity<RequestReadModel> undoRequestStatus(@PathVariable Long id) {
+		log.info("Received request to undo status change for request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var updatedEntity = requestService.undoRequestStatus(request);
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
+	}
+
 	//
 	//
 	// --- /requests/.../matches endpoints

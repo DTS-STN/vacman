@@ -693,6 +693,64 @@ public class RequestService {
 	}
 
 	/**
+	 * Undoes the last status change of a request based on its current status.
+	 *
+	 * @param request The request entity to undo the status change for
+	 * @return The updated request entity
+	 */
+	@Counted("service.request.undoRequestStatus.count")
+	public RequestEntity undoRequestStatus(RequestEntity request) {
+		final var currentStatus = request.getRequestStatus().getCode();
+		final String newStatus;
+
+		// Determine the new status based on the current status according to the undo rules
+		if (requestStatuses.hrReview().equals(currentStatus)) {
+			// HR_REVIEW → SUBMIT (undo picking up the request)
+			newStatus = requestStatuses.submitted();
+		} else if (requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
+			// PENDING_PSC_NO_VMS → HR_REVIEW (undo approve request)
+			newStatus = requestStatuses.hrReview();
+		} else if (requestStatuses.clearanceGranted().equals(currentStatus)) {
+			// CLR_GRANTED → FDBK_PEND_APPR or NO_MATCH_HR_REVIEW
+			// Check if there were matches
+			if (hasMatches(request.getId())) {
+				newStatus = requestStatuses.feedbackPendingApproval();
+			} else {
+				newStatus = requestStatuses.noMatchHrReview();
+			}
+		} else if (requestStatuses.pendingPscClearance().equals(currentStatus)) {
+			// PENDING_PSC → FDBK_PEND_APPR or NO_MATCH_HR_REVIEW
+			if (hasMatches(request.getId())) {
+				newStatus = requestStatuses.feedbackPendingApproval();
+			} else {
+				newStatus = requestStatuses.noMatchHrReview();
+			}
+		} else if (requestStatuses.pscClearanceGranted().equals(currentStatus)) {
+			// PSC_GRANTED → PENDING_PSC (undo the "complete" action)
+			newStatus = requestStatuses.pendingPscClearance();
+		} else if (requestStatuses.pscClearanceGrantedNoVms().equals(currentStatus)) {
+			// PSC_GRANTED_NO_VMS → PENDING_PSC_NO_VMS (undo the "complete" action)
+			newStatus = requestStatuses.pendingPscClearanceNoVms();
+		} else if (requestStatuses.feedbackPending().equals(currentStatus)) {
+			// FDBK_PENDING → HR_REVIEW (undo when HR advisor ran matches and matches were found)
+			newStatus = requestStatuses.hrReview();
+		} else if (requestStatuses.noMatchHrReview().equals(currentStatus)) {
+			// NO_MATCH_HR_REVIEW → HR_REVIEW (undo when HR advisor ran matches and no matches were found)
+			newStatus = requestStatuses.hrReview();
+		} else {
+			// If the current status is not one of the listed starting statuses, then no "undo" is possible
+			throw new ResourceConflictException("Cannot undo status change for request with status: " + currentStatus);
+		}
+
+		request.setRequestStatus(getRequestStatusByCode(newStatus));
+		final var updatedRequest = updateRequest(request);
+
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(requestEntityMapper.toEventDto(updatedRequest), currentStatus, newStatus));
+
+		return updatedRequest;
+	}
+
+	/**
 	 * Gets a RequestStatusEntity by its code.
 	 */
 	private RequestStatusEntity getRequestStatusByCode(String code) {

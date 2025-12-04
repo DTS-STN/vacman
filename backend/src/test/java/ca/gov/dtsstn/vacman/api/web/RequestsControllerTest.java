@@ -1747,7 +1747,203 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())));
 		}
 
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes HR_REVIEW to SUBMIT")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoHrReviewToSubmit() throws Exception {
+			final var hrReviewStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().hrReview()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo HR Review")
+				.nameFr("Annuler révision RH")
+				.requestNumber("UNDO-001")
+				.requestStatus(hrReviewStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().submitted())));
+
+			// Verify status changed in database
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().submitted());
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes PENDING_PSC_NO_VMS to HR_REVIEW")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoPendingPscNoVmsToHrReview() throws Exception {
+			final var pendingPscNoVmsStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().pendingPscClearanceNoVms()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Pending PSC No VMS")
+				.nameFr("Annuler PSC en attente sans VMS")
+				.requestNumber("UNDO-002")
+				.requestStatus(pendingPscNoVmsStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().hrReview())));
+
+			// Verify status changed in database
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().hrReview());
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes PSC_GRANTED to PENDING_PSC")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoPscGrantedToPendingPsc() throws Exception {
+			final var pscGrantedStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().pscClearanceGranted()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo PSC Granted")
+				.nameFr("Annuler PSC accordé")
+				.requestNumber("UNDO-003")
+				.requestStatus(pscGrantedStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().pendingPscClearance())));
+
+			// Verify status changed in database
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pendingPscClearance());
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes PSC_GRANTED_NO_VMS to PENDING_PSC_NO_VMS")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoPscGrantedNoVmsToPendingPscNoVms() throws Exception {
+			final var pscGrantedNoVmsStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().pscClearanceGrantedNoVms()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo PSC Granted No VMS")
+				.nameFr("Annuler PSC accordé sans VMS")
+				.requestNumber("UNDO-004")
+				.requestStatus(pscGrantedNoVmsStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().pendingPscClearanceNoVms())));
+
+			// Verify status changed in database
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pendingPscClearanceNoVms());
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes FDBK_PENDING to HR_REVIEW")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoFeedbackPendingToHrReview() throws Exception {
+			final var feedbackPendingStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().feedbackPending()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Feedback Pending")
+				.nameFr("Annuler rétroaction en attente")
+				.requestNumber("UNDO-005")
+				.requestStatus(feedbackPendingStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().hrReview())));
+
+			// Verify status changed in database
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().hrReview());
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes NO_MATCH_HR_REVIEW to HR_REVIEW")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoNoMatchHrReviewToHrReview() throws Exception {
+			final var noMatchHrReviewStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().noMatchHrReview()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo No Match HR Review")
+				.nameFr("Annuler aucune correspondance révision RH")
+				.requestNumber("UNDO-006")
+				.requestStatus(noMatchHrReviewStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().hrReview())));
+
+			// Verify status changed in database
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().hrReview());
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo fails for unsupported status")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoFailsForUnsupportedStatus() throws Exception {
+			final var draftStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Unsupported Status")
+				.nameFr("Annuler statut non pris en charge")
+				.requestNumber("UNDO-007")
+				.requestStatus(draftStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isConflict());
+		}
+
 	}
 
 }
-
