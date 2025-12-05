@@ -39,6 +39,7 @@ import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.MatchStatuses;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
 import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.MatchStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
@@ -117,7 +118,7 @@ public class RequestService {
 
 	private final RequestStatusRepository requestStatusRepository;
 
-	private final LookupCodes.UserTypes userTypes;
+	private final UserTypes userTypes;
 
 	private final SecurityClearanceRepository securityClearanceRepository;
 
