@@ -13,6 +13,7 @@ import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/uti
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { WFA_STATUS } from '~/domain/constants';
 import { isValidCalendarDate, toDateString } from '~/utils/date-utils';
+import { isLookupExpired } from '~/utils/lookup-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
@@ -24,7 +25,7 @@ export type ReferralPreferencesSchema = Awaited<ReturnType<typeof createReferral
 export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
 
 export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
-  const allSubstantivePositions = await getClassificationService().listAll();
+  const allSubstantivePositions = await getClassificationService().listAll(true); // Include inactive for validation
   const allDirectorates = await getWorkUnitService().listAll();
   const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
   const allProvinces = await getProvinceService().listAll();
@@ -62,8 +63,12 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
             stringToIntegerSchema('app:employment-information.errors.substantive-group-and-level-required'),
             v.picklist(
               allSubstantivePositions.map(({ id }) => id),
-              'app:employment-information.errors.substantive-group-and-level-required',
+              'app:employment-information.errors.substantive-group-and-level-invalid',
             ),
+            v.custom((classificationId) => {
+              const classification = allSubstantivePositions.find((c) => c.id === classificationId);
+              return classification ? !isLookupExpired(classification) : false;
+            }, 'app:employment-information.errors.substantive-group-and-level-expired'),
           ),
         ),
         branchOrServiceCanadaRegion: v.lazy(() =>
@@ -270,7 +275,7 @@ export async function createPersonalInformationSchema() {
 
 export async function createReferralPreferencesSchema() {
   const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
-  const allSubstantivePositions = await getClassificationService().listAll();
+  const allSubstantivePositions = await getClassificationService().listAll(true); // Include inactive for validation
   const allProvinces = await getProvinceService().listAll();
   const allCities = await getCityService().listAll();
 

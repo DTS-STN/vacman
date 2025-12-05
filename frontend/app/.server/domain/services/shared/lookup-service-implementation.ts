@@ -34,16 +34,33 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   /**
    * Retrieves a list of all entities.
    * It returns a Result to handle fetch errors without throwing.
+   *
+   * @param includeInactive - Optional parameter to include inactive/expired entities.
+   *   - When `true`: Appends `?includeInactive=true` to the API endpoint to fetch both active and expired entities.
+   *   - When `false` or `undefined` (default): Uses the base endpoint without query parameters, returning only active entities.
+   *
+   * Usage:
+   * - Loaders (dropdowns): Don't pass parameter → returns only active entities
+   * - Validation: Pass `true` → returns active + expired entities to validate saved expired values
    */
-  private async getAll(): Promise<Result<readonly (T | null | undefined)[], AppError>> {
-    const queryKey = ['lookup', this.config.apiEndpoint];
+  private async getAll(includeInactive?: boolean): Promise<Result<readonly (T | null | undefined)[], AppError>> {
+    let endpoint = this.config.apiEndpoint;
+
+    if (includeInactive) {
+      // Use URL to properly handle query parameters
+      const url = new URL(endpoint, 'http://dummy.base'); // Use dummy base for relative URLs
+      url.searchParams.set('includeInactive', 'true');
+      endpoint = url.pathname + url.search;
+    }
+
+    const queryKey = ['lookup', endpoint];
 
     const queryFn = async (): Promise<readonly (T | null | undefined)[]> => {
       type ApiResponse = {
         content: readonly (T | null | undefined)[];
       };
       const context = `list all ${this.config.entityName} codes`;
-      const response = await apiClient.get<ApiResponse>(this.config.apiEndpoint, context);
+      const response = await apiClient.get<ApiResponse>(endpoint, context);
 
       if (response.isErr()) {
         throw response.unwrapErr();
@@ -72,8 +89,8 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   /**
    * Retrieves a list of all entities.
    */
-  async listAll(): Promise<readonly T[]> {
-    const result = await this.getAll();
+  async listAll(includeInactive?: boolean): Promise<readonly T[]> {
+    const result = await this.getAll(includeInactive);
 
     if (result.isErr()) {
       throw result.unwrapErr();
@@ -123,8 +140,8 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   /**
    * Retrieves a list of all entities, localized to the specified language.
    */
-  async listAllLocalized(language: Language): Promise<readonly L[]> {
-    const entities = await this.listAll();
+  async listAllLocalized(language: Language, includeInactive?: boolean): Promise<readonly L[]> {
+    const entities = await this.listAll(includeInactive);
     return entities.map((entity) => this.config.localizeEntity(entity, language));
   }
 

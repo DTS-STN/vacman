@@ -1,6 +1,7 @@
 import * as v from 'valibot';
 
 import { getCityService } from '~/.server/domain/services/city-service';
+import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
@@ -14,6 +15,7 @@ import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/uti
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { isPastOrTodayInTimeZone, isValidCalendarDate, toDateString } from '~/utils/date-utils';
+import { isLookupExpired } from '~/utils/lookup-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
 import { optionalString } from '~/utils/validation-utils';
@@ -26,6 +28,7 @@ export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>
 export async function createPositionInformationSchema() {
   const allProvinces = await getProvinceService().listAll();
   const allCities = await getCityService().listAll();
+  const allClassifications = await getClassificationService().listAll(true); // Include inactive for validation
   const allLanguageRequirements = await getLanguageRequirementService().listAll();
 
   const validLanguageRequirementForRequiredLanguageLevel = [
@@ -73,6 +76,16 @@ export async function createPositionInformationSchema() {
           v.string('app:position-information.errors.group-and-level-required'),
           v.trim(),
           v.nonEmpty('app:position-information.errors.group-and-level-required'),
+          v.transform((value) => Number(value)),
+          v.number('app:position-information.errors.group-and-level-required'),
+          v.picklist(
+            allClassifications.map(({ id }) => id),
+            'app:position-information.errors.group-and-level-invalid',
+          ),
+          v.custom((classificationId) => {
+            const classification = allClassifications.find((c) => c.id === classificationId);
+            return classification ? !isLookupExpired(classification) : false;
+          }, 'app:position-information.errors.group-and-level-expired'),
         ),
         titleEn: v.pipe(
           v.string('app:position-information.errors.title-en-required'),

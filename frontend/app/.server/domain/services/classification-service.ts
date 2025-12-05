@@ -7,9 +7,9 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type ClassificationService = {
-  listAll(): Promise<readonly Classification[]>;
+  listAll(includeInactive?: boolean): Promise<readonly Classification[]>;
   getById(id: number): Promise<Result<Classification, AppError>>;
-  listAllLocalized(language: Language): Promise<readonly LocalizedClassification[]>;
+  listAllLocalized(language: Language, includeInactive?: boolean): Promise<readonly LocalizedClassification[]>;
   getLocalizedById(id: number, language: Language): Promise<Result<LocalizedClassification, AppError>>;
   findLocalizedById(id: number, language: Language): Promise<Option<LocalizedClassification>>;
 };

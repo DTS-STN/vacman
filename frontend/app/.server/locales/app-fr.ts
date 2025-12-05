@@ -79,6 +79,7 @@ export default {
     'approve': 'Approuver',
     'cancel': 'Annuler',
     'cancel-request': 'Annuler la demande',
+    'expired': 'Expiré',
     'save': 'Enregistrer',
     'save-and-exit': 'Enregistrer et quitter',
     'submit': 'Soumettre',
@@ -147,6 +148,10 @@ export default {
     'hr-advisor': 'Conseiller-ère identifié-e dans votre lettre de RE/TC',
     'errors': {
       'substantive-group-and-level-required': "Le groupe et le niveau de votre poste d'attache sont obligatoires.",
+      'substantive-group-and-level-invalid':
+        "Le groupe et le niveau sélectionnés de votre poste d'attache ne sont pas valides.",
+      'substantive-group-and-level-expired':
+        "Le groupe et le niveau sélectionnés de votre poste d'attache ont expiré. Veuillez sélectionner une option valide.",
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est obligatoire.',
       'directorate-required': 'La direction est obligatoire.',
       'provinces-required': 'La province du lieu de travail désigné de votre poste substantif est obligatoire.',
@@ -511,6 +516,8 @@ export default {
       'position-number-max-length': 'Chaque numéro de poste doit comporter 8 chiffres.',
       'position-number-duplicate': 'Le numéro de poste ne peut pas comporter de doublons.',
       'group-and-level-required': 'Le groupe et le niveau sont obligatoires.',
+      'group-and-level-invalid': 'Le groupe et le niveau sélectionnés ne sont pas valides.',
+      'group-and-level-expired': 'Le groupe et le niveau sélectionnés ont expiré. Veuillez sélectionner une option valide.',
       'title-en-required': 'Le titre en anglais est obligatoire.',
       'title-en-max-length': 'Le titre en anglais ne peut pas dépasser 200 caractères.',
       'title-fr-required': 'Le titre en français est obligatoire.',
