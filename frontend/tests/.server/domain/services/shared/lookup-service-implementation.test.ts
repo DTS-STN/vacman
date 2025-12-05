@@ -304,7 +304,11 @@ describe('LookupServiceImplementation', () => {
         { id: 1, code: 'EXPIRED1', nameEn: 'Expired 1', nameFr: 'Expiré 1', expiryDate: PAST_DATE },
         { id: 2, code: 'EXPIRED2', nameEn: 'Expired 2', nameFr: 'Expiré 2', expiryDate: '2021-06-15T12:00:00.000Z' },
       ];
-      const allExpiredService = createMockLookupService<TestEntity>(allExpiredData, 'test entity', ErrorCodes.NO_PROVINCE_FOUND);
+      const allExpiredService = createMockLookupService<TestEntity>(
+        allExpiredData,
+        'test entity',
+        ErrorCodes.NO_PROVINCE_FOUND,
+      );
 
       const result = allExpiredService.listAll();
 

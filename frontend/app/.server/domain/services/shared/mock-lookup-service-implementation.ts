@@ -62,7 +62,9 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
    * Retrieves a list of all entities, localized to the specified language, excluding expired ones.
    */
   listAllLocalized(language: Language): L[] {
-    return this.config.data.filter((entity) => !isLookupExpired(entity)).map((entity) => this.config.localizeEntity(entity, language));
+    return this.config.data
+      .filter((entity) => !isLookupExpired(entity))
+      .map((entity) => this.config.localizeEntity(entity, language));
   }
 
   /**
