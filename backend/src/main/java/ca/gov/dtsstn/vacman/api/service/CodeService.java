@@ -151,7 +151,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "cities" })
 	@Counted("service.code.getCities.count")
 	public Page<CityEntity> getCities(Pageable pageable) {
-		return getCities(pageable, false);
+		return getCities(pageable, true);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "classifications" })
 	@Counted("service.code.getClassifications.count")
 	public Page<ClassificationEntity> getClassifications(Pageable pageable) {
-		return getClassifications(pageable, false);
+		return getClassifications(pageable, true);
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-equities" })
 	@Counted("service.code.getEmploymentEquities.count")
 	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable) {
-		return getEmploymentEquities(pageable, false);
+		return getEmploymentEquities(pageable, true);
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-opportunities" })
 	@Counted("service.code.getEmploymentOpportunities.count")
 	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable) {
-		return getEmploymentOpportunities(pageable, false);
+		return getEmploymentOpportunities(pageable, true);
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "employment-tenures" })
 	@Counted("service.code.getEmploymentTenures.count")
 	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable) {
-		return getEmploymentTenures(pageable, false);
+		return getEmploymentTenures(pageable, true);
 	}
 
 	/**
@@ -286,7 +286,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "languages" })
 	@Counted("service.code.getLanguages.count")
 	public Page<LanguageEntity> getLanguages(Pageable pageable) {
-		return getLanguages(pageable, false);
+		return getLanguages(pageable, true);
 	}
 
 	/**
@@ -313,7 +313,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "language-referral-types" })
 	@Counted("service.code.getLanguageReferralTypes.count")
 	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
-		return getLanguageReferralTypes(pageable, false);
+		return getLanguageReferralTypes(pageable, true);
 	}
 
 	/**
@@ -340,7 +340,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "language-requirements" })
 	@Counted("service.code.getLanguageRequirements.count")
 	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable) {
-		return getLanguageRequirements(pageable, false);
+		return getLanguageRequirements(pageable, true);
 	}
 
 	/**
@@ -367,7 +367,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "match-feedbacks" })
 	@Counted("service.code.getMatchFeedbacks.count")
 	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
-		return getMatchFeedbacks(pageable, false);
+		return getMatchFeedbacks(pageable, true);
 	}
 
 	/**
@@ -394,7 +394,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "match-statuses" })
 	@Counted("service.code.getMatchStatuses.count")
 	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable) {
-		return getMatchStatuses(pageable, false);
+		return getMatchStatuses(pageable, true);
 	}
 
 	/**
@@ -421,7 +421,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "non-advertised-appointments" })
 	@Counted("service.code.getNonAdvertisedAppointments.count")
 	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable) {
-		return getNonAdvertisedAppointments(pageable, false);
+		return getNonAdvertisedAppointments(pageable, true);
 	}
 
 	/**
@@ -448,7 +448,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "profile-statuses" })
 	@Counted("service.code.getProfileStatuses.count")
 	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable) {
-		return getProfileStatuses(pageable, false);
+		return getProfileStatuses(pageable, true);
 	}
 
 	/**
@@ -475,7 +475,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "provinces" })
 	@Counted("service.code.getProvinces.count")
 	public Page<ProvinceEntity> getProvinces(Pageable pageable) {
-		return getProvinces(pageable, false);
+		return getProvinces(pageable, true);
 	}
 
 	/**
@@ -502,7 +502,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "request-statuses" })
 	@Counted("service.code.getRequestStatuses.count")
 	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable) {
-		return getRequestStatuses(pageable, false);
+		return getRequestStatuses(pageable, true);
 	}
 
 	/**
@@ -529,7 +529,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "security-clearances" })
 	@Counted("service.code.getSecurityClearances.count")
 	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable) {
-		return getSecurityClearances(pageable, false);
+		return getSecurityClearances(pageable, true);
 	}
 
 	/**
@@ -556,7 +556,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "selection-process-types" })
 	@Counted("service.code.getSelectionProcessTypes.count")
 	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable) {
-		return getSelectionProcessTypes(pageable, false);
+		return getSelectionProcessTypes(pageable, true);
 	}
 
 	/**
@@ -583,7 +583,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "user-types" })
 	@Counted("service.code.getUserTypes.count")
 	public Page<UserTypeEntity> getUserTypes(Pageable pageable) {
-		return getUserTypes(pageable, false);
+		return getUserTypes(pageable, true);
 	}
 
 	/**
@@ -610,7 +610,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "wfa-statuses" })
 	@Counted("service.code.getWfaStatuses.count")
 	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
-		return getWfaStatuses(pageable, false);
+		return getWfaStatuses(pageable, true);
 	}
 
 	/**
@@ -637,7 +637,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "work-schedules" })
 	@Counted("service.code.getWorkSchedules.count")
 	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable) {
-		return getWorkSchedules(pageable, false);
+		return getWorkSchedules(pageable, true);
 	}
 
 	/**
@@ -664,7 +664,7 @@ public class CodeService {
 	@Cacheable(cacheNames = { "work-units" })
 	@Counted("service.code.getWorkUnits.count")
 	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable) {
-		return getWorkUnits(pageable, false);
+		return getWorkUnits(pageable, true);
 	}
 
 	/**
