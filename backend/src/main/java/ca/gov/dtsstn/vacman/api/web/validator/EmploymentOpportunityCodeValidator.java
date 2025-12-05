@@ -25,7 +25,7 @@ public class EmploymentOpportunityCodeValidator implements ConstraintValidator<V
 	public boolean isValid(Long employmentOpportunityId, ConstraintValidatorContext context) {
 		if (employmentOpportunityId == null) { return true; }
 
-		return codeService.getEmploymentOpportunities(Pageable.unpaged(), true).stream()
+		return codeService.getEmploymentOpportunities(Pageable.unpaged()).stream()
 			.filter(employmentOpportunity -> employmentOpportunity.getId().equals(employmentOpportunityId))
 			.findFirst().isPresent();
 	}

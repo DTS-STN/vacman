@@ -38,7 +38,7 @@ class LanguageReferralTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when language referral type code is valid")
 	void isValidReturnsTrueWhenLanguageReferralTypeCodeIsValid() {
-		when(codeService.getLanguageReferralTypes(Pageable.unpaged(), true))
+		when(codeService.getLanguageReferralTypes(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(LanguageReferralTypeEntity.builder().id(0L).build())));
 
 		assertTrue(languageReferralTypeCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class LanguageReferralTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when language referral type code is invalid")
 	void isValidReturnsFalseWhenLanguageReferralTypeCodeIsInvalid() {
-		when(codeService.getLanguageReferralTypes(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getLanguageReferralTypes(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(languageReferralTypeCodeValidator.isValid(0L, null));
 	}
 

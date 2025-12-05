@@ -28,7 +28,7 @@ public class MatchStatusCodeValidator implements ConstraintValidator<ValidMatchS
 	public boolean isValid(Long matchStatusId, ConstraintValidatorContext context) {
 		if (matchStatusId == null) { return true; }
 
-		return codeService.getMatchStatuses(Pageable.unpaged(), true).stream()
+		return codeService.getMatchStatuses(Pageable.unpaged()).stream()
 			.filter(matchStatus -> matchStatus.getId().equals(matchStatusId))
 			.findFirst().isPresent();
 	}

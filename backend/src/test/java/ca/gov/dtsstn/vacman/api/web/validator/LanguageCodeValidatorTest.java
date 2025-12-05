@@ -38,7 +38,7 @@ class LanguageCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when language code is valid")
 	void isValidReturnsTrueWhenLanguageCodeIsValid() {
-		when(codeService.getLanguages(Pageable.unpaged(), true))
+		when(codeService.getLanguages(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(LanguageEntity.builder().id(0L).build())));
 
 		assertTrue(languageCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class LanguageCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when language code is invalid")
 	void isValidReturnsFalseWhenLanguageCodeIsInvalid() {
-		when(codeService.getLanguages(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getLanguages(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(languageCodeValidator.isValid(0L, null));
 	}
 

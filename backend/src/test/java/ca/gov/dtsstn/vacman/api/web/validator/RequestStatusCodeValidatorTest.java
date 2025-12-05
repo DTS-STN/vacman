@@ -38,7 +38,7 @@ class RequestStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when request status code is valid")
 	void isValidReturnsTrueWhenRequestStatusCodeIsValid() {
-		when(codeService.getRequestStatuses(Pageable.unpaged(), true))
+		when(codeService.getRequestStatuses(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(RequestStatusEntity.builder().id(0L).build())));
 
 		assertTrue(requestStatusCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class RequestStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when request status code is invalid")
 	void isValidReturnsFalseWhenRequestStatusCodeIsInvalid() {
-		when(codeService.getRequestStatuses(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getRequestStatuses(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(requestStatusCodeValidator.isValid(0L, null));
 	}
 

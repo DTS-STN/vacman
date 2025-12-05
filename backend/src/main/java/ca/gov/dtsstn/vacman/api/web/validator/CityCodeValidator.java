@@ -25,7 +25,7 @@ public class CityCodeValidator implements ConstraintValidator<ValidCityCode, Lon
 	public boolean isValid(Long cityId, ConstraintValidatorContext context) {
 		if (cityId == null) { return true; }
 
-		return codeService.getCities(Pageable.unpaged(), true).stream()
+		return codeService.getCities(Pageable.unpaged()).stream()
 			.filter(city -> city.getId().equals(cityId))
 			.findFirst().isPresent();
 	}

@@ -38,7 +38,7 @@ class MatchStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when match status code is valid")
 	void isValidReturnsTrueWhenMatchStatusCodeIsValid() {
-		when(codeService.getMatchStatuses(Pageable.unpaged(), true))
+		when(codeService.getMatchStatuses(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(MatchStatusEntity.builder().id(0L).build())));
 
 		assertTrue(matchStatusCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class MatchStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when match status code is invalid")
 	void isValidReturnsFalseWhenMatchStatusCodeIsInvalid() {
-		when(codeService.getMatchStatuses(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getMatchStatuses(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(matchStatusCodeValidator.isValid(0L, null));
 	}
 

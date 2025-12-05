@@ -28,7 +28,7 @@ public class MatchFeedbackCodeValidator implements ConstraintValidator<ValidMatc
 	public boolean isValid(Long matchFeedbackId, ConstraintValidatorContext context) {
 		if (matchFeedbackId == null) { return true; }
 
-		return codeService.getMatchFeedbacks(Pageable.unpaged(), true).stream()
+		return codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
 			.filter(matchFeedback -> matchFeedback.getId().equals(matchFeedbackId))
 			.findFirst().isPresent();
 	}

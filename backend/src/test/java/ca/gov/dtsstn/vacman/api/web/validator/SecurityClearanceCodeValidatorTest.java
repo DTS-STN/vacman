@@ -38,7 +38,7 @@ class SecurityClearanceCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when security clearance code is valid")
 	void isValidReturnsTrueWhenSecurityClearanceCodeIsValid() {
-		when(codeService.getSecurityClearances(Pageable.unpaged(), true))
+		when(codeService.getSecurityClearances(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(SecurityClearanceEntity.builder().id(0L).build())));
 
 		assertTrue(securityClearanceCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class SecurityClearanceCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when security clearance code is invalid")
 	void isValidReturnsFalseWhenSecurityClearanceCodeIsInvalid() {
-		when(codeService.getSecurityClearances(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getSecurityClearances(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(securityClearanceCodeValidator.isValid(0L, null));
 	}
 

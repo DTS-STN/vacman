@@ -38,7 +38,7 @@ class MatchFeedbackCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when match feedback code is valid")
 	void isValidReturnsTrueWhenMatchFeedbackCodeIsValid() {
-		when(codeService.getMatchFeedbacks(Pageable.unpaged(), true))
+		when(codeService.getMatchFeedbacks(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(MatchFeedbackEntity.builder().id(0L).build())));
 
 		assertTrue(matchFeedbackCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class MatchFeedbackCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when match feedback code is invalid")
 	void isValidReturnsFalseWhenMatchFeedbackCodeIsInvalid() {
-		when(codeService.getMatchFeedbacks(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getMatchFeedbacks(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(matchFeedbackCodeValidator.isValid(0L, null));
 	}
 

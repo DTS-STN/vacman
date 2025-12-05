@@ -30,7 +30,7 @@ public class MatchStatusCodeStringValidator implements ConstraintValidator<Valid
 	public boolean isValid(String matchStatusCode, ConstraintValidatorContext context) {
 		if (matchStatusCode == null) { return true; }
 
-		return codeService.getMatchStatuses(unpaged(), true).stream()
+		return codeService.getMatchStatuses(unpaged()).stream()
 			.anyMatch(byCode(matchStatusCode));
 	}
 }

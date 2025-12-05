@@ -38,7 +38,7 @@ class UserTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when user type code is valid")
 	void isValidReturnsTrueWhenUserTypeCodeIsValid() {
-		when(codeService.getUserTypes(Pageable.unpaged(), true))
+		when(codeService.getUserTypes(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(UserTypeEntity.builder().id(0L).build())));
 
 		assertTrue(userTypeCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class UserTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when user type code is invalid")
 	void isValidReturnsFalseWhenUserTypeCodeIsInvalid() {
-		when(codeService.getUserTypes(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getUserTypes(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(userTypeCodeValidator.isValid(0L, null));
 	}
 

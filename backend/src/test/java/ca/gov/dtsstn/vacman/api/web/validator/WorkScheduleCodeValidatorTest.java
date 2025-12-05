@@ -38,7 +38,7 @@ class WorkScheduleCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when work schedule code is valid")
 	void isValidReturnsTrueWhenWorkScheduleCodeIsValid() {
-		when(codeService.getWorkSchedules(Pageable.unpaged(), true))
+		when(codeService.getWorkSchedules(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(WorkScheduleEntity.builder().id(0L).build())));
 
 		assertTrue(workScheduleCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class WorkScheduleCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when work schedule code is invalid")
 	void isValidReturnsFalseWhenWorkScheduleCodeIsInvalid() {
-		when(codeService.getWorkSchedules(Pageable.unpaged(), true)).thenReturn(Page.empty());
+		when(codeService.getWorkSchedules(Pageable.unpaged())).thenReturn(Page.empty());
 		assertFalse(workScheduleCodeValidator.isValid(0L, null));
 	}
 

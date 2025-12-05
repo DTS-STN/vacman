@@ -72,7 +72,7 @@ public abstract class UserEntityMapper {
 
 		if (id == null) { return null; }
 
-		return codeService.getLanguages(Pageable.unpaged(), true)
+		return codeService.getLanguages(Pageable.unpaged())
 			.filter(byId(id)).stream()
 			.findFirst().orElseThrow();
 	}

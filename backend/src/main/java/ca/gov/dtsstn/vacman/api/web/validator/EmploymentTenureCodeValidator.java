@@ -25,7 +25,7 @@ public class EmploymentTenureCodeValidator implements ConstraintValidator<ValidE
 	public boolean isValid(Long employmentTenureId, ConstraintValidatorContext context) {
 		if (employmentTenureId == null) { return true; }
 
-		return codeService.getEmploymentTenures(Pageable.unpaged(), true).stream()
+		return codeService.getEmploymentTenures(Pageable.unpaged()).stream()
 			.filter(employmentTenure -> employmentTenure.getId().equals(employmentTenureId))
 			.findFirst().isPresent();
 	}

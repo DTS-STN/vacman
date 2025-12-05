@@ -29,7 +29,7 @@ public class LanguageCodeValidator implements ConstraintValidator<ValidLanguageC
 	public boolean isValid(Long languageId, ConstraintValidatorContext context) {
 		if (languageId == null) { return true; }
 
-		return codeService.getLanguages(Pageable.unpaged(), true).stream()
+		return codeService.getLanguages(Pageable.unpaged()).stream()
 			.filter(language -> language.getId().equals(languageId))
 			.findFirst().isPresent();
 	}

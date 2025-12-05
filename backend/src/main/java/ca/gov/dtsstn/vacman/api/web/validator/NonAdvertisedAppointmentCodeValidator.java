@@ -25,7 +25,7 @@ public class NonAdvertisedAppointmentCodeValidator implements ConstraintValidato
 	public boolean isValid(Long nonAdvertisedAppointmentId, ConstraintValidatorContext context) {
 		if (nonAdvertisedAppointmentId == null) { return true; }
 
-		return codeService.getNonAdvertisedAppointments(Pageable.unpaged(), true).stream()
+		return codeService.getNonAdvertisedAppointments(Pageable.unpaged()).stream()
 			.filter(nonAdvertisedAppointment -> nonAdvertisedAppointment.getId().equals(nonAdvertisedAppointmentId))
 			.findFirst().isPresent();
 	}
