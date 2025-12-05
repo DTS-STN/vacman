@@ -4,6 +4,7 @@ import { Err, Ok } from 'oxide.ts';
 import type { LookupModel, LocalizedLookupModel } from '~/.server/domain/models';
 import { AppError } from '~/errors/app-error';
 import type { ErrorCode } from '~/errors/error-codes';
+import { isLookupExpired } from '~/utils/lookup-utils';
 
 /**
  * Configuration for mock lookup service implementation
@@ -30,10 +31,10 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   }
 
   /**
-   * Retrieves a list of all entities.
+   * Retrieves a list of all entities, excluding expired ones.
    */
   listAll(): T[] {
-    return this.config.data;
+    return this.config.data.filter((item) => !isLookupExpired(item));
   }
 
   /**
@@ -58,10 +59,10 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   // Localized methods
 
   /**
-   * Retrieves a list of all entities, localized to the specified language.
+   * Retrieves a list of all entities, localized to the specified language, excluding expired ones.
    */
   listAllLocalized(language: Language): L[] {
-    return this.config.data.map((entity) => this.config.localizeEntity(entity, language));
+    return this.config.data.filter((entity) => !isLookupExpired(entity)).map((entity) => this.config.localizeEntity(entity, language));
   }
 
   /**

@@ -25,6 +25,7 @@ interface TestEntity {
   code: string;
   nameEn: string;
   nameFr: string;
+  expiryDate?: string | null;
 }
 
 const mockTestData: TestEntity[] = [
@@ -171,6 +172,91 @@ describe('LookupServiceImplementation', () => {
         code: 'TEST1',
         name: 'Test Un',
       });
+    });
+  });
+
+  describe('Mock-based service expiry filtering', () => {
+    const mockDataWithExpiry: TestEntity[] = [
+      { id: 1, code: 'ACTIVE', nameEn: 'Active Item', nameFr: 'Article Actif', expiryDate: null },
+      { id: 2, code: 'EXPIRED', nameEn: 'Expired Item', nameFr: 'Article Expiré', expiryDate: '2020-01-01T00:00:00.000Z' },
+      { id: 3, code: 'FUTURE', nameEn: 'Future Expiry', nameFr: 'Expiration Future', expiryDate: '2099-12-31T23:59:59.999Z' },
+      { id: 4, code: 'NO_EXPIRY', nameEn: 'No Expiry Set', nameFr: 'Sans Expiration' },
+    ];
+
+    let mockService: MockLookupServiceImplementation<TestEntity, LocalizedLookupModel>;
+
+    beforeEach(() => {
+      mockService = createMockLookupService<TestEntity>(mockDataWithExpiry, 'test entity', ErrorCodes.NO_PROVINCE_FOUND);
+    });
+
+    it('should filter out expired entities in listAll', () => {
+      const result = mockService.listAll();
+
+      expect(result).toHaveLength(3);
+      expect(result.map((e) => e.code)).toEqual(['ACTIVE', 'FUTURE', 'NO_EXPIRY']);
+      expect(result.find((e) => e.code === 'EXPIRED')).toBeUndefined();
+    });
+
+    it('should filter out expired entities in listAllLocalized', () => {
+      const result = mockService.listAllLocalized('en');
+
+      expect(result).toHaveLength(3);
+      expect(result.map((e) => e.code)).toEqual(['ACTIVE', 'FUTURE', 'NO_EXPIRY']);
+      expect(result.find((e) => e.code === 'EXPIRED')).toBeUndefined();
+    });
+
+    it('should still allow getById to retrieve expired entities', () => {
+      // getById should still work for expired items (for display purposes with existing data)
+      const result = mockService.getById(2);
+
+      expect(result.isOk()).toBe(true);
+      expect(result.unwrap().code).toBe('EXPIRED');
+    });
+
+    it('should still allow findById to retrieve expired entities', () => {
+      const result = mockService.findById(2);
+
+      expect(result.isSome()).toBe(true);
+      expect(result.unwrap().code).toBe('EXPIRED');
+    });
+
+    it('should still allow getLocalizedById to retrieve expired entities', () => {
+      const result = mockService.getLocalizedById(2, 'en');
+
+      expect(result.isOk()).toBe(true);
+      expect(result.unwrap().code).toBe('EXPIRED');
+    });
+
+    it('should still allow findLocalizedById to retrieve expired entities', () => {
+      const result = mockService.findLocalizedById(2, 'en');
+
+      expect(result.isSome()).toBe(true);
+      expect(result.unwrap().code).toBe('EXPIRED');
+    });
+
+    it('should return empty list when all entities are expired', () => {
+      const allExpiredData: TestEntity[] = [
+        { id: 1, code: 'EXPIRED1', nameEn: 'Expired 1', nameFr: 'Expiré 1', expiryDate: '2020-01-01T00:00:00.000Z' },
+        { id: 2, code: 'EXPIRED2', nameEn: 'Expired 2', nameFr: 'Expiré 2', expiryDate: '2021-06-15T12:00:00.000Z' },
+      ];
+      const allExpiredService = createMockLookupService<TestEntity>(allExpiredData, 'test entity', ErrorCodes.NO_PROVINCE_FOUND);
+
+      const result = allExpiredService.listAll();
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('should return all items when none are expired', () => {
+      const noExpiredData: TestEntity[] = [
+        { id: 1, code: 'ACTIVE1', nameEn: 'Active 1', nameFr: 'Actif 1' },
+        { id: 2, code: 'ACTIVE2', nameEn: 'Active 2', nameFr: 'Actif 2', expiryDate: null },
+        { id: 3, code: 'ACTIVE3', nameEn: 'Active 3', nameFr: 'Actif 3', expiryDate: '2099-12-31T23:59:59.999Z' },
+      ];
+      const noExpiredService = createMockLookupService<TestEntity>(noExpiredData, 'test entity', ErrorCodes.NO_PROVINCE_FOUND);
+
+      const result = noExpiredService.listAll();
+
+      expect(result).toHaveLength(3);
     });
   });
 });
