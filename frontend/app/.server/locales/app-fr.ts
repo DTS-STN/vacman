@@ -426,6 +426,10 @@ export default {
     'request-somc-conditions-saved': "Énoncé des critères de mérite et conditions d'emploi enregistré avec succès.",
     'request-submission-details-saved': 'Détails de la soumission enregistrés avec succès.',
     'request-saved': "Demande d'autorisation en matière de priorité enregistrée avec succès.",
+    'previous-status': {
+      'label': "Retour à l'état précédent",
+      'success-msg': 'La demande est revenue à un état précédent.',
+    },
   },
   'hr-advisor-referral-requests': {
     'page-title': "Demande d'autorisation en matière de priorité",

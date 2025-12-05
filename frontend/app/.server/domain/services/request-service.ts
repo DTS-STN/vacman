@@ -99,6 +99,9 @@ export type RequestService = {
 
   // Optional method for finding request by ID
   findRequestById(requestId: number, accessToken: string): Promise<Option<RequestReadModel>>;
+
+  // Revert a request status
+  undoRequestStatus(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>>;
 };
 
 export function getRequestService(): RequestService {
