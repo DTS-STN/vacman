@@ -17,6 +17,10 @@ const variants = {
   default: 'block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500',
 } as const;
 
+export interface InputSelectOption extends OmitStrict<ComponentProps<'option'>, 'id'> {
+  isExpired?: boolean;
+}
+
 export interface InputSelectProps extends OmitStrict<
   ComponentProps<'select'>,
   'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-labelledby' | 'aria-required'
@@ -28,7 +32,7 @@ export interface InputSelectProps extends OmitStrict<
   label?: string;
   legendClassName?: string;
   name: string;
-  options: OmitStrict<ComponentProps<'option'>, 'id'>[];
+  options: InputSelectOption[];
   ref?: React.Ref<HTMLSelectElement>;
   sortOrder?: SortOrder;
   variant?: keyof typeof variants;
@@ -108,9 +112,16 @@ export function InputSelect(props: InputSelectProps) {
         required={required}
         {...restInputProps}
       >
-        {sortedOptions.map((optionProps) => (
-          <option key={String(optionProps.value)} {...optionProps} />
-        ))}
+        {sortedOptions.map((optionProps) => {
+          const { isExpired, className: optionClassName, ...restOptionProps } = optionProps;
+          return (
+            <option
+              key={String(optionProps.value)}
+              className={cn(isExpired && 'bg-red-300 text-red-900', optionClassName)}
+              {...restOptionProps}
+            />
+          );
+        })}
       </select>
 
       {helpMessage && (

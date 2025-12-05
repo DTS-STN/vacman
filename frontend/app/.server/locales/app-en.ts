@@ -506,6 +506,8 @@ export default {
       'position-number-max-length': 'Each position number must be 8 digits.',
       'position-number-duplicate': 'Position number cannot have duplicates.',
       'group-and-level-required': 'Group and level is required.',
+      'group-and-level-invalid': 'Selected group and level is invalid.',
+      'group-and-level-expired': 'The selected group and level has expired. Please select a valid option.',
       'title-en-required': 'Title in English is required.',
       'title-en-max-length': 'Title in English cannot exceed 200 characters.',
       'title-fr-required': 'Title in French is required.',

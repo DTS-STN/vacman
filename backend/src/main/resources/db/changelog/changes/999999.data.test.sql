@@ -155,3 +155,39 @@ ALTER TABLE [USER] ALTER COLUMN [ID] RESTART WITH 1;
 ALTER TABLE [PROFILE] ALTER COLUMN [ID] RESTART WITH 1;
 ALTER TABLE [PROFILE_CITY] ALTER COLUMN [ID] RESTART WITH 1;
 ALTER TABLE [PROFILE_LANGUAGE_REFERRAL_TYPE] ALTER COLUMN [ID] RESTART WITH 1;
+
+
+
+-- =================================================================================================
+-- TEST REQUEST DATA WITH EXPIRED CLASSIFICATIONS
+-- =================================================================================================
+
+-- changeset system:test-request-expired-classification-identity-on context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
+SET IDENTITY_INSERT [REQUEST] ON;
+
+-- Insert test requests with expired classifications to validate frontend/backend handling
+-- changeset system:insert-test-request-expired-classification context:dev dbms:mssql,h2 logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
+INSERT INTO [REQUEST]
+  ([ID],       [USER_ID_SUBMITTER], [REQUEST_STATUS_ID], [CLASSIFICATION_ID], [POSITION_NUMBER], [NAME_EN],                       [NAME_FR],                          [SECURITY_CLEARANCE_ID], [LANGUAGE_REQUIREMENT_ID], [USER_CREATED], [DATE_CREATED],    [USER_UPDATED], [DATE_UPDATED])
+VALUES
+  (9990001,    2147400010,          0,                   6,                   '12345678',        'Test Position - Expired AS-07', 'Poste test - AS-07 expiré',        0,                       0,                         'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP),
+  (9990002,    2147400011,          0,                   24,                  '23456789',        'Test Position - Expired EC-08', 'Poste test - EC-08 expiré',        1,                       1,                         'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP),
+  (9990003,    2147400012,          1,                   9,                   '34567890',        'Test Position - Expired CR-05', 'Poste test - CR-05 expiré',        0,                       0,                         'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP);
+
+-- changeset system:test-request-expired-classification-identity-off context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
+SET IDENTITY_INSERT [REQUEST] OFF;
+
+-- changeset system:test-request-city-identity-on context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
+SET IDENTITY_INSERT [REQUEST_CITY] ON;
+
+-- Link test requests to cities
+-- changeset system:insert-test-request-city-expired-classification context:dev dbms:mssql,h2 logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
+INSERT INTO [REQUEST_CITY]
+  ([ID],       [REQUEST_ID], [CITY_ID], [USER_CREATED], [DATE_CREATED],    [USER_UPDATED], [DATE_UPDATED])
+VALUES
+  (9990001,    9990001,      1,         'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP),
+  (9990002,    9990002,      2,         'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP),
+  (9990003,    9990003,      3,         'system',       CURRENT_TIMESTAMP, 'system',       CURRENT_TIMESTAMP);
+
+-- changeset system:test-request-city-identity-off context:dev dbms:mssql logicalFilePath:BOOT-INF/classes/db/changelog/changes/data/db.data.v9999.test.sql
+SET IDENTITY_INSERT [REQUEST_CITY] OFF;
