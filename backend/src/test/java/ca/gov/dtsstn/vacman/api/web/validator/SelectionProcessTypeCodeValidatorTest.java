@@ -38,7 +38,7 @@ class SelectionProcessTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when selection process type code is valid")
 	void isValidReturnsTrueWhenSelectionProcessTypeCodeIsValid() {
-		when(codeService.getSelectionProcessTypes(Pageable.unpaged()))
+		when(codeService.getSelectionProcessTypes(Pageable.unpaged(), true))
 			.thenReturn(new PageImpl<>(List.of(SelectionProcessTypeEntity.builder().id(0L).build())));
 
 		assertTrue(selectionProcessTypeCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class SelectionProcessTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when selection process type code is invalid")
 	void isValidReturnsFalseWhenSelectionProcessTypeCodeIsInvalid() {
-		when(codeService.getSelectionProcessTypes(Pageable.unpaged())).thenReturn(Page.empty());
+		when(codeService.getSelectionProcessTypes(Pageable.unpaged(), true)).thenReturn(Page.empty());
 		assertFalse(selectionProcessTypeCodeValidator.isValid(0L, null));
 	}
 

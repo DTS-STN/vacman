@@ -25,7 +25,7 @@ public class WfaStatusCodeValidator implements ConstraintValidator<ValidWfaStatu
 	public boolean isValid(Long wfaStatusId, ConstraintValidatorContext context) {
 		if (wfaStatusId == null) { return true; }
 
-		return codeService.getWfaStatuses(Pageable.unpaged()).stream()
+		return codeService.getWfaStatuses(Pageable.unpaged(), true).stream()
 			.filter(wfaStatus -> wfaStatus.getId().equals(wfaStatusId))
 			.findFirst().isPresent();
 	}

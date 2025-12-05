@@ -25,7 +25,7 @@ public class ProfileStatusCodeValidator implements ConstraintValidator<ValidProf
 	public boolean isValid(Long profileStatusId, ConstraintValidatorContext context) {
 		if (profileStatusId == null) { return true; }
 
-		return codeService.getProfileStatuses(Pageable.unpaged()).stream()
+		return codeService.getProfileStatuses(Pageable.unpaged(), true).stream()
 			.filter(profileStatus -> profileStatus.getId().equals(profileStatusId))
 			.findFirst().isPresent();
 	}

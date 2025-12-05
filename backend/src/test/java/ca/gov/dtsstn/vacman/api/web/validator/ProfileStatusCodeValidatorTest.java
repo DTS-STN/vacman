@@ -38,7 +38,7 @@ class ProfileStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when profile status code is valid")
 	void isValidReturnsTrueWhenProfileStatusCodeIsValid() {
-		when(codeService.getProfileStatuses(Pageable.unpaged()))
+		when(codeService.getProfileStatuses(Pageable.unpaged(), true))
 			.thenReturn(new PageImpl<>(List.of(ProfileStatusEntity.builder().id(0L).build())));
 
 		assertTrue(profileStatusCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class ProfileStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when profile status code is invalid")
 	void isValidReturnsFalseWhenProfileStatusCodeIsInvalid() {
-		when(codeService.getProfileStatuses(Pageable.unpaged())).thenReturn(Page.empty());
+		when(codeService.getProfileStatuses(Pageable.unpaged(), true)).thenReturn(Page.empty());
 		assertFalse(profileStatusCodeValidator.isValid(0L, null));
 	}
 

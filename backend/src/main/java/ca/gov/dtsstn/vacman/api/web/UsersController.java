@@ -122,7 +122,7 @@ public class UsersController {
 			? lookupCodes.userTypes().hrAdvisor()
 			: lookupCodes.userTypes().employee();
 
-		final var userType = codeService.getUserTypes(Pageable.unpaged())
+		final var userType = codeService.getUserTypes(Pageable.unpaged(), true)
 			.filter(byCode(userTypeCode)).stream().findFirst()
 			.orElseThrow();
 

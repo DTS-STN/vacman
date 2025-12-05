@@ -25,7 +25,7 @@ public class LanguageReferralTypeCodeValidator implements ConstraintValidator<Va
 	public boolean isValid(Long languageReferralTypeId, ConstraintValidatorContext context) {
 		if (languageReferralTypeId == null) { return true; }
 
-		return codeService.getLanguageReferralTypes(Pageable.unpaged()).stream()
+		return codeService.getLanguageReferralTypes(Pageable.unpaged(), true).stream()
 			.filter(languageReferralType -> languageReferralType.getId().equals(languageReferralTypeId))
 			.findFirst().isPresent();
 	}

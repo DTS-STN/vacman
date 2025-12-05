@@ -38,7 +38,7 @@ class ProvinceCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when province code is valid")
 	void isValidReturnsTrueWhenProvinceCodeIsValid() {
-		when(codeService.getProvinces(Pageable.unpaged()))
+		when(codeService.getProvinces(Pageable.unpaged(), true))
 			.thenReturn(new PageImpl<>(List.of(ProvinceEntity.builder().id(0L).build())));
 
 		assertTrue(provinceCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class ProvinceCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when province code is invalid")
 	void isValidReturnsFalseWhenProvinceCodeIsInvalid() {
-		when(codeService.getProvinces(Pageable.unpaged())).thenReturn(Page.empty());
+		when(codeService.getProvinces(Pageable.unpaged(), true)).thenReturn(Page.empty());
 		assertFalse(provinceCodeValidator.isValid(0L, null));
 	}
 

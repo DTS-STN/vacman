@@ -38,7 +38,7 @@ class LanguageRequirementCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when language requirement code is valid")
 	void isValidReturnsTrueWhenLanguageRequirementCodeIsValid() {
-		when(codeService.getLanguageRequirements(Pageable.unpaged()))
+		when(codeService.getLanguageRequirements(Pageable.unpaged(), true))
 			.thenReturn(new PageImpl<>(List.of(LanguageRequirementEntity.builder().id(0L).build())));
 
 		assertTrue(languageRequirementCodeValidator.isValid(0L, null));
@@ -47,7 +47,7 @@ class LanguageRequirementCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when language requirement code is invalid")
 	void isValidReturnsFalseWhenLanguageRequirementCodeIsInvalid() {
-		when(codeService.getLanguageRequirements(Pageable.unpaged())).thenReturn(Page.empty());
+		when(codeService.getLanguageRequirements(Pageable.unpaged(), true)).thenReturn(Page.empty());
 		assertFalse(languageRequirementCodeValidator.isValid(0L, null));
 	}
 

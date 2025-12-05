@@ -25,7 +25,7 @@ public class ProvinceCodeValidator implements ConstraintValidator<ValidProvinceC
 	public boolean isValid(Long provinceId, ConstraintValidatorContext context) {
 		if (provinceId == null) { return true; }
 
-		return codeService.getProvinces(Pageable.unpaged()).stream()
+		return codeService.getProvinces(Pageable.unpaged(), true).stream()
 			.filter(province -> province.getId().equals(provinceId))
 			.findFirst().isPresent();
 	}

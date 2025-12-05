@@ -70,7 +70,7 @@ public class UserService {
 			? userTypeCodes.hrAdvisor()
 			: userTypeCodes.employee();
 
-		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
+		user.setUserType(codeService.getUserTypes(Pageable.unpaged(), true).stream()
 			.filter(byCode(userTypeCode))
 			.findFirst().orElseThrow());
 

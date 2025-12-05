@@ -25,7 +25,7 @@ public class RequestStatusCodeValidator implements ConstraintValidator<ValidRequ
 	public boolean isValid(Long requestStatusId, ConstraintValidatorContext context) {
 		if (requestStatusId == null) { return true; }
 
-		return codeService.getRequestStatuses(Pageable.unpaged()).stream()
+		return codeService.getRequestStatuses(Pageable.unpaged(), true).stream()
 			.filter(requestStatus -> requestStatus.getId().equals(requestStatusId))
 			.findFirst().isPresent();
 	}
