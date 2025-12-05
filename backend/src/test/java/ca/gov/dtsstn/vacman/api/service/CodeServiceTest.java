@@ -121,7 +121,7 @@ class CodeServiceTest {
 	void getCitiesReturnsPageOfCities() {
 		final var testCity = CityEntity.builder().code("TEST_CITY").build();
 
-		when(cityRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(cityRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testCity)));
 
 		final var result = codeService.getCities(Pageable.unpaged());
@@ -136,7 +136,7 @@ class CodeServiceTest {
 	void getClassificationsReturnsPageOfClassifications() {
 		final var testClassification = ClassificationEntity.builder().code("TEST_CLASSIFICATION").build();
 
-		when(classificationRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(classificationRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testClassification)));
 
 		final var result = codeService.getClassifications(Pageable.unpaged());
@@ -151,7 +151,7 @@ class CodeServiceTest {
 	void getEmploymentEquitiesReturnsPageOfEmploymentEquities() {
 		final var testEmploymentEquity = EmploymentEquityEntity.builder().code("TEST_EE").build();
 
-		when(employmentEquityRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(employmentEquityRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testEmploymentEquity)));
 
 		final var result = codeService.getEmploymentEquities(Pageable.unpaged());
@@ -166,7 +166,7 @@ class CodeServiceTest {
 	void getEmploymentOpportunitiesReturnsPageOfEmploymentOpportunities() {
 		final var testEmploymentOpportunity = EmploymentOpportunityEntity.builder().code("TEST_EO").build();
 
-		when(employmentOpportunityRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(employmentOpportunityRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testEmploymentOpportunity)));
 
 		final var result = codeService.getEmploymentOpportunities(Pageable.unpaged());
@@ -181,7 +181,7 @@ class CodeServiceTest {
 	void getEmploymentTenuresReturnsPageOfEmploymentTenures() {
 		final var testEmploymentTenure = EmploymentTenureEntity.builder().code("TEST_ET").build();
 
-		when(employmentTenureRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(employmentTenureRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testEmploymentTenure)));
 
 		final var result = codeService.getEmploymentTenures(Pageable.unpaged());
@@ -196,7 +196,7 @@ class CodeServiceTest {
 	void getLanguagesReturnsPageOfLanguages() {
 		final var testLanguage = LanguageEntity.builder().code("TEST_LANG").build();
 
-		when(languageRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(languageRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testLanguage)));
 
 		final var result = codeService.getLanguages(Pageable.unpaged());
@@ -211,7 +211,7 @@ class CodeServiceTest {
 	void getLanguageReferralTypesReturnsPageOfLanguageReferralTypes() {
 		final var testLanguageReferralType = LanguageReferralTypeEntity.builder().code("TEST_LRT").build();
 
-		when(languageReferralTypeRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(languageReferralTypeRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testLanguageReferralType)));
 
 		final var result = codeService.getLanguageReferralTypes(Pageable.unpaged());
@@ -226,7 +226,7 @@ class CodeServiceTest {
 	void getLanguageRequirementsReturnsPageOfLanguageRequirements() {
 		final var testLanguageRequirement = LanguageRequirementEntity.builder().code("TEST_LR").build();
 
-		when(languageRequirementRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(languageRequirementRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testLanguageRequirement)));
 
 		final var result = codeService.getLanguageRequirements(Pageable.unpaged());
@@ -241,7 +241,7 @@ class CodeServiceTest {
 	void getNonAdvertisedAppointmentsReturnsPageOfNonAdvertisedAppointments() {
 		final var testNonAdvertisedAppointment = NonAdvertisedAppointmentEntity.builder().code("TEST_NAA").build();
 
-		when(nonAdvertisedAppointmentRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(nonAdvertisedAppointmentRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testNonAdvertisedAppointment)));
 
 		final var result = codeService.getNonAdvertisedAppointments(Pageable.unpaged());
@@ -256,7 +256,7 @@ class CodeServiceTest {
 	void getProfileStatusesReturnsPageOfProfileStatuses() {
 		final var testProfileStatus = ProfileStatusEntity.builder().code("TEST_PS").build();
 
-		when(profileStatusRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(profileStatusRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testProfileStatus)));
 
 		final var result = codeService.getProfileStatuses(Pageable.unpaged());
@@ -271,7 +271,7 @@ class CodeServiceTest {
 	void getProvincesReturnsPageOfProvinces() {
 		final var testProvince = ProvinceEntity.builder().code("TEST_PROV").build();
 
-		when(provinceRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(provinceRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testProvince)));
 
 		final var result = codeService.getProvinces(Pageable.unpaged());
@@ -286,7 +286,7 @@ class CodeServiceTest {
 	void getRequestStatusesReturnsPageOfRequestStatuses() {
 		final var testRequestStatus = RequestStatusEntity.builder().code("TEST_RS").build();
 
-		when(requestStatusRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(requestStatusRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testRequestStatus)));
 
 		final var result = codeService.getRequestStatuses(Pageable.unpaged());
@@ -301,7 +301,7 @@ class CodeServiceTest {
 	void getSecurityClearancesReturnsPageOfSecurityClearances() {
 		final var testSecurityClearance = SecurityClearanceEntity.builder().code("TEST_SC").build();
 
-		when(securityClearanceRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(securityClearanceRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testSecurityClearance)));
 
 		final var result = codeService.getSecurityClearances(Pageable.unpaged());
@@ -316,7 +316,7 @@ class CodeServiceTest {
 	void getSelectionProcessTypesReturnsPageOfSelectionProcessTypes() {
 		final var testSelectionProcessType = SelectionProcessTypeEntity.builder().code("TEST_SPT").build();
 
-		when(selectionProcessTypeRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(selectionProcessTypeRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testSelectionProcessType)));
 
 		final var result = codeService.getSelectionProcessTypes(Pageable.unpaged());
@@ -331,7 +331,7 @@ class CodeServiceTest {
 	void getUserTypesReturnsPageOfUserTypes() {
 		final var testUserType = UserTypeEntity.builder().code("TEST_UT").build();
 
-		when(userTypeRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(userTypeRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testUserType)));
 
 		final var result = codeService.getUserTypes(Pageable.unpaged());
@@ -346,7 +346,7 @@ class CodeServiceTest {
 	void getWfaStatusesReturnsPageOfWfaStatuses() {
 		final var testWfaStatus = WfaStatusEntity.builder().code("TEST_WFA").build();
 
-		when(wfaStatusRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(wfaStatusRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testWfaStatus)));
 
 		final var result = codeService.getWfaStatuses(Pageable.unpaged());
@@ -361,7 +361,7 @@ class CodeServiceTest {
 	void getWorkSchedulesReturnsPageOfWorkSchedules() {
 		final var testWorkSchedule = WorkScheduleEntity.builder().code("TEST_WS").build();
 
-		when(workScheduleRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(workScheduleRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testWorkSchedule)));
 
 		final var result = codeService.getWorkSchedules(Pageable.unpaged());
@@ -376,7 +376,7 @@ class CodeServiceTest {
 	void getWorkUnitsReturnsPageOfWorkUnits() {
 		final var testWorkEntity = WorkUnitEntity.builder().code("TEST_WU").build();
 
-		when(workUnitRepository.findAll(any(Specification.class), eq(Pageable.unpaged())))
+		when(workUnitRepository.findAll(eq(Pageable.unpaged())))
 			.thenReturn(new PageImpl<>(List.of(testWorkEntity)));
 
 		final var result = codeService.getWorkUnits(Pageable.unpaged());
