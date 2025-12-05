@@ -511,6 +511,8 @@ export default {
       'position-number-max-length': 'Chaque numéro de poste doit comporter 8 chiffres.',
       'position-number-duplicate': 'Le numéro de poste ne peut pas comporter de doublons.',
       'group-and-level-required': 'Le groupe et le niveau sont obligatoires.',
+      'group-and-level-invalid': 'Le groupe et le niveau sélectionnés ne sont pas valides.',
+      'group-and-level-expired': 'Le groupe et le niveau sélectionnés ont expiré. Veuillez sélectionner une option valide.',
       'title-en-required': 'Le titre en anglais est obligatoire.',
       'title-en-max-length': 'Le titre en anglais ne peut pas dépasser 200 caractères.',
       'title-fr-required': 'Le titre en français est obligatoire.',

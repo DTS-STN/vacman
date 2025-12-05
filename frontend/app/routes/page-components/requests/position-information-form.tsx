@@ -89,10 +89,48 @@ export function PositionInformationForm({
     setLanguageRequirementCode(selectedStatus);
   };
 
-  const groupAndLevelOptions = [{ id: 'select-option', name: '' }, ...classifications].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? tApp('form.select-option') : name,
-  }));
+  // Build groupAndLevelOptions with expired classification handling
+  const groupAndLevelOptions = (() => {
+    const selectOption = { id: 'select-option', name: '' };
+    const baseOptions = [selectOption, ...classifications];
+
+    // Check if the currently selected classification exists in the classifications list
+    const selectedClassification = formValues?.classification;
+    const selectedClassificationExists = selectedClassification
+      ? classifications.some((c) => c.id === selectedClassification.id)
+      : false;
+
+    // If selected classification is not in the list, add it as a disabled expired option
+    let optionsToMap = baseOptions;
+    if (selectedClassification && !selectedClassificationExists) {
+      const expiredClassification = {
+        id: selectedClassification.id,
+        name: currentLanguage === 'en' ? selectedClassification.nameEn : selectedClassification.nameFr,
+        code: selectedClassification.code,
+        expiryDate: selectedClassification.expiryDate,
+      };
+      // Insert after the select option
+      optionsToMap = [selectOption, expiredClassification as LocalizedClassification, ...classifications];
+    }
+
+    return optionsToMap.map((item) => {
+      if (item.id === 'select-option') {
+        return {
+          value: '',
+          children: tApp('form.select-option'),
+        };
+      }
+
+      const classification = item as LocalizedClassification;
+      const isExpired = isLookupExpired(classification);
+
+      return {
+        value: String(classification.id),
+        children: classification.name,
+        isExpired: isExpired,
+      };
+    });
+  })();
 
   const languageLevelOptions = [{ id: 'select-option', value: '' }, ...LANGUAGE_LEVEL].map(({ id, value }) => ({
     value: id === 'select-option' ? '' : value,
