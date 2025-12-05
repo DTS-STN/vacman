@@ -173,4 +173,4 @@ build/
 playwright-report/
 test-results/
 tmp/
-vite.config.ts.timestamp-*package-lock.json
+vite.config.ts.timestamp-*
