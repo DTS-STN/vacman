@@ -37,8 +37,11 @@ import org.springframework.util.StringUtils;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.MatchStatuses;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
 import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -49,6 +52,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
@@ -98,6 +102,8 @@ public class RequestService {
 
 	private final MatchRepository matchRepository;
 
+	private final MatchStatusRepository matchStatusRepository;
+
 	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
 
 	private final RequestEntityMapper requestEntityMapper = Mappers.getMapper(RequestEntityMapper.class);
@@ -108,9 +114,11 @@ public class RequestService {
 
 	private final RequestStatuses requestStatuses;
 
+	private final MatchStatuses matchStatuses;
+
 	private final RequestStatusRepository requestStatusRepository;
 
-	private final LookupCodes.UserTypes userTypes;
+	private final UserTypes userTypes;
 
 	private final SecurityClearanceRepository securityClearanceRepository;
 
@@ -135,6 +143,7 @@ public class RequestService {
 			LanguageRequirementRepository languageRequirementRepository,
 			LookupCodes lookupCodes,
 			MatchRepository matchRepository,
+			MatchStatusRepository matchStatusRepository,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
 			ProvinceRepository provinceRepository,
 			RequestMatchingService requestMatchingService,
@@ -154,6 +163,7 @@ public class RequestService {
 		this.languageRepository = languageRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.matchRepository = matchRepository;
+		this.matchStatusRepository = matchStatusRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
 		this.requestMatchingService = requestMatchingService;
 		this.requestRepository = requestRepository;
@@ -165,6 +175,7 @@ public class RequestService {
 		this.workUnitRepository = workUnitRepository;
 
 		this.requestStatuses = lookupCodes.requestStatuses();
+		this.matchStatuses = lookupCodes.matchStatuses();
 		this.userTypes = lookupCodes.userTypes();
 	}
 
@@ -693,11 +704,102 @@ public class RequestService {
 	}
 
 	/**
+	 * Undoes the last status change of a request based on its current status.
+	 *
+	 * @param request The request entity to undo the status change for
+	 * @return The updated request entity
+	 */
+	@Counted("service.request.undoRequestStatus.count")
+	public RequestEntity undoRequestStatus(RequestEntity request) {
+		final var currentStatus = request.getRequestStatus().getCode();
+		final String newStatus;
+
+		// Determine the new status based on the current status according to the undo rules
+		if (requestStatuses.hrReview().equals(currentStatus)) {
+			// HR_REVIEW → SUBMIT (undo picking up the request and remove HR Advisor id)
+			newStatus = requestStatuses.submitted();
+			request.setHrAdvisor(null);
+		} else if (requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
+			// PENDING_PSC_NO_VMS → HR_REVIEW (undo approve request)
+			newStatus = requestStatuses.hrReview();
+		} else if (requestStatuses.clearanceGranted().equals(currentStatus)) {
+			// CLR_GRANTED → FDBK_PEND_APPR
+			newStatus = requestStatuses.feedbackPendingApproval();
+
+			// Loop through all matches and undo the approval and remove the VMS number
+			final var query = MatchQuery.builder().requestId(request.getId()).build();
+			final var matches = findMatches(query);
+			for (MatchEntity match : matches) {
+				match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
+				saveMatch(match);
+			}
+
+			// Remove the VMS number
+			request.setPriorityClearanceNumber(null);
+		} else if (requestStatuses.pendingPscClearance().equals(currentStatus)) {
+			// PENDING_PSC → FDBK_PEND_APPR or NO_MATCH_HR_REVIEW
+			if (hasMatches(request.getId())) {
+				newStatus = requestStatuses.feedbackPendingApproval();
+
+				// Loop through all matches and undo the approval
+				final var query = MatchQuery.builder().requestId(request.getId()).build();
+				final var matches = findMatches(query);
+				for (MatchEntity match : matches) {
+					match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
+					saveMatch(match);
+				}
+			} else {
+				newStatus = requestStatuses.noMatchHrReview();
+			}
+		} else if (requestStatuses.pscClearanceGranted().equals(currentStatus)) {
+			// PSC_GRANTED → PENDING_PSC (undo the "complete" action)
+			newStatus = requestStatuses.pendingPscClearance();
+
+			// Remove both VMS clearance number and PSC clearance number
+			request.setPriorityClearanceNumber(null);
+			request.setPscClearanceNumber(null);
+		} else if (requestStatuses.pscClearanceGrantedNoVms().equals(currentStatus)) {
+			// PSC_GRANTED_NO_VMS → PENDING_PSC_NO_VMS (undo the "complete" action)
+			newStatus = requestStatuses.pendingPscClearanceNoVms();
+			request.setPscClearanceNumber(null);
+		} else if (requestStatuses.feedbackPending().equals(currentStatus)) {
+			// FDBK_PENDING → HR_REVIEW (undo when HR advisor ran matches and matches were found)
+			newStatus = requestStatuses.hrReview();
+
+			// Delete all matches for the request
+			final var query = MatchQuery.builder().requestId(request.getId()).build();
+			final var matches = findMatches(query);
+			matchRepository.deleteAll(matches);
+		} else if (requestStatuses.noMatchHrReview().equals(currentStatus)) {
+			// NO_MATCH_HR_REVIEW → HR_REVIEW (undo when HR advisor ran matches and no matches were found)
+			newStatus = requestStatuses.hrReview();
+		} else {
+			// If the current status is not one of the listed starting statuses, then no "undo" is possible
+			throw new ResourceConflictException("Cannot undo status change for request with status: " + currentStatus);
+		}
+
+		request.setRequestStatus(getRequestStatusByCode(newStatus));
+		final var updatedRequest = updateRequest(request);
+
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(requestEntityMapper.toEventDto(updatedRequest), currentStatus, newStatus));
+
+		return updatedRequest;
+	}
+
+	/**
 	 * Gets a RequestStatusEntity by its code.
 	 */
 	private RequestStatusEntity getRequestStatusByCode(String code) {
 		return requestStatusRepository.findByCode(code)
 			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
+	}
+
+	/**
+	 * Gets a MatchStatusEntity by its code.
+	 */
+	private MatchStatusEntity getMatchStatusByCode(String code) {
+		return matchStatusRepository.findByCode(code)
+			.orElseThrow(() -> new IllegalStateException("Match status not found: " + code));
 	}
 
 	/**
