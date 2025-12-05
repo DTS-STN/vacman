@@ -36,6 +36,7 @@ import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
+import { isLookupExpired } from '~/utils/lookup-utils';
 import { extractValidationKey, normalizeErrors } from '~/utils/validation-utils';
 
 interface PositionInformationFormProps {
@@ -129,14 +130,17 @@ export function PositionInformationForm({
     .map((city) => {
       const selectedCity = cities.find((c) => c.id === Number(city));
       if (selectedCity) {
+        // Check if the city is expired using the expiryDate from the API
+        const isExpired = isLookupExpired(selectedCity);
         return {
           label: selectedCity.name,
           name: tApp('position-information.choice-tag.city'),
           value: city,
           group: selectedCity.provinceTerritory.name,
-          invalid: false,
+          invalid: isExpired,
         };
       }
+      // Fallback: city not found in list (wouldn't happen with upcoming new API behavior)
       const missingCity = formValues?.cities?.find((c) => c.id === Number(city));
       if (missingCity) {
         return {
