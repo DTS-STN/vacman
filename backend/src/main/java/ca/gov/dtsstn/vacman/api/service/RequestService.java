@@ -735,7 +735,6 @@ public class RequestService {
 
 			// Remove the VMS number
 			request.setPriorityClearanceNumber(null);
-			request.setPscClearanceNumber(null);
 		} else if (requestStatuses.pendingPscClearance().equals(currentStatus)) {
 			// PENDING_PSC → FDBK_PEND_APPR or NO_MATCH_HR_REVIEW
 			if (hasMatches(request.getId())) {

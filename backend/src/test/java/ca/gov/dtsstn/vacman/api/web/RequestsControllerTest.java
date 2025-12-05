@@ -1854,6 +1854,7 @@ class RequestsControllerTest {
 				.nameFr("Annuler PSC accordé sans VMS")
 				.requestNumber("UNDO-004")
 				.requestStatus(pscGrantedNoVmsStatus)
+				.pscClearanceNumber("TEST-PSC-NUMBER")
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
@@ -1863,9 +1864,10 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
 				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().pendingPscClearanceNoVms())));
 
-			// Verify status changed in database
+			// Verify status changed in database and PSC clearance number is removed
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pendingPscClearanceNoVms());
+			assertThat(updatedRequest.getPscClearanceNumber()).isNull();
 		}
 
 		@Test
@@ -1912,7 +1914,7 @@ class RequestsControllerTest {
 				.nameFr("Annuler autorisation accordée")
 				.requestNumber("UNDO-005")
 				.requestStatus(clearanceGrantedStatus)
-				.pscClearanceNumber("TEST-VMS-NUMBER")
+				.priorityClearanceNumber("TEST-PRIORITY-NUMBER")
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
@@ -1925,7 +1927,7 @@ class RequestsControllerTest {
 			// Verify status changed in database and VMS number is removed
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().feedbackPendingApproval());
-			assertThat(updatedRequest.getPscClearanceNumber()).isNull();
+			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
 		}
 
 		@Test
@@ -1941,7 +1943,7 @@ class RequestsControllerTest {
 				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
 				.nameEn("Undo Feedback Pending")
 				.nameFr("Annuler rétroaction en attente")
-				.requestNumber("UNDO-005")
+				.requestNumber("UNDO-006")
 				.requestStatus(feedbackPendingStatus)
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
