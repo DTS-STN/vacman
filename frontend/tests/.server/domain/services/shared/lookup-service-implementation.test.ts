@@ -176,10 +176,14 @@ describe('LookupServiceImplementation', () => {
   });
 
   describe('Mock-based service expiry filtering', () => {
+    // Test date constants for consistency and maintainability
+    const PAST_DATE = '2020-01-01T00:00:00.000Z';
+    const FUTURE_DATE = '2099-12-31T23:59:59.999Z';
+
     const mockDataWithExpiry: TestEntity[] = [
       { id: 1, code: 'ACTIVE', nameEn: 'Active Item', nameFr: 'Article Actif', expiryDate: null },
-      { id: 2, code: 'EXPIRED', nameEn: 'Expired Item', nameFr: 'Article Expiré', expiryDate: '2020-01-01T00:00:00.000Z' },
-      { id: 3, code: 'FUTURE', nameEn: 'Future Expiry', nameFr: 'Expiration Future', expiryDate: '2099-12-31T23:59:59.999Z' },
+      { id: 2, code: 'EXPIRED', nameEn: 'Expired Item', nameFr: 'Article Expiré', expiryDate: PAST_DATE },
+      { id: 3, code: 'FUTURE', nameEn: 'Future Expiry', nameFr: 'Expiration Future', expiryDate: FUTURE_DATE },
       { id: 4, code: 'NO_EXPIRY', nameEn: 'No Expiry Set', nameFr: 'Sans Expiration' },
     ];
 
@@ -236,7 +240,7 @@ describe('LookupServiceImplementation', () => {
 
     it('should return empty list when all entities are expired', () => {
       const allExpiredData: TestEntity[] = [
-        { id: 1, code: 'EXPIRED1', nameEn: 'Expired 1', nameFr: 'Expiré 1', expiryDate: '2020-01-01T00:00:00.000Z' },
+        { id: 1, code: 'EXPIRED1', nameEn: 'Expired 1', nameFr: 'Expiré 1', expiryDate: PAST_DATE },
         { id: 2, code: 'EXPIRED2', nameEn: 'Expired 2', nameFr: 'Expiré 2', expiryDate: '2021-06-15T12:00:00.000Z' },
       ];
       const allExpiredService = createMockLookupService<TestEntity>(allExpiredData, 'test entity', ErrorCodes.NO_PROVINCE_FOUND);
@@ -250,7 +254,7 @@ describe('LookupServiceImplementation', () => {
       const noExpiredData: TestEntity[] = [
         { id: 1, code: 'ACTIVE1', nameEn: 'Active 1', nameFr: 'Actif 1' },
         { id: 2, code: 'ACTIVE2', nameEn: 'Active 2', nameFr: 'Actif 2', expiryDate: null },
-        { id: 3, code: 'ACTIVE3', nameEn: 'Active 3', nameFr: 'Actif 3', expiryDate: '2099-12-31T23:59:59.999Z' },
+        { id: 3, code: 'ACTIVE3', nameEn: 'Active 3', nameFr: 'Actif 3', expiryDate: FUTURE_DATE },
       ];
       const noExpiredService = createMockLookupService<TestEntity>(noExpiredData, 'test entity', ErrorCodes.NO_PROVINCE_FOUND);
 
