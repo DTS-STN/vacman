@@ -6,6 +6,7 @@ import { apiClient } from '~/.server/domain/services/api-client';
 import { AppError } from '~/errors/app-error';
 import type { ErrorCode } from '~/errors/error-codes';
 import { getQueryClient } from '~/query-client';
+import { isLookupExpired } from '~/utils/lookup-utils';
 
 /**
  * Configuration for lookup service implementation
@@ -70,7 +71,7 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   }
 
   /**
-   * Retrieves a list of all entities.
+   * Retrieves a list of all entities, excluding expired ones.
    */
   async listAll(): Promise<readonly T[]> {
     const result = await this.getAll();
@@ -81,9 +82,9 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
 
     const dirtyList = result.unwrap();
 
-    // Sanitize the data before returning it.
+    // Sanitize the data and filter out expired items before returning it.
     return dirtyList.filter((item): item is T => {
-      return item !== null && typeof item === 'object' && 'id' in item;
+      return item !== null && typeof item === 'object' && 'id' in item && !isLookupExpired(item);
     });
   }
 

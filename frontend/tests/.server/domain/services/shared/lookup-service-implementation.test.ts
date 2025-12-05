@@ -108,6 +108,67 @@ describe('LookupServiceImplementation', () => {
     });
   });
 
+  describe('API-based service expiry filtering', () => {
+    // Test date constants for consistency and maintainability
+    const PAST_DATE = '2020-01-01T00:00:00.000Z';
+    const FUTURE_DATE = '2099-12-31T23:59:59.999Z';
+
+    const mockDataWithExpiry: TestEntity[] = [
+      { id: 1, code: 'ACTIVE', nameEn: 'Active Item', nameFr: 'Article Actif', expiryDate: null },
+      { id: 2, code: 'EXPIRED', nameEn: 'Expired Item', nameFr: 'Article Expiré', expiryDate: PAST_DATE },
+      { id: 3, code: 'FUTURE', nameEn: 'Future Expiry', nameFr: 'Expiration Future', expiryDate: FUTURE_DATE },
+      { id: 4, code: 'NO_EXPIRY', nameEn: 'No Expiry Set', nameFr: 'Sans Expiration' },
+    ];
+
+    let service: LookupServiceImplementation<TestEntity, LocalizedLookupModel>;
+
+    beforeEach(() => {
+      service = createLookupService<TestEntity>('/test-endpoint', 'test entity', ErrorCodes.NO_PROVINCE_FOUND);
+    });
+
+    it('should filter out expired entities in listAll', async () => {
+      const mockResponse = { content: mockDataWithExpiry };
+      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
+
+      const result = await service.listAll();
+
+      expect(result).toHaveLength(3);
+      expect(result.map((e) => e.code)).toEqual(['ACTIVE', 'FUTURE', 'NO_EXPIRY']);
+      expect(result.find((e) => e.code === 'EXPIRED')).toBeUndefined();
+    });
+
+    it('should filter out expired entities in listAllLocalized', async () => {
+      const mockResponse = { content: mockDataWithExpiry };
+      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
+
+      const result = await service.listAllLocalized('en');
+
+      expect(result).toHaveLength(3);
+      expect(result.map((e) => e.code)).toEqual(['ACTIVE', 'FUTURE', 'NO_EXPIRY']);
+      expect(result.find((e) => e.code === 'EXPIRED')).toBeUndefined();
+    });
+
+    it('should still allow getById to retrieve expired entities', async () => {
+      const mockResponse = { content: mockDataWithExpiry };
+      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
+
+      const result = await service.getById(2);
+
+      expect(result.isOk()).toBe(true);
+      expect(result.unwrap().code).toBe('EXPIRED');
+    });
+
+    it('should still allow findById to retrieve expired entities', async () => {
+      const mockResponse = { content: mockDataWithExpiry };
+      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
+
+      const result = await service.findById(2);
+
+      expect(result.isSome()).toBe(true);
+      expect(result.unwrap().code).toBe('EXPIRED');
+    });
+  });
+
   describe('Mock-based service', () => {
     let mockService: MockLookupServiceImplementation<TestEntity, LocalizedLookupModel>;
 
