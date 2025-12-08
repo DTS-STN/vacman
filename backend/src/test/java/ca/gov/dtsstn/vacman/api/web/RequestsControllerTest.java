@@ -32,6 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -2037,4 +2040,119 @@ class RequestsControllerTest {
 
 	}
 
+	@Nested
+	@DisplayName("POST /api/v1/requests/{id}/matches/{matchId}/status-undo")
+	class UndoMatchApproval {
+
+		@Test
+		@DisplayName("Should undo match approval as HR Advisor")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoMatchApproval() throws Exception {
+			// Create a request
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Match Approval")
+				.nameFr("Annuler approbation de correspondance")
+				.requestNumber("MATCH-001")
+				.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().hrReview()).orElseThrow())
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			// Create a profile
+			final var profileStatusApproved = profileStatusRepository.findByCode(lookupCodes.profileStatuses().approved()).orElseThrow();
+			final var profile = profileRepository.save(ProfileEntity.builder()
+				.user(submitter)
+				.profileStatus(profileStatusApproved)
+				.build());
+
+			// Create a match with APPROVED status
+			// Use getReferenceById(1L) which should correspond to the APPROVED status
+			final var approvedStatus = matchStatusRepository.getReferenceById(1L);
+			final var match = matchRepository.save(MatchEntity.builder()
+				.request(request)
+				.profile(profile)
+				.matchStatus(approvedStatus)
+				.hiringManagerComment("Original hiring manager comment")
+				.hrAdvisorComment("Original HR advisor comment")
+				.build());
+
+			// Test the endpoint
+			mockMvc.perform(post("/api/v1/requests/{id}/matches/{matchId}/status-undo", request.getId(), match.getId()))
+				.andExpect(status().isNoContent());
+
+			// Verify the match status is changed to PENDING_APPROVAL and comments are cleared
+			final var updatedMatch = matchRepository.findById(match.getId()).orElseThrow();
+			assertThat(updatedMatch.getMatchStatus().getCode()).isEqualTo(lookupCodes.matchStatuses().pendingApproval());
+			assertThat(updatedMatch.getHiringManagerComment()).isNull();
+			assertThat(updatedMatch.getHrAdvisorComment()).isNull();
+		}
+
+		@Test
+		@DisplayName("Should return 404 when match not found")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoMatchApprovalMatchNotFound() throws Exception {
+			// Create a request
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Match Approval Not Found")
+				.nameFr("Annuler approbation de correspondance non trouvée")
+				.requestNumber("MATCH-002")
+				.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().hrReview()).orElseThrow())
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			// Test the endpoint with a non-existent match ID
+			mockMvc.perform(post("/api/v1/requests/{id}/matches/{matchId}/status-undo", request.getId(), 999999L))
+				.andExpect(status().isNotFound());
+		}
+
+		@Test
+		@DisplayName("Should return 403 when user is not authorized")
+		@WithMockUser(username = "cccccccc-cccc-cccc-cccc-cccccccccccc", authorities = { "employee" })
+		void testUndoMatchApprovalUnauthorized() throws Exception {
+			// Create a request
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Match Approval Unauthorized")
+				.nameFr("Annuler approbation de correspondance non autorisée")
+				.requestNumber("MATCH-003")
+				.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().hrReview()).orElseThrow())
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			// Create a profile
+			final var profileStatusApproved = profileStatusRepository.findByCode(lookupCodes.profileStatuses().approved()).orElseThrow();
+			final var profile = profileRepository.save(ProfileEntity.builder()
+				.user(submitter)
+				.profileStatus(profileStatusApproved)
+				.build());
+
+			// Create a match with APPROVED status
+			// Use getReferenceById(1L) which should correspond to the APPROVED status
+			final var approvedStatus = matchStatusRepository.getReferenceById(1L);
+			final var match = matchRepository.save(MatchEntity.builder()
+				.request(request)
+				.profile(profile)
+				.matchStatus(approvedStatus)
+				.hiringManagerComment("Original hiring manager comment")
+				.hrAdvisorComment("Original HR advisor comment")
+				.build());
+
+			// Test the endpoint with a non-HR advisor user
+			mockMvc.perform(post("/api/v1/requests/{id}/matches/{matchId}/status-undo", request.getId(), match.getId()))
+				.andExpect(status().isForbidden());
+		}
+	}
 }
