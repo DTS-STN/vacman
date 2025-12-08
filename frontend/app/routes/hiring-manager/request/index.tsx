@@ -41,13 +41,7 @@ import { Progress } from '~/components/progress';
 import { SectionErrorSummary } from '~/components/section-error-summary';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
-import {
-  EMPLOYMENT_TENURE,
-  LANGUAGE_REQUIREMENT_CODES,
-  REQUEST_EVENT_TYPE,
-  REQUEST_STATUS_CODE,
-  SELECTION_PROCESS_TYPE,
-} from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
@@ -157,10 +151,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       : {}),
   };
 
-  const languageProficiencyRequired =
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
-
   // For position information from Request Model
   const requiredPositionFields = {
     positionNumber: requestData.positionNumber,
@@ -168,13 +158,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     englishTitle: requestData.englishTitle,
     frenchTitle: requestData.frenchTitle,
     cities: requestData.cities,
-    languageRequirement: requestData.languageRequirement,
-    ...(languageProficiencyRequired
-      ? {
-          englishLanguageProfile: requestData.englishLanguageProfile,
-          frenchLanguageProfile: requestData.frenchLanguageProfile,
-        }
-      : {}),
+    languageRequirements: requestData.languageRequirements,
     securityClearance: requestData.securityClearance,
   };
 
@@ -281,10 +265,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const processInformationCompleted = countCompletedItems(requiredProcessInformation);
   const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
 
-  const languageProficiencyRequired =
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
-
   // Position information from Request type
   const requiredPositionInformation = {
     positionNumber: requestData.positionNumber,
@@ -292,14 +272,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     englishTitle: requestData.englishTitle,
     frenchTitle: requestData.frenchTitle,
     cities: requestData.cities,
-    languageRequirement: requestData.languageRequirement,
+    languageRequirements: requestData.languageRequirements,
     securityClearance: requestData.securityClearance,
-    ...(languageProficiencyRequired
-      ? {
-          englishLanguageProfile: requestData.englishLanguageProfile,
-          frenchLanguageProfile: requestData.frenchLanguageProfile,
-        }
-      : {}),
   };
   const positionInformationCompleted = countCompletedItems(requiredPositionInformation);
   const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
@@ -393,9 +367,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     preferredCities: partiallySelectedCities,
     locationScope,
     provinceNames,
-    languageRequirement: requestData.languageRequirement,
-    englishLanguageProfile: requestData.englishLanguageProfile,
-    frenchLanguageProfile: requestData.frenchLanguageProfile,
+    languageRequirements: requestData.languageRequirements
+      ?.map((req) => (lang === 'en' ? req.nameEn : req.nameFr))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b))
+      .join(', '),
     isCompleteStatementOfMeritCriteriaInformaion,
     isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
     englishStatementOfMerit: requestData.englishStatementOfMerit,
@@ -417,7 +393,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     pscClearanceNumber: requestData.pscClearanceNumber,
     requestId: formatWithMask(requestData.id, '####-####-##'),
     requestDate: requestData.createdDate,
-    languageRequirementName: lang === 'en' ? requestData.languageRequirement?.nameEn : requestData.languageRequirement?.nameFr,
     securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
     hasMatches: requestData.hasMatches,
     lang,

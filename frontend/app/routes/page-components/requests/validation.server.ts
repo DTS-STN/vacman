@@ -13,7 +13,7 @@ import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
-import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { isPastOrTodayInTimeZone, isValidCalendarDate, toDateString } from '~/utils/date-utils';
 import { isLookupExpired } from '~/utils/lookup-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
@@ -31,148 +31,96 @@ export async function createPositionInformationSchema() {
   const allClassifications = await getClassificationService().listAll(true); // Include inactive for validation
   const allLanguageRequirements = await getLanguageRequirementService().listAll();
 
-  const validLanguageRequirementForRequiredLanguageLevel = [
-    LANGUAGE_REQUIREMENT_CODES.bilingualImperative,
-    LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative,
-  ] as const;
-
-  const validLanguageRequirementForOptionalLanguageLevel = [
-    LANGUAGE_REQUIREMENT_CODES.englishEssential,
-    LANGUAGE_REQUIREMENT_CODES.frenchEssential,
-    LANGUAGE_REQUIREMENT_CODES.either,
-    LANGUAGE_REQUIREMENT_CODES.various,
-  ] as const;
-
-  const selectedLanguageRequirementForRequiredLanguageLevel = allLanguageRequirements.filter((c) =>
-    validLanguageRequirementForRequiredLanguageLevel.toString().includes(c.code),
-  );
-
-  const selectedLanguageRequirementForOptionalLanguageLevel = allLanguageRequirements.filter((c) =>
-    validLanguageRequirementForOptionalLanguageLevel.toString().includes(c.code),
-  );
-
-  return v.pipe(
-    v.intersect([
-      v.object({
-        positionNumber: v.pipe(
-          v.string('app:position-information.errors.position-number-required'),
-          v.trim(),
-          v.nonEmpty('app:position-information.errors.position-number-required'),
-          v.maxLength(100, 'app:position-information.errors.position-number-max'),
-          v.custom((input) => {
-            const value = input as string;
-            const numbers = value.split(',').map((n) => n.trim());
-            // Check that each position number is exactly 8 digits
-            return numbers.every((n) => n.length === 8 && REGEX_PATTERNS.DIGIT_ONLY.test(n));
-          }, 'app:position-information.errors.position-number-max-length'),
-          v.custom((input) => {
-            const value = input as string;
-            const numbers = value.split(',').map((n) => n.trim());
-            const uniqueNumbers = new Set(numbers);
-            return uniqueNumbers.size === numbers.length;
-          }, 'app:position-information.errors.position-number-duplicate'),
-        ),
-        groupAndLevel: v.pipe(
-          v.string('app:position-information.errors.group-and-level-required'),
-          v.trim(),
-          v.nonEmpty('app:position-information.errors.group-and-level-required'),
-          v.transform((value) => Number(value)),
-          v.number('app:position-information.errors.group-and-level-required'),
-          v.picklist(
-            allClassifications.map(({ id }) => id),
-            'app:position-information.errors.group-and-level-invalid',
-          ),
-          v.custom((classificationId) => {
-            const classification = allClassifications.find((c) => c.id === classificationId);
-            return classification ? !isLookupExpired(classification) : false;
-          }, 'app:position-information.errors.group-and-level-expired'),
-        ),
-        titleEn: v.pipe(
-          v.string('app:position-information.errors.title-en-required'),
-          v.trim(),
-          v.nonEmpty('app:position-information.errors.title-en-required'),
-          v.maxLength(200, 'app:position-information.errors.title-en-max-length'),
-        ),
-        titleFr: v.pipe(
-          v.string('app:position-information.errors.title-fr-required'),
-          v.trim(),
-          v.nonEmpty('app:position-information.errors.title-fr-required'),
-          v.maxLength(200, 'app:position-information.errors.title-fr-max-length'),
-        ),
-        province: v.lazy(() =>
-          v.pipe(
-            stringToIntegerSchema('app:position-information.errors.provinces-required'),
-            v.picklist(
-              allProvinces.map(({ id }) => id),
-              'app:position-information.errors.provinces-required',
-            ),
-          ),
-        ),
-        cities: v.pipe(
-          v.array(
-            v.lazy(() =>
-              v.pipe(
-                stringToIntegerSchema('app:position-information.errors.city-invalid'),
-                v.picklist(
-                  allCities.map((c) => c.id),
-                  'app:position-information.errors.city-invalid',
-                ),
-              ),
-            ),
-          ),
-          v.nonEmpty('app:position-information.errors.city-required'),
-          v.checkItems((item, index, array) => array.indexOf(item) === index, 'app:position-information.errors.city-duplicate'),
-        ),
-        securityRequirement: v.pipe(
-          v.string('app:position-information.errors.security-requirement-required'),
-          v.trim(),
-          v.nonEmpty('app:position-information.errors.security-requirement-required'),
-        ),
-      }),
-      v.variant(
-        'languageRequirement',
-        [
-          v.object({
-            languageRequirement: v.pipe(
-              stringToIntegerSchema(),
-              v.picklist(selectedLanguageRequirementForOptionalLanguageLevel.map(({ id }) => id)),
-            ),
-            readingEn: v.optional(v.string()),
-            readingFr: v.optional(v.string()),
-            writingEn: v.optional(v.string()),
-            writingFr: v.optional(v.string()),
-            oralEn: v.optional(v.string()),
-            oralFr: v.optional(v.string()),
-          }),
-          v.object({
-            languageRequirement: v.pipe(
-              stringToIntegerSchema(),
-              v.picklist(selectedLanguageRequirementForRequiredLanguageLevel.map(({ id }) => id)),
-            ),
-            readingEn: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-en-required'), v.trim()),
-            ),
-            readingFr: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-fr-required'), v.trim()),
-            ),
-            writingEn: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-en-required'), v.trim()),
-            ),
-            writingFr: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-fr-required'), v.trim()),
-            ),
-            oralEn: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-en-required'), v.trim()),
-            ),
-            oralFr: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-fr-required'), v.trim()),
-            ),
-          }),
-        ],
-        'app:position-information.errors.language-requirement-required',
+  return v.object({
+    positionNumber: v.pipe(
+      v.string('app:position-information.errors.position-number-required'),
+      v.trim(),
+      v.nonEmpty('app:position-information.errors.position-number-required'),
+      v.maxLength(100, 'app:position-information.errors.position-number-max'),
+      v.custom((input) => {
+        const value = input as string;
+        const numbers = value.split(',').map((n) => n.trim());
+        // Check that each position number is exactly 8 digits
+        return numbers.every((n) => n.length === 8 && REGEX_PATTERNS.DIGIT_ONLY.test(n));
+      }, 'app:position-information.errors.position-number-max-length'),
+      v.custom((input) => {
+        const value = input as string;
+        const numbers = value.split(',').map((n) => n.trim());
+        const uniqueNumbers = new Set(numbers);
+        return uniqueNumbers.size === numbers.length;
+      }, 'app:position-information.errors.position-number-duplicate'),
+    ),
+    groupAndLevel: v.pipe(
+      v.string('app:position-information.errors.group-and-level-required'),
+      v.trim(),
+      v.nonEmpty('app:position-information.errors.group-and-level-required'),
+      v.transform((value) => Number(value)),
+      v.number('app:position-information.errors.group-and-level-required'),
+      v.picklist(
+        allClassifications.map(({ id }) => id),
+        'app:position-information.errors.group-and-level-invalid',
       ),
-    ]),
-  );
+      v.custom((classificationId) => {
+        const classification = allClassifications.find((c) => c.id === classificationId);
+        return classification ? !isLookupExpired(classification) : false;
+      }, 'app:position-information.errors.group-and-level-expired'),
+    ),
+    titleEn: v.pipe(
+      v.string('app:position-information.errors.title-en-required'),
+      v.trim(),
+      v.nonEmpty('app:position-information.errors.title-en-required'),
+      v.maxLength(200, 'app:position-information.errors.title-en-max-length'),
+    ),
+    titleFr: v.pipe(
+      v.string('app:position-information.errors.title-fr-required'),
+      v.trim(),
+      v.nonEmpty('app:position-information.errors.title-fr-required'),
+      v.maxLength(200, 'app:position-information.errors.title-fr-max-length'),
+    ),
+    province: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:position-information.errors.provinces-required'),
+        v.picklist(
+          allProvinces.map(({ id }) => id),
+          'app:position-information.errors.provinces-required',
+        ),
+      ),
+    ),
+    cities: v.pipe(
+      v.array(
+        v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:position-information.errors.city-invalid'),
+            v.picklist(
+              allCities.map((c) => c.id),
+              'app:position-information.errors.city-invalid',
+            ),
+          ),
+        ),
+      ),
+      v.nonEmpty('app:position-information.errors.city-required'),
+      v.checkItems((item, index, array) => array.indexOf(item) === index, 'app:position-information.errors.city-duplicate'),
+    ),
+    languageRequirements: v.pipe(
+      v.array(
+        v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:position-information.errors.language-requirement-required'),
+            v.picklist(
+              allLanguageRequirements.map(({ id }) => id),
+              'app:position-information.errors.language-requirement-required',
+            ),
+          ),
+        ),
+      ),
+      v.nonEmpty('app:position-information.errors.language-requirement-required'),
+    ),
+    securityRequirement: v.pipe(
+      v.string('app:position-information.errors.security-requirement-required'),
+      v.trim(),
+      v.nonEmpty('app:position-information.errors.security-requirement-required'),
+    ),
+  });
 }
 
 export const somcConditionsSchema = v.pipe(

@@ -138,10 +138,8 @@ describe('RequestServiceMock', () => {
       const update = {
         englishTitle: 'Updated Title',
         frenchTitle: 'Titre Mis à Jour',
-        englishLanguageProfile: 'BBB',
-        frenchLanguageProfile: 'BBB',
         classificationId: requestId,
-        languageRequirementId: requestId,
+        languageRequirementIds: [{ value: requestId }],
         securityClearanceId: requestId,
       };
       const accessToken = 'valid-token';
@@ -154,10 +152,9 @@ describe('RequestServiceMock', () => {
         expect(updatedRequest.id).toBe(requestId);
         expect(updatedRequest.englishTitle).toBe('Updated Title');
         expect(updatedRequest.frenchTitle).toBe('Titre Mis à Jour');
-        expect(updatedRequest.englishLanguageProfile).toBe('BBB');
-        expect(updatedRequest.frenchLanguageProfile).toBe('BBB');
         expect(updatedRequest.classification).toEqual({ id: 1, code: 'AS-02', nameEn: 'AS-02', nameFr: 'AS-02' });
-        expect(updatedRequest.languageRequirement).toEqual({
+        expect(updatedRequest.languageRequirements).toBeDefined();
+        expect(updatedRequest.languageRequirements?.[0]).toEqual({
           id: 1,
           code: 'BNI',
           nameEn: 'Bilingual Non-imperative',
@@ -178,7 +175,7 @@ describe('RequestServiceMock', () => {
         classification: { id: 0, code: 'AS-01', nameEn: 'AS-01', nameFr: 'AS-01' },
         englishTitle: 'Updated Title',
         frenchTitle: 'Titre Mis à Jour',
-        languageRequirement: { id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' },
+        languageRequirements: [{ id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' }],
         securityClearance: { id: 3, code: 'ES-SA', nameEn: 'Enhanced Secret', nameFr: 'Secret avec fiabilité approfondie' },
       };
       const accessToken = 'valid-token';

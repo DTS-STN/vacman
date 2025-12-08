@@ -289,10 +289,18 @@ export function getMockRequestService(): RequestService {
           ? (await getWorkScheduleService().getById(requestUpdate.workScheduleId)).into()
           : existingRequest.workSchedule;
 
-      const languageRequirement =
-        requestUpdate.languageRequirementId !== undefined
-          ? (await getLanguageRequirementService().getById(requestUpdate.languageRequirementId)).into()
-          : existingRequest.languageRequirement;
+      const languageRequirements =
+        requestUpdate.languageRequirementIds !== undefined
+          ? (
+              await Promise.all(
+                requestUpdate.languageRequirementIds.map((id) => {
+                  return getLanguageRequirementService().getById(id.value);
+                }),
+              )
+            )
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())
+          : [];
 
       const classification =
         requestUpdate.classificationId !== undefined
@@ -350,11 +358,9 @@ export function getMockRequestService(): RequestService {
         positionNumber: requestUpdate.positionNumbers ?? existingRequest.positionNumber,
         englishTitle: requestUpdate.englishTitle ?? existingRequest.englishTitle,
         frenchTitle: requestUpdate.frenchTitle ?? existingRequest.frenchTitle,
-        languageRequirement,
+        languageRequirements,
         cities,
         classification,
-        englishLanguageProfile: requestUpdate.englishLanguageProfile ?? existingRequest.englishLanguageProfile,
-        frenchLanguageProfile: requestUpdate.frenchLanguageProfile ?? existingRequest.frenchLanguageProfile,
         securityClearance,
         selectionProcessType,
         employmentTenure,

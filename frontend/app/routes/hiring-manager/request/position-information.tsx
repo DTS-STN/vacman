@@ -46,7 +46,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     titleFr: formString(formData.get('titleFr')),
     province: formString(formData.get('province')),
     cities: formData.getAll('cities'),
-    languageRequirement: formString(formData.get('languageRequirement')),
+    languageRequirements: formData.getAll('languageRequirements'),
     readingEn: formString(formData.get('readingEn')),
     readingFr: formString(formData.get('readingFr')),
     writingEn: formString(formData.get('writingEn')),
@@ -84,13 +84,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     englishTitle: parseResult.output.titleEn,
     frenchTitle: parseResult.output.titleFr,
     cityIds: parseResult.output.cities.map((id) => ({ value: id })),
-    languageRequirementId: Number(parseResult.output.languageRequirement),
-    englishLanguageProfile: [parseResult.output.readingEn, parseResult.output.writingEn, parseResult.output.oralEn]
-      .filter(Boolean)
-      .join(''),
-    frenchLanguageProfile: [parseResult.output.readingFr, parseResult.output.writingFr, parseResult.output.oralFr]
-      .filter(Boolean)
-      .join(''),
+    languageRequirementIds: parseResult.output.languageRequirements.map((id) => ({ value: id })),
     securityClearanceId: Number(parseResult.output.securityRequirement),
   });
 
@@ -137,9 +131,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       classification: requestData.classification,
       englishTitle: requestData.englishTitle,
       frenchTitle: requestData.frenchTitle,
-      englishLanguageProfile: requestData.englishLanguageProfile,
-      frenchLanguageProfile: requestData.frenchLanguageProfile,
-      languageRequirement: requestData.languageRequirement,
+      languageRequirements: requestData.languageRequirements,
       securityClearance: requestData.securityClearance,
       cities: requestData.cities,
     },
