@@ -845,4 +845,42 @@ public class RequestService {
 
 		return requestMatchingService.performRequestMatching(request.getId(), maxMatches);
 	}
+
+	/**
+	 * Undoes a match approval by changing the status from APPROVED to PENDING and removing comments.
+	 *
+	 * @param requestId The ID of the request
+	 * @param matchId The ID of the match to undo approval for
+	 * @return The updated match entity
+	 * @throws ResourceNotFoundException if the match or request is not found
+	 * @throws IllegalStateException if the match is not in APPROVED status
+	 */
+	@Transactional
+	@Counted("service.request.undoMatchApproval.count")
+	public MatchEntity undoMatchApproval(Long requestId, Long matchId) {
+		log.info("Undoing match approval; Request ID: [{}], Match ID: [{}]", requestId, matchId);
+
+		final var match = getMatchById(matchId)
+			.orElseThrow(() -> new ResourceNotFoundException("Match not found with ID: " + matchId));
+
+		if (!match.getRequest().getId().equals(requestId)) {
+			throw new ResourceNotFoundException("A match with id=[" + matchId + "] does not exist");
+		}
+
+		// Check if the current status is APPROVED
+		if (match.getMatchStatus() == null || !matchStatuses.approved().equals(match.getMatchStatus().getCode())) {
+			throw new IllegalStateException("Cannot undo approval for a match that is not in APPROVED status");
+		}
+
+		// Find the PENDING status
+		final var pendingStatus = getMatchStatusByCode(matchStatuses.pendingApproval());
+
+		// Update the match status to PENDING and clear comments
+		match.setMatchStatus(pendingStatus);
+		match.setHiringManagerComment(null);
+		match.setHrAdvisorComment(null);
+
+		log.debug("Undoing match approval: changing status to PENDING and clearing comments");
+		return saveMatch(match);
+	}
 }

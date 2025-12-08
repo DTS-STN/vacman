@@ -407,6 +407,21 @@ public class RequestsController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@ApiResponses.NoContent
+	@ApiResponses.BadRequestError
+	@ApiResponses.ResourceNotFoundError
+	@ApiResponses.UnprocessableEntityError
+	@PostMapping({ "/{id}/matches/{matchId}/status-undo" })
+	@Operation(summary = "Undo an approved match by changing status from APPROVED to PENDING and removing comments.")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
+	public ResponseEntity<Void> undoRequestMatchApproval(@PathVariable Long id, @PathVariable Long matchId) {
+		log.info("Received request to undo match approval; Request ID: [{}], Match ID: [{}]", id, matchId);
+
+		requestService.undoMatchApproval(id, matchId);
+
+		return ResponseEntity.noContent().build();
+	}
+
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
 	@ApiResponses.ResourceNotFoundError
@@ -500,7 +515,7 @@ public class RequestsController {
 
 	/**
 	 * This class only is used to provide a type for the Swagger documentation for the
-	 * {@link #getAllRequestMatches(Long, Pageable, MatchReadFilterModel, String)} method.
+	 * {@link #getAllRequestMatches(Long, Pageable, MatchReadFilterModel)} method.
 	 * <p>
 	 * Because PagedModel is a generic class, Swagger has difficulty determining the actual
 	 * type returned by that method. By creating this subclass, we can provide a concrete

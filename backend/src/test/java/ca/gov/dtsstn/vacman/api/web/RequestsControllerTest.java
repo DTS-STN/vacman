@@ -1,8 +1,10 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -49,7 +52,10 @@ import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import ca.gov.dtsstn.vacman.api.service.CodeService;
+import ca.gov.dtsstn.vacman.api.service.MatchService;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModelBuilder;
@@ -112,6 +118,15 @@ class RequestsControllerTest {
 
 	@Autowired
 	EmploymentEquityRepository employmentEquityRepository;
+
+	@Autowired
+	ProfileRepository profileRepository;
+
+	@Autowired
+	MatchService matchService;
+
+	@Autowired
+	CodeService codeService;
 
 	@Autowired
 	LookupCodes lookupCodes;
@@ -2012,5 +2027,6 @@ class RequestsControllerTest {
 		}
 
 	}
+
 
 }
