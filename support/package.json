@@ -22,8 +22,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@effect/platform": "^0.91.x",
-    "@effect/platform-node": "^0.97.x",
+    "@effect/platform": "^0.93.x",
+    "@effect/platform-node": "^0.103.x",
     "effect": "^3.19.x"
   },
   "devDependencies": {
@@ -36,9 +36,9 @@
     "eslint-import-resolver-typescript": "^4.4.x",
     "eslint-plugin-import": "^2.32.x",
     "globals": "^16.5.x",
-    "prettier": "^3.6.x",
-    "tsx": "^4.20.x",
-    "typescript-eslint": "^8.46.x",
+    "prettier": "^3.7.x",
+    "tsx": "^4.21.x",
+    "typescript-eslint": "^8.49.x",
     "vite-tsconfig-paths": "^5.1.x",
     "vitest": "^4.0.x",
     "vitest-mock-extended": "^3.1.x"
