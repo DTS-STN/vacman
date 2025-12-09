@@ -2,8 +2,8 @@ package ca.gov.dtsstn.vacman.api.config.properties;
 
 import java.time.Duration;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.NotBlank;

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.ValidationMethod;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

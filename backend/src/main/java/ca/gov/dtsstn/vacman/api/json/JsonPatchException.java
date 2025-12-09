@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.json;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.NestedRuntimeException;
-import org.springframework.lang.Nullable;
 
 /**
  * Thrown by the JSON subsystem when a JSON processing error occurs.

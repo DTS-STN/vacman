@@ -27,7 +27,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.event.MatchStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
@@ -56,7 +55,6 @@ public class RequestEventListener {
 	private final LookupCodes lookupCodes;
 	private final MatchRepository matchRepository;
 	private final NotificationService notificationService;
-	private final RequestRepository requestRepository;
 
 	private final ObjectMapper objectMapper = JsonMapper.builder()
 		.findAndAddModules()
@@ -67,14 +65,12 @@ public class RequestEventListener {
 			LookupCodes lookupCodes,
 			NotificationService notificationService,
 			ApplicationProperties applicationProperties,
-			MatchRepository matchRepository,
-			RequestRepository requestRepository) {
+			MatchRepository matchRepository) {
+		this.applicationProperties = applicationProperties;
 		this.eventRepository = eventRepository;
 		this.lookupCodes = lookupCodes;
-		this.notificationService = notificationService;
-		this.applicationProperties = applicationProperties;
 		this.matchRepository = matchRepository;
-		this.requestRepository = requestRepository;
+		this.notificationService = notificationService;
 	}
 
 	@Async
@@ -377,27 +373,6 @@ public class RequestEventListener {
 			request.id(),
 			request.nameEn(),
 			RequestEvent.SUBMITTED,
-			language
-		);
-	}
-
-	/**
-	 * Sends a notification when a request is marked as VMS not required.
-	 * The notification is sent to the PIMS SLE team email.
-	 *
-	 * @param request The request DTO
-	 */
-	private void sendVmsNotRequiredNotification(RequestEventDto request) {
-		final var language = Optional.ofNullable(request.languageCode())
-			.orElse(lookupCodes.languages().english());
-
-		final var pimsEmail = applicationProperties.gcnotify().pimsSleTeamEmail();
-
-		notificationService.sendRequestNotification(
-			pimsEmail,
-			request.id(),
-			request.nameEn(),
-			RequestEvent.VMS_NOT_REQUIRED,
 			language
 		);
 	}

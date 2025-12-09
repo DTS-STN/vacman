@@ -103,7 +103,7 @@ public class SpringDocConfig {
 				.addExamples(ExampleRefs.INTERNAL_SERVER_ERROR, generateExample(HttpStatus.INTERNAL_SERVER_ERROR, "API-0500", "An unexpected error has occurred."))
 				.addExamples(ExampleRefs.RESOURCE_NOT_FOUND_ERROR, generateExample(HttpStatus.NOT_FOUND, "API-0404", "The requested resource was not found or the user does not have access to the resource."))
 				.addExamples(ExampleRefs.TOO_MANY_REQUESTS_ERROR, generateExample(HttpStatus.TOO_MANY_REQUESTS, "API-0429", "The user has sent too many requests in a given amount of time."))
-				.addExamples(ExampleRefs.UNPROCESSABLE_ENTITY_ERROR, generateExample(HttpStatus.UNPROCESSABLE_ENTITY, "API-0422", "The server understands the content type of the request entity, and the syntax of the request entity is correct, but it was unable to process the contained instructions."));
+				.addExamples(ExampleRefs.UNPROCESSABLE_ENTITY_ERROR, generateExample(HttpStatus.UNPROCESSABLE_CONTENT, "API-0422", "The server understands the content type of the request entity, and the syntax of the request entity is correct, but it was unable to process the contained instructions."));
 		};
 	}
 
