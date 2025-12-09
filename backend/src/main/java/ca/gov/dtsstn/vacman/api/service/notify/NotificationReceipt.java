@@ -8,10 +8,13 @@ import org.immutables.value.Value.Style.ValidationMethod;
 import org.springframework.lang.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Immutable
 @Style(validationMethod = ValidationMethod.NONE)
+@JsonSerialize(as = ImmutableNotificationReceipt.class)
 @JsonDeserialize(as = ImmutableNotificationReceipt.class)
 public interface NotificationReceipt {
 
@@ -33,6 +36,7 @@ public interface NotificationReceipt {
 
 	@Immutable
 	@Style(validationMethod = ValidationMethod.NONE)
+	@JsonSerialize(as = ImmutableNotificationReceiptContent.class)
 	@JsonDeserialize(as = ImmutableNotificationReceiptContent.class)
 	public interface NotificationReceiptContent extends Serializable {
 
@@ -49,6 +53,7 @@ public interface NotificationReceipt {
 
 	@Immutable
 	@Style(validationMethod = ValidationMethod.NONE)
+	@JsonSerialize(as = ImmutableNotificationReceiptTemplate.class)
 	@JsonDeserialize(as = ImmutableNotificationReceiptTemplate.class)
 	public interface NotificationReceiptTemplate extends Serializable {
 

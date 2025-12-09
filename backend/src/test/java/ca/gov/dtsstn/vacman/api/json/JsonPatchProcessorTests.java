@@ -8,12 +8,11 @@ import java.io.Serializable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.json.Json;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.constraints.NotBlank;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Tests for {@link JsonPatchProcessor}.
