@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -549,8 +550,12 @@ public class RequestEventListener {
 			.orElse("N/A");
 
 		// Get language requirement
-		final var languageRequirement = Optional.ofNullable(request.getLanguageRequirement())
-			.map(req -> isEnglish ? req.getNameEn() : req.getNameFr())
+		final var languageRequirement = Optional.ofNullable(request.getLanguageRequirements())
+			.map(set -> set.stream()
+				.map(req -> isEnglish ? req.getNameEn() : req.getNameFr())
+				.filter(Objects::nonNull)
+        .collect(Collectors.joining(", "))
+			)
 			.orElse("N/A");
 
 		// Get security clearance
@@ -568,8 +573,12 @@ public class RequestEventListener {
 			.orElse("N/A");
 
 		// Set bilingual flag based on language requirement code
-		final var languageRequirementCode = Optional.ofNullable(request.getLanguageRequirement())
-			.map(LanguageRequirementEntity::getCode)
+		final var languageRequirementCode = Optional.ofNullable(request.getLanguageRequirements())
+			.map(set -> set.stream()
+				.map(LanguageRequirementEntity::getCode)
+				.filter(Objects::nonNull)
+        .collect(Collectors.joining(", "))
+			)
 			.orElse("");
 		final var bilingual = "BI".equals(languageRequirementCode) || "BNI".equals(languageRequirementCode);
 

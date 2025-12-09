@@ -8,6 +8,7 @@ import org.mapstruct.ReportingPolicy;
 
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
@@ -15,6 +16,7 @@ import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel.CityId;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel.EmploymentEquityId;
+import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel.LanguageRequirementId;
 
 @Mapper(uses = { CodeModelMapper.class,
 		UserModelMapper.class }, unmappedTargetPolicy = ReportingPolicy.ERROR, collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED)
@@ -53,7 +55,7 @@ public interface RequestModelMapper {
 	@Mapping(target = "appointmentNonAdvertised", source = "appointmentNonAdvertisedId")
 	@Mapping(target = "workSchedule", source = "workScheduleId")
 	@Mapping(target = "classification", source = "classificationId")
-	@Mapping(target = "languageRequirement", source = "languageRequirementId")
+	@Mapping(target = "languageRequirements", ignore = true)
 	@Mapping(target = "securityClearance", source = "securityClearanceId")
 	@Mapping(target = "additionalContact", ignore = true)
 	@Mapping(target = "employmentEquities", ignore = true)
@@ -93,7 +95,7 @@ public interface RequestModelMapper {
 	@Mapping(target = "appointmentNonAdvertised", source = "appointmentNonAdvertisedId")
 	@Mapping(target = "workSchedule", source = "workScheduleId")
 	@Mapping(target = "classification", source = "classificationId")
-	@Mapping(target = "languageRequirement", source = "languageRequirementId")
+	@Mapping(target = "languageRequirements", ignore = true)
 	@Mapping(target = "securityClearance", source = "securityClearanceId")
 	@Mapping(target = "additionalContact", ignore = true)
 	@Mapping(target = "employmentEquities", ignore = true)
@@ -129,7 +131,7 @@ public interface RequestModelMapper {
 	@Mapping(target = "hiringManagerId", source = "hiringManager.id")
 	@Mapping(target = "hrAdvisorId", source = "hrAdvisor.id")
 	@Mapping(target = "languageOfCorrespondenceId", source = "language.id")
-	@Mapping(target = "languageRequirementId", source = "languageRequirement.id")
+	@Mapping(target = "languageRequirementIds", source = "languageRequirements")
 	@Mapping(target = "positionNumbers", source = "positionNumber")
 	@Mapping(target = "projectedEndDate", source = "endDate")
 	@Mapping(target = "projectedStartDate", source = "startDate")
@@ -163,5 +165,13 @@ public interface RequestModelMapper {
 
 	default EmploymentEquityId employmentEquityEntityToEmploymentEquityId(EmploymentEquityEntity employmentEquity) {
 		return employmentEquity == null ? null : new EmploymentEquityId(employmentEquity.getId());
+	}
+
+	default Long languageRequirementIdToLong(LanguageRequirementId languageRequirementId) {
+		return languageRequirementId == null ? null : languageRequirementId.value();
+	}
+
+	default LanguageRequirementId languageRequirementEntityToLanguageRequirementId(LanguageRequirementEntity languageRequirement) {
+		return languageRequirement == null ? null : new LanguageRequirementId(languageRequirement.getId());
 	}
 }

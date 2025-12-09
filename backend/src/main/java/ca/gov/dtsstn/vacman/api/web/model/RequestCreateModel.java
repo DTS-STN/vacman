@@ -103,10 +103,10 @@ public record RequestCreateModel(
 	@Schema(description = "The province ID", example = "1")
 	Long provinceId,
 
-	@NotNull(message = "Language requirement ID is required")
-	@ValidLanguageRequirementCode(message = "Language requirement ID not found")
-	@Schema(description = "The language requirement ID", example = "1")
-	Long languageRequirementId,
+	@NotNull(message = "Language requirement IDs is required")
+	@ValidLanguageRequirementCode(message = "Language requirement IDs not found")
+	@Schema(description = "The language requirement IDs", example = "1")
+	Collection<Long> languageRequirementIds,
 
 	@NotBlank(message = "English language profile is required")
 	@Schema(description = "The English language profile", example = "???")

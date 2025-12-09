@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service.mapper;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,15 +66,23 @@ public interface RequestEntityMapper {
 
 	@Named("languageRequirementNameEn")
 	default String languageRequirementNameEn(RequestEntity entity) {
-		return Optional.ofNullable(entity.getLanguageRequirement())
-			.map(AbstractCodeEntity::getNameEn)
+		return Optional.ofNullable(entity.getLanguageRequirements())
+			.map(set -> set.stream()
+				.map(AbstractCodeEntity::getNameEn)
+				.filter(Objects::nonNull)
+        .collect(Collectors.joining(", "))
+			)
 			.orElse("N/A");
 	}
 
 	@Named("languageRequirementNameFr")
 	default String languageRequirementNameFr(RequestEntity entity) {
-		return Optional.ofNullable(entity.getLanguageRequirement())
-			.map(AbstractCodeEntity::getNameFr)
+		return Optional.ofNullable(entity.getLanguageRequirements())
+			.map(set -> set.stream()
+				.map(AbstractCodeEntity::getNameFr)
+				.filter(Objects::nonNull)
+        .collect(Collectors.joining(", "))
+			)
 			.orElse("N/A");
 	}
 
@@ -146,10 +155,13 @@ public interface RequestEntityMapper {
 
 	@Named("bilingual")
 	default Boolean bilingual(RequestEntity entity) {
-		final var code = Optional.ofNullable(entity.getLanguageRequirement())
-			.map(AbstractCodeEntity::getCode).orElse("");
-
-		return "BI".equals(code) || "BNI".equals(code);
+		return Optional.ofNullable(entity.getLanguageRequirements())
+			.map(set -> set.stream()
+				.map(AbstractCodeEntity::getCode)
+				.filter(Objects::nonNull)
+				.anyMatch(code -> "BI".equals(code) || "BNI".equals(code))
+			)
+			.orElse(false);
 	}
 
 }

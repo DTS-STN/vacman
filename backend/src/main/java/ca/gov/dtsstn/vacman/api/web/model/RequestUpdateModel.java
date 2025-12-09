@@ -78,8 +78,8 @@ public record RequestUpdateModel(
 	@ValidLanguageCode
 	Long languageOfCorrespondenceId,
 
-	@ValidLanguageRequirementCode
-	Long languageRequirementId,
+	@Valid
+	Collection<@Valid LanguageRequirementId> languageRequirementIds,
 
 	@Size(max = 100)
 	@Pattern(regexp = "^\\d{8}(,\\d{8})*$", message = "Position numbers must be comma-separated eight digit numbers")
@@ -145,6 +145,13 @@ public record RequestUpdateModel(
 	public record EmploymentEquityId(
 		@NotNull
 		@ValidEmploymentEquityCode
+		Long value
+	) {}
+
+	@Valid
+	public record LanguageRequirementId(
+		@NotNull
+		@ValidLanguageRequirementCode
 		Long value
 	) {}
 

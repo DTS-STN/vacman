@@ -85,9 +85,8 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[LANGUAGE_PROFILE_FR]", length = 3)
 	private String languageProfileFr;
 
-	@ManyToOne
-	@JoinColumn(name = "[LANGUAGE_REQUIREMENT_ID]")
-	private LanguageRequirementEntity languageRequirement;
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
+	private Set<RequestLanguageRequirementEntity> languageRequirements = new HashSet<>();
 
 	@Column(name = "[POSITION_NUMBER]", length = 100)
 	private String positionNumber;
@@ -181,7 +180,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable LanguageEntity language,
 			@Nullable String languageProfileEn,
 			@Nullable String languageProfileFr,
-			@Nullable LanguageRequirementEntity languageRequirement,
+			@Nullable Collection<LanguageRequirementEntity> languageRequirements,
 			@Nullable String positionNumber,
 			@Nullable String priorityClearanceNumber,
 			@Nullable Boolean priorityEntitlement,
@@ -221,7 +220,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.language = language;
 		this.languageProfileEn = languageProfileEn;
 		this.languageProfileFr = languageProfileFr;
-		this.languageRequirement = languageRequirement;
 		this.positionNumber = positionNumber;
 		this.priorityClearanceNumber = priorityClearanceNumber;
 		this.priorityEntitlement = priorityEntitlement;
@@ -246,6 +244,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
 		this.setCities(cities);
 		this.setEmploymentEquities(employmentEquities);
+		this.setLanguageRequirements(languageRequirements);
 	}
 
 	public String getAdditionalComment() {
@@ -402,12 +401,29 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.languageProfileFr = languageProfileFr;
 	}
 
-	public LanguageRequirementEntity getLanguageRequirement() {
-		return languageRequirement;
+	public Set<LanguageRequirementEntity> getLanguageRequirements() {
+		return languageRequirements.stream()
+			.map(RequestLanguageRequirementEntity::getLanguageRequirement)
+			.collect(toUnmodifiableSet());
 	}
 
-	public void setLanguageRequirement(LanguageRequirementEntity languageRequirement) {
-		this.languageRequirement = languageRequirement;
+	public boolean addLanguageRequirement(LanguageRequirementEntity languageRequirement) {
+		return this.languageRequirements.add(RequestLanguageRequirementEntity.builder()
+			.languageRequirement(languageRequirement)
+			.request(this)
+			.build());
+	}
+
+	public void setLanguageRequirements(Collection<LanguageRequirementEntity> languageRequirements) {
+		final var joins = Optional.ofNullable(languageRequirements).orElse(emptySet()).stream()
+			.map(languageRequirement -> RequestLanguageRequirementEntity.builder()
+				.languageRequirement(languageRequirement)
+				.request(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.languageRequirements.retainAll(joins);
+		this.languageRequirements.addAll(joins);
 	}
 
 	public String getPositionNumber() {
@@ -611,7 +627,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			.append("language", language)
 			.append("languageProfileEn", languageProfileEn)
 			.append("languageProfileFr", languageProfileFr)
-			.append("languageRequirement", languageRequirement)
 			.append("positionNumber", positionNumber)
 			.append("priorityClearanceNumber", priorityClearanceNumber)
 			.append("priorityEntitlement", priorityEntitlement)
