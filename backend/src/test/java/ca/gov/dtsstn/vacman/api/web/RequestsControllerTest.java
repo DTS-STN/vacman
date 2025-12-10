@@ -1898,36 +1898,40 @@ class RequestsControllerTest {
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().noMatchHrReview());
 		}
 
-		@Test
-		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to NO_MATCH_HR_REVIEW")
-		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
-		void testUndoClearanceGrantedToFeedbackPendingApproval() throws Exception {
-			final var clearanceGrantedStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().clearanceGranted()).orElseThrow();
+ 	@Test
+ 	@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to FDBK_PEND_APPR")
+ 	@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+ 	void testUndoClearanceGrantedToFeedbackPendingApproval() throws Exception {
+ 		// Create a request with PSC_GRANTED status
+ 		final var pscGrantedStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().pscClearanceGranted()).orElseThrow();
 
-			final var request = requestRepository.save(RequestEntity.builder()
-				.classification(classificationRepository.getReferenceById(1L))
-				.hiringManager(hiringManager)
-				.hrAdvisor(hrAdvisor)
-				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
-				.nameEn("Undo Clearance Granted")
-				.nameFr("Annuler autorisation accordée")
-				.requestNumber("UNDO-005")
-				.requestStatus(clearanceGrantedStatus)
-				.priorityClearanceNumber("TEST-PRIORITY-NUMBER")
-				.submitter(submitter)
-				.workUnit(workUnitRepository.getReferenceById(1L))
-				.build());
+ 		final var request = requestRepository.save(RequestEntity.builder()
+ 			.classification(classificationRepository.getReferenceById(1L))
+ 			.hiringManager(hiringManager)
+ 			.hrAdvisor(hrAdvisor)
+ 			.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+ 			.nameEn("Undo Clearance Granted")
+ 			.nameFr("Annuler autorisation accordée")
+ 			.requestNumber("UNDO-005")
+ 			.requestStatus(pscGrantedStatus)  // Start with PSC_GRANTED status
+ 			.priorityClearanceNumber("TEST-PRIORITY-NUMBER")
+ 			.pscClearanceNumber("TEST-PSC-NUMBER")
+ 			.submitter(submitter)
+ 			.workUnit(workUnitRepository.getReferenceById(1L))
+ 			.build());
 
-			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
-				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().noMatchHrReview())));
+ 		// Now undo the status change
+ 		mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+ 			.andExpect(status().isOk())
+ 			.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+ 			.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().pendingPscClearance())));
 
-			// Verify status changed in database and VMS number is removed
-			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
-			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().noMatchHrReview());
-			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
-		}
+ 		// Verify status changed in database and clearance numbers are removed
+ 		final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+ 		assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pendingPscClearance());
+ 		assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
+ 		assertThat(updatedRequest.getPscClearanceNumber()).isNull();
+ 	}
 
 		@Test
 		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to NO_MATCH_HR_REVIEW when there are no matches")
