@@ -723,15 +723,20 @@ public class RequestService {
 			// PENDING_PSC_NO_VMS → HR_REVIEW (undo approve request)
 			newStatus = requestStatuses.hrReview();
 		} else if (requestStatuses.clearanceGranted().equals(currentStatus)) {
-			// CLR_GRANTED → FDBK_PEND_APPR
-			newStatus = requestStatuses.feedbackPendingApproval();
+			if (hasMatches(request.getId())) {
+				// CLR_GRANTED → FDBK_PEND_APPR
+				newStatus = requestStatuses.feedbackPendingApproval();
 
-			// Loop through all matches and undo the approval and remove the VMS number
-			final var query = MatchQuery.builder().requestId(request.getId()).build();
-			final var matches = findMatches(query);
-			for (MatchEntity match : matches) {
-				match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
-				saveMatch(match);
+				// Loop through all matches and undo the approval and remove the VMS number
+				final var query = MatchQuery.builder().requestId(request.getId()).build();
+				final var matches = findMatches(query);
+				for (MatchEntity match : matches) {
+					match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
+					saveMatch(match);
+				}
+			} else {
+				// CLR_GRANTED -> NO_MATCH_HR_REVIEW
+				newStatus = requestStatuses.noMatchHrReview();
 			}
 
 			// Remove the VMS number

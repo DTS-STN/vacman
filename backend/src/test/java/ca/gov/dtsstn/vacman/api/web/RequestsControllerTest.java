@@ -1930,6 +1930,37 @@ class RequestsControllerTest {
 		}
 
 		@Test
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to NO_MATCH_HR_REVIEW when there are no matches")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoClearanceGrantedToNoMatchHrReview() throws Exception {
+			final var clearanceGrantedStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().clearanceGranted()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Undo Clearance Granted No Matches")
+				.nameFr("Annuler autorisation accordée sans correspondances")
+				.requestNumber("UNDO-005A")
+				.requestStatus(clearanceGrantedStatus)
+				.priorityClearanceNumber("TEST-PRIORITY-NUMBER")
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().noMatchHrReview())));
+
+			// Verify status changed in database and VMS number is removed
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().noMatchHrReview());
+			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
+		}
+
+		@Test
 		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes FDBK_PENDING to HR_REVIEW")
 		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
 		void testUndoFeedbackPendingToHrReview() throws Exception {
