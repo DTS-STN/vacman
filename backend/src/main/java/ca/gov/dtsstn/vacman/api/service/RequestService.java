@@ -709,6 +709,7 @@ public class RequestService {
 	 * @param request The request entity to undo the status change for
 	 * @return The updated request entity
 	 */
+	@Transactional
 	@Counted("service.request.undoRequestStatus.count")
 	public RequestEntity undoRequestStatus(RequestEntity request) {
 		final var currentStatus = request.getRequestStatus().getCode();
