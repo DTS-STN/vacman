@@ -723,15 +723,20 @@ public class RequestService {
 			// PENDING_PSC_NO_VMS → HR_REVIEW (undo approve request)
 			newStatus = requestStatuses.hrReview();
 		} else if (requestStatuses.clearanceGranted().equals(currentStatus)) {
-			// CLR_GRANTED → FDBK_PEND_APPR
-			newStatus = requestStatuses.feedbackPendingApproval();
+			if (hasMatches(request.getId())) {
+				// CLR_GRANTED → FDBK_PEND_APPR
+				newStatus = requestStatuses.feedbackPendingApproval();
 
-			// Loop through all matches and undo the approval and remove the VMS number
-			final var query = MatchQuery.builder().requestId(request.getId()).build();
-			final var matches = findMatches(query);
-			for (MatchEntity match : matches) {
-				match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
-				saveMatch(match);
+				// Loop through all matches and undo the approval and remove the VMS number
+				final var query = MatchQuery.builder().requestId(request.getId()).build();
+				final var matches = findMatches(query);
+				for (MatchEntity match : matches) {
+					match.setMatchStatus(getMatchStatusByCode(matchStatuses.pendingApproval()));
+					saveMatch(match);
+				}
+			} else {
+				// CLR_GRANTED -> NO_MATCH_HR_REVIEW
+				newStatus = requestStatuses.noMatchHrReview();
 			}
 
 			// Remove the VMS number
@@ -773,6 +778,9 @@ public class RequestService {
 		} else if (requestStatuses.noMatchHrReview().equals(currentStatus)) {
 			// NO_MATCH_HR_REVIEW → HR_REVIEW (undo when HR advisor ran matches and no matches were found)
 			newStatus = requestStatuses.hrReview();
+		} else if (requestStatuses.feedbackPendingApproval().equals(currentStatus)) {
+			// FDBK_PEND_APPR → FDBK_PENDING (undo when feedback is pending approval)
+			newStatus = requestStatuses.feedbackPending();
 		} else {
 			// If the current status is not one of the listed starting statuses, then no "undo" is possible
 			throw new ResourceConflictException("Cannot undo status change for request with status: " + currentStatus);

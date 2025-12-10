@@ -1899,9 +1899,9 @@ class RequestsControllerTest {
 		}
 
 		@Test
-		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to FDBK_PEND_APPR")
+		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes CLR_GRANTED to NO_MATCH_HR_REVIEW when there are no matches")
 		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
-		void testUndoClearanceGrantedToFeedbackPendingApproval() throws Exception {
+		void testUndoClearanceGrantedToNoMatchHrReview() throws Exception {
 			final var clearanceGrantedStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().clearanceGranted()).orElseThrow();
 
 			final var request = requestRepository.save(RequestEntity.builder()
@@ -1909,9 +1909,9 @@ class RequestsControllerTest {
 				.hiringManager(hiringManager)
 				.hrAdvisor(hrAdvisor)
 				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
-				.nameEn("Undo Clearance Granted")
-				.nameFr("Annuler autorisation accordée")
-				.requestNumber("UNDO-005")
+				.nameEn("Undo Clearance Granted No Matches")
+				.nameFr("Annuler autorisation accordée sans correspondances")
+				.requestNumber("UNDO-005A")
 				.requestStatus(clearanceGrantedStatus)
 				.priorityClearanceNumber("TEST-PRIORITY-NUMBER")
 				.submitter(submitter)
@@ -1921,11 +1921,11 @@ class RequestsControllerTest {
 			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
-				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().feedbackPendingApproval())));
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().noMatchHrReview())));
 
 			// Verify status changed in database and VMS number is removed
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
-			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().feedbackPendingApproval());
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().noMatchHrReview());
 			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
 		}
 
@@ -1958,34 +1958,63 @@ class RequestsControllerTest {
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().hrReview());
 		}
 
-		@Test
-		@DisplayName("POST /api/v1/requests/{id}/status-undo undoes NO_MATCH_HR_REVIEW to HR_REVIEW")
-		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
-		void testUndoNoMatchHrReviewToHrReview() throws Exception {
-			final var noMatchHrReviewStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().noMatchHrReview()).orElseThrow();
+ 	@Test
+ 	@DisplayName("POST /api/v1/requests/{id}/status-undo undoes NO_MATCH_HR_REVIEW to HR_REVIEW")
+ 	@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+ 	void testUndoNoMatchHrReviewToHrReview() throws Exception {
+ 		final var noMatchHrReviewStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().noMatchHrReview()).orElseThrow();
 
-			final var request = requestRepository.save(RequestEntity.builder()
-				.classification(classificationRepository.getReferenceById(1L))
-				.hiringManager(hiringManager)
-				.hrAdvisor(hrAdvisor)
-				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
-				.nameEn("Undo No Match HR Review")
-				.nameFr("Annuler aucune correspondance révision RH")
-				.requestNumber("UNDO-006")
-				.requestStatus(noMatchHrReviewStatus)
-				.submitter(submitter)
-				.workUnit(workUnitRepository.getReferenceById(1L))
-				.build());
+ 		final var request = requestRepository.save(RequestEntity.builder()
+ 			.classification(classificationRepository.getReferenceById(1L))
+ 			.hiringManager(hiringManager)
+ 			.hrAdvisor(hrAdvisor)
+ 			.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+ 			.nameEn("Undo No Match HR Review")
+ 			.nameFr("Annuler aucune correspondance révision RH")
+ 			.requestNumber("UNDO-006")
+ 			.requestStatus(noMatchHrReviewStatus)
+ 			.submitter(submitter)
+ 			.workUnit(workUnitRepository.getReferenceById(1L))
+ 			.build());
 
-			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
-				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().hrReview())));
+ 		mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+ 			.andExpect(status().isOk())
+ 			.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+ 			.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().hrReview())));
 
-			// Verify status changed in database
-			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
-			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().hrReview());
-		}
+ 		// Verify status changed in database
+ 		final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+ 		assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().hrReview());
+ 	}
+
+ 	@Test
+ 	@DisplayName("POST /api/v1/requests/{id}/status-undo undoes FDBK_PEND_APPR to FDBK_PENDING")
+ 	@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+ 	void testUndoFeedbackPendingApprovalToFeedbackPending() throws Exception {
+ 		final var feedbackPendingApprovalStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().feedbackPendingApproval()).orElseThrow();
+
+ 		final var request = requestRepository.save(RequestEntity.builder()
+ 			.classification(classificationRepository.getReferenceById(1L))
+ 			.hiringManager(hiringManager)
+ 			.hrAdvisor(hrAdvisor)
+ 			.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+ 			.nameEn("Undo Feedback Pending Approval")
+ 			.nameFr("Annuler rétroaction en attente d'approbation")
+ 			.requestNumber("UNDO-007A")
+ 			.requestStatus(feedbackPendingApprovalStatus)
+ 			.submitter(submitter)
+ 			.workUnit(workUnitRepository.getReferenceById(1L))
+ 			.build());
+
+ 		mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+ 			.andExpect(status().isOk())
+ 			.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+ 			.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().feedbackPending())));
+
+ 		// Verify status changed in database
+ 		final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+ 		assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().feedbackPending());
+ 	}
 
 		@Test
 		@DisplayName("POST /api/v1/requests/{id}/status-undo fails for unsupported status")
