@@ -1,0 +1,11 @@
+import { Data } from 'effect';
+
+/**
+ * A custom error type for failures related to the Microsoft SQL API. This
+ * class extends `Data.TaggedError` to provide a structured way to represent
+ * errors, capturing the original error and an optional descriptive message.
+ */
+export class MsSqlError extends Data.TaggedError('@support/MsSqlError')<{
+  readonly error: unknown;
+  readonly message?: string;
+}> {}

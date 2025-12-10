@@ -42,13 +42,15 @@ configMapGenerator:
   - name: group-sync
     behavior: create
     literals:
-      - DRY_RUN=false
-      - LOG_LEVEL=info
-      - TENANT_ID=9ed55846-8a81-4246-acd8-b1a01abfc0d1
-      - CLIENT_ID=61e40073-c461-4ec8-8397-99f2976d4982
-      # EDSC.F.DGSRH Equipe.SGIP ELS / PIMS SLE.Team.HRSB.F.ESDC, EDSC.F.NA.RH.SE PE / PE WS.HR.NA.F.ESDC, EDSC.F.DGRH.O EX S.Conseiller RH / HR Advisor.EX S O.HRSB.F.ESDC
-      - SOURCE_GROUP_IDS=099d7edb-ca40-4c0f-99eb-8ecb4867edd7,15c621c8-0d8d-435a-b513-8d159f3fdf0d,cb182398-3dcf-4b2b-9a84-374d27afe626
-      - TARGET_GROUP_ID=6a5548e2-e6d6-4c06-ae7e-260801f09de3
+      - SYNC_DRY_RUN=false
+      - SYNC_LOG_LEVEL=info
+      # EDSC.F.DGSRH Equipe.SGIP ELS / PIMS SLE.Team.HRSB.F.ESDC; EDSC.F.NA.RH.SE PE / PE WS.HR.NA.F.ESDC; EDSC.F.DGRH.O EX S.Conseiller RH / HR Advisor.EX S O.HRSB.F.ESDC
+      - SYNC_SOURCE_GROUP_IDS=099d7edb-ca40-4c0f-99eb-8ecb4867edd7,15c621c8-0d8d-435a-b513-8d159f3fdf0d,cb182398-3dcf-4b2b-9a84-374d27afe626
+      - SYNC_TARGET_GROUP_ID=6a5548e2-e6d6-4c06-ae7e-260801f09de3
+      - MSGRAPH_TENANT_ID=9ed55846-8a81-4246-acd8-b1a01abfc0d1
+      - MSGRAPH_CLIENT_ID=61e40073-c461-4ec8-8397-99f2976d4982
+      - MSSQL_SERVER=esccprodvacmansqlsrv.database.windows.net
+      - MSSQL_DATABASE=EsPrdVacManSqldb
 
 secretGenerator:
   - name: redis

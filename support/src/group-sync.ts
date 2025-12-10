@@ -1,8 +1,9 @@
-import { NodeHttpClient, NodeRuntime } from '@effect/platform-node';
+import { NodeRuntime } from '@effect/platform-node';
 import { Config, Effect, Logger, LogLevel } from 'effect';
 
 import { MsGraphService } from '~/msgraph/client';
 import type { MsGraphUser } from '~/msgraph/schemas';
+import { MsSqlService } from '~/mssql/client';
 
 //
 // ─────────────────────────────────────────────────────────────
@@ -14,27 +15,27 @@ const AppConfig = Config.all({
   /**
    * Whether to simulate changes without executing them (defaults to true for safety)
    */
-  dryRun: Config.withDefault(Config.boolean('DRY_RUN'), true),
+  dryRun: Config.withDefault(Config.boolean('SYNC_DRY_RUN'), true),
 
   /**
    * Log level for application logging (e.g., 'info', 'debug', 'error')
    */
-  logLevel: Config.withDefault(Config.string('LOG_LEVEL'), 'info'),
+  logLevel: Config.withDefault(Config.string('SYNC_LOG_LEVEL'), 'info'),
 
   /**
    * Comma-separated list of source group IDs to sync from
    */
-  sourceGroupIds: Config.array(Config.string('SOURCE_GROUP_IDS')),
+  sourceGroupIds: Config.array(Config.string('SYNC_SOURCE_GROUP_IDS')),
 
   /**
    * Single target group ID to sync to
    */
-  targetGroupId: Config.string('TARGET_GROUP_ID'),
+  targetGroupId: Config.string('SYNC_TARGET_GROUP_ID'),
 
   /**
    * Concurrency limit for HTTP requests to avoid overwhelming the API
    */
-  concurrencyLimit: Config.withDefault(Config.integer('HTTP_CONCURRENCY_LIMIT'), 5),
+  concurrencyLimit: Config.withDefault(Config.integer('SYNC_CONCURRENCY_LIMIT'), 5),
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -88,18 +89,27 @@ const executeSync = Effect.fn(function* (
   usersToAdd: MsGraphUser[],
   usersToRemove: MsGraphUser[],
 ) {
-  const msGraphClient = yield* MsGraphService;
+  const msGraphService = yield* MsGraphService;
+  const msSqlService = yield* MsSqlService;
 
   yield* Effect.logInfo('‼️ EXECUTING CHANGES ‼️');
 
   // Perform add and remove operations concurrently for efficiency..
   // Using Effect.all ensures both operations complete successfully or the entire sync fails
   yield* Effect.all([
-    usersToAdd.length > 0 ? msGraphClient.addMembersToGroup(authToken, targetGroupId, usersToAdd) : Effect.void,
-    usersToRemove.length > 0 ? msGraphClient.removeMembersFromGroup(authToken, targetGroupId, usersToRemove) : Effect.void,
+    usersToAdd.length > 0 ? msGraphService.addMembersToGroup(authToken, targetGroupId, usersToAdd) : Effect.void,
+    usersToRemove.length > 0 ? msGraphService.removeMembersFromGroup(authToken, targetGroupId, usersToRemove) : Effect.void,
   ]);
 
   yield* Effect.logInfo('All membership changes applied successfully');
+
+  //
+  // XXX ::: GjB ::: this probably isn't the best spot to put this call, but
+  //                 it is here for now to avoid any major refactoring
+  //
+
+  const allHrAdvisors = yield* msGraphService.getDirectGroupMembers(authToken, targetGroupId);
+  return yield* msSqlService.update(allHrAdvisors);
 });
 
 //
@@ -262,7 +272,9 @@ const program = Effect.gen(function* () {
     targetGroupMembers: targetUsers.length,
     sourceGroupMembers: sourceUsers.length,
     sourceGroups: appConfig.sourceGroupIds.length,
-  }).pipe(Effect.annotateLogs({ sourceGroupIds: appConfig.sourceGroupIds, targetGroupId: appConfig.targetGroupId }));
+  }).pipe(
+    Effect.annotateLogs({ sourceGroupIds: appConfig.sourceGroupIds, targetGroupId: appConfig.targetGroupId }), //
+  );
 
   const { usersToAdd, usersToRemove } = calculateMembershipChanges(sourceUsers, targetUsers);
 
@@ -270,16 +282,11 @@ const program = Effect.gen(function* () {
     usersToAdd: usersToAdd.length,
     usersToRemove: usersToRemove.length,
     totalChanges: usersToAdd.length + usersToRemove.length,
-  }).pipe(Effect.annotateLogs({ sourceGroupIds: appConfig.sourceGroupIds, targetGroupId: appConfig.targetGroupId }));
+  }).pipe(
+    Effect.annotateLogs({ sourceGroupIds: appConfig.sourceGroupIds, targetGroupId: appConfig.targetGroupId }), //
+  );
 
-  //
-  // Early exit if no changes are needed
-  //
-  if (usersToAdd.length === 0 && usersToRemove.length === 0) {
-    return yield* Effect.logInfo('No changes needed -- groups are already synchronized');
-  }
-
-  yield* appConfig.dryRun
+  const results = yield* appConfig.dryRun
     ? executeDryRun(usersToAdd, usersToRemove)
     : executeSync(authToken, appConfig.targetGroupId, usersToAdd, usersToRemove);
 
@@ -292,6 +299,9 @@ const program = Effect.gen(function* () {
       targetGroupMemberCount: targetUsers.length,
       usersAdded: usersToAdd.length,
       usersRemoved: usersToRemove.length,
+      dbHrAdvisorsCreated: results?.hrAdvisorsCreated,
+      dbEmployeesUpdated: results?.updatedEmployees,
+      dbHrAdvisorsUpdated: results?.updatedHrAdvisors,
     },
 
     // Include user details for audit trail (consider removing in production for large groups)
@@ -326,8 +336,8 @@ const main = Effect.gen(function* () {
     Effect.withConcurrency(concurrencyLimit), // Limit concurrent HTTP requests
     Effect.withLogSpan('group-sync-main'), // Add tracing span for the entire operation
     Effect.provide(MsGraphService.Default),
+    Effect.provide(MsSqlService.Default),
     Effect.provide(Logger.pretty),
-    Effect.provide(NodeHttpClient.layer),
   );
 });
 

@@ -1,4 +1,5 @@
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
+import { NodeHttpClient } from '@effect/platform-node';
 import { Chunk, Config, Duration, Effect } from 'effect';
 
 import { MsGraphError } from '~/msgraph/errors';
@@ -13,17 +14,17 @@ const MsGraphConfigLive = Config.all({
   /**
    * The Azure AD tenant ID for authentication.
    */
-  tenantId: Config.string('TENANT_ID'),
+  tenantId: Config.string('MSGRAPH_TENANT_ID'),
 
   /**
    * The client ID of the Azure AD app registration.
    */
-  clientId: Config.string('CLIENT_ID'),
+  clientId: Config.string('MSGRAPH_CLIENT_ID'),
 
   /**
    * The client secret of the Azure AD app registration.
    */
-  clientSecret: Config.string('CLIENT_SECRET'),
+  clientSecret: Config.string('MSGRAPH_CLIENT_SECRET'),
 
   /**
    * Max number of users per batch request. Enforced by Microsoft.
@@ -31,17 +32,16 @@ const MsGraphConfigLive = Config.all({
    * @see https://learn.microsoft.com/en-us/graph/json-batching
    * @see https://learn.microsoft.com/en-us/graph/api/group-post-members
    */
-  maxRequestsPerBatch: Config.integer('MAX_REQUESTS_PER_BATCH') //
-    .pipe(Config.withDefault(20)),
+  maxRequestsPerBatch: Config.withDefault(Config.integer('MSGRAPH_MAX_REQUESTS_PER_BATCH'), 20),
 
   /**
    * Standard timeout for API requests.
    */
-  requestTimeout: Config.duration('REQUEST_TIMEOUT') //
-    .pipe(Config.withDefault(Duration.seconds(10))),
+  requestTimeout: Config.withDefault(Config.duration('MSGRAPH_REQUEST_TIMEOUT'), Duration.seconds(10)),
 });
 
 export class MsGraphService extends Effect.Service<MsGraphService>()('@support/MsGraphService', {
+  dependencies: [NodeHttpClient.layer],
   effect: Effect.gen(function* () {
     const config = yield* MsGraphConfigLive;
     const httpClient = yield* HttpClient.HttpClient;
