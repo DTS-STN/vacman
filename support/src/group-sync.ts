@@ -1,23 +1,8 @@
 import { NodeHttpClient, NodeRuntime } from '@effect/platform-node';
 import { Config, Effect, Logger, LogLevel } from 'effect';
 
-import * as MSGraphClient from '~/msgraph/client';
-import type { MSGraphUser } from '~/msgraph/schemas';
-
-//
-// ─────────────────────────────────────────────────────────────
-// Constants
-// ─────────────────────────────────────────────────────────────
-//
-/**
- * Microsoft Graph API scope for application-level access
- */
-const MS_GRAPH_SCOPE = 'https://graph.microsoft.com/.default';
-
-/**
- * Concurrency limit for HTTP requests to avoid overwhelming the API
- */
-const HTTP_CONCURRENCY_LIMIT = 5;
+import { MsGraphService } from '~/msgraph/client';
+import type { MsGraphUser } from '~/msgraph/schemas';
 
 //
 // ─────────────────────────────────────────────────────────────
@@ -25,25 +10,31 @@ const HTTP_CONCURRENCY_LIMIT = 5;
 // ─────────────────────────────────────────────────────────────
 //
 
-/**
- * Application configuration schema using Effect Config.
- *
- * This defines all required environment variables and their types:
- *   - DRY_RUN: Whether to simulate changes without executing them (defaults to true for safety)
- *   - SOURCE_GROUP_IDS: Comma-separated list of source group IDs to sync from
- *   - TARGET_GROUP_ID: Single target group ID to sync to
- *   - TENANT_ID, CLIENT_ID, CLIENT_SECRET: Azure AD app registration credentials
- */
 const AppConfig = Config.all({
+  /**
+   * Whether to simulate changes without executing them (defaults to true for safety)
+   */
   dryRun: Config.withDefault(Config.boolean('DRY_RUN'), true),
+
+  /**
+   * Log level for application logging (e.g., 'info', 'debug', 'error')
+   */
   logLevel: Config.withDefault(Config.string('LOG_LEVEL'), 'info'),
 
+  /**
+   * Comma-separated list of source group IDs to sync from
+   */
   sourceGroupIds: Config.array(Config.string('SOURCE_GROUP_IDS')),
+
+  /**
+   * Single target group ID to sync to
+   */
   targetGroupId: Config.string('TARGET_GROUP_ID'),
 
-  tenantId: Config.string('TENANT_ID'),
-  clientId: Config.string('CLIENT_ID'),
-  clientSecret: Config.string('CLIENT_SECRET'),
+  /**
+   * Concurrency limit for HTTP requests to avoid overwhelming the API
+   */
+  concurrencyLimit: Config.withDefault(Config.integer('HTTP_CONCURRENCY_LIMIT'), 5),
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -59,7 +50,7 @@ const AppConfig = Config.all({
  *   - Previewing changes before execution
  *   - Auditing what the sync would do
  */
-const executeDryRun = Effect.fn(function* (usersToAdd: MSGraphUser[], usersToRemove: MSGraphUser[]) {
+const executeDryRun = Effect.fn(function* (usersToAdd: MsGraphUser[], usersToRemove: MsGraphUser[]) {
   yield* Effect.logWarning('DRY RUN ENABLED -- No changes will be made.');
 
   if (usersToAdd.length > 0) {
@@ -94,16 +85,18 @@ const executeDryRun = Effect.fn(function* (usersToAdd: MSGraphUser[], usersToRem
 const executeSync = Effect.fn(function* (
   authToken: string,
   targetGroupId: string,
-  usersToAdd: MSGraphUser[],
-  usersToRemove: MSGraphUser[],
+  usersToAdd: MsGraphUser[],
+  usersToRemove: MsGraphUser[],
 ) {
+  const msGraphClient = yield* MsGraphService;
+
   yield* Effect.logInfo('‼️ EXECUTING CHANGES ‼️');
 
   // Perform add and remove operations concurrently for efficiency..
   // Using Effect.all ensures both operations complete successfully or the entire sync fails
   yield* Effect.all([
-    usersToAdd.length > 0 ? MSGraphClient.addMembersToGroup(authToken, targetGroupId, usersToAdd) : Effect.void,
-    usersToRemove.length > 0 ? MSGraphClient.removeMembersFromGroup(authToken, targetGroupId, usersToRemove) : Effect.void,
+    usersToAdd.length > 0 ? msGraphClient.addMembersToGroup(authToken, targetGroupId, usersToAdd) : Effect.void,
+    usersToRemove.length > 0 ? msGraphClient.removeMembersFromGroup(authToken, targetGroupId, usersToRemove) : Effect.void,
   ]);
 
   yield* Effect.logInfo('All membership changes applied successfully');
@@ -159,12 +152,12 @@ const parseLogLevel = (level: string): LogLevel.LogLevel => {
 //
 
 /**
- * Deduplicates an array of MSGraphUser objects by user ID.
+ * Deduplicates an array of MsGraphUser objects by user ID.
  *
  * @param users The array of users to deduplicate.
  * @returns A new array with duplicate users removed.
  */
-const dedupeUsers = (users: MSGraphUser[]) => {
+const dedupeUsers = (users: MsGraphUser[]) => {
   const userMap = new Map(users.map((user) => [user.id, user]));
   return Array.from(userMap.values());
 };
@@ -180,11 +173,14 @@ const dedupeUsers = (users: MSGraphUser[]) => {
  * We use transitive membership to capture users in nested groups, which is
  * often desired in organizational hierarchies.
  */
-const collectAndDedupeSourceUsers = (authToken: string, sourceGroupIds: string[]) =>
-  Effect.forEach(sourceGroupIds, (groupId) => MSGraphClient.getTransitiveGroupMembers(authToken, groupId)).pipe(
+const collectAndDedupeSourceUsers = Effect.fn(function* (authToken: string, sourceGroupIds: string[]) {
+  const msGraphClient = yield* MsGraphService;
+
+  return yield* Effect.forEach(sourceGroupIds, (groupId) => msGraphClient.getTransitiveGroupMembers(authToken, groupId)).pipe(
     Effect.map((userArrays) => userArrays.flat()),
     Effect.map(dedupeUsers),
   );
+});
 
 /**
  * Determines which users need to be added to and removed from the target group.
@@ -194,7 +190,7 @@ const collectAndDedupeSourceUsers = (authToken: string, sourceGroupIds: string[]
  *   - Users in target group but not in any source group → REMOVE
  *   - Users in both → NO CHANGE (already synchronized)
  */
-const calculateMembershipChanges = (sourceUsers: MSGraphUser[], targetUsers: MSGraphUser[]) => {
+const calculateMembershipChanges = (sourceUsers: MsGraphUser[], targetUsers: MsGraphUser[]) => {
   const sourceUserIds = new Set(sourceUsers.map((user) => user.id));
   const targetUserIds = new Set(targetUsers.map((user) => user.id));
 
@@ -221,14 +217,14 @@ const getGroupMembers = Effect.fn(function* (
   targetGroupId: string,
   sourceGroupIds: string[],
 ) {
-  const [targetUsers, sourceUsers] = yield* Effect.all([
-    MSGraphClient.getDirectGroupMembers(authToken, targetGroupId),
-    collectAndDedupeSourceUsers(authToken, sourceGroupIds),
-  ]);
+  const msGraphClient = yield* MsGraphService;
+
+  const sourceUsers = yield* collectAndDedupeSourceUsers(authToken, sourceGroupIds);
+  const targetUsers = yield* msGraphClient.getDirectGroupMembers(authToken, targetGroupId);
 
   return {
-    targetUsers,
     sourceUsers,
+    targetUsers,
   };
 });
 
@@ -246,6 +242,7 @@ const getGroupMembers = Effect.fn(function* (
  */
 const program = Effect.gen(function* () {
   const appConfig = yield* AppConfig;
+  const msGraphClient = yield* MsGraphService;
 
   yield* Effect.logInfo('Starting group synchronization', {
     dryRun: appConfig.dryRun,
@@ -255,12 +252,7 @@ const program = Effect.gen(function* () {
 
   yield* Effect.logInfo('Authenticating with Microsoft Graph API...');
 
-  const authToken = yield* MSGraphClient.authenticate(
-    appConfig.tenantId,
-    appConfig.clientId,
-    appConfig.clientSecret,
-    MS_GRAPH_SCOPE,
-  );
+  const authToken = yield* msGraphClient.authenticate();
 
   yield* Effect.logInfo('Fetching group memberships...');
 
@@ -327,12 +319,13 @@ const program = Effect.gen(function* () {
  *   - HTTP client layer for making API requests
  */
 const main = Effect.gen(function* () {
-  const { logLevel } = yield* AppConfig;
+  const { concurrencyLimit, logLevel } = yield* AppConfig;
 
   return yield* program.pipe(
     Logger.withMinimumLogLevel(parseLogLevel(logLevel)),
-    Effect.withConcurrency(HTTP_CONCURRENCY_LIMIT), // Limit concurrent HTTP requests
+    Effect.withConcurrency(concurrencyLimit), // Limit concurrent HTTP requests
     Effect.withLogSpan('group-sync-main'), // Add tracing span for the entire operation
+    Effect.provide(MsGraphService.Default),
     Effect.provide(Logger.pretty),
     Effect.provide(NodeHttpClient.layer),
   );

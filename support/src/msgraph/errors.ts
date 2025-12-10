@@ -5,7 +5,7 @@ import { Data } from 'effect';
  * class extends `Data.TaggedError` to provide a structured way to represent
  * errors, capturing the original error and an optional descriptive message.
  */
-export class MSGraphError extends Data.TaggedError('@support/MSGraphError')<{
+export class MsGraphError extends Data.TaggedError('@support/MsGraphError')<{
   readonly error: unknown;
   readonly message?: string;
 }> {}

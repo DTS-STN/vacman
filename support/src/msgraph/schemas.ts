@@ -5,7 +5,7 @@ import { Schema } from 'effect';
  * the structured error object containing a code and message, as documented by
  * Microsoft Graph.
  */
-export const MSGraphErrorResponse = Schema.Struct({
+export const MsGraphErrorResponse = Schema.Struct({
   error: Schema.Struct({
     code: Schema.String,
     message: Schema.String,
@@ -28,7 +28,7 @@ export const BatchSuccessResponse = Schema.Struct({
 export const BatchErrorResponse = Schema.Struct({
   id: Schema.String,
   status: Schema.Int,
-  body: MSGraphErrorResponse,
+  body: MsGraphErrorResponse,
 });
 
 export const BatchResponse = Schema.Struct({
@@ -40,14 +40,14 @@ export const BatchResponse = Schema.Struct({
  * including essential fields like `id`, `displayName`, and the `@odata.type`
  * discriminator.
  */
-export const MSGraphUser = Schema.Struct({
+export const MsGraphUser = Schema.Struct({
   '@odata.type': Schema.String,
   'id': Schema.String,
   'displayName': Schema.String,
 });
 
 /**
- * A generic schema for parsing MSGraph responses that contain paginated data.
+ * A generic schema for parsing MS Graph responses that contain paginated data.
  *
  * @param schema The `Schema.Schema` to apply to each element in the `value` array.
  * @returns A `Schema.Struct` that can parse the standard collection response.
@@ -62,4 +62,4 @@ export const PagedResponse = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
 // Exported types
 //
 
-export type MSGraphUser = Schema.Schema.Type<typeof MSGraphUser>;
+export type MsGraphUser = Schema.Schema.Type<typeof MsGraphUser>;
