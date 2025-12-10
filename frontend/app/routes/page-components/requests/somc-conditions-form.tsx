@@ -20,6 +20,17 @@ export type SomcConditions = {
   frenchStatementOfMerit: string;
 };
 
+// Convert line breaks to <br> tags for display
+function formatTextWithLineBreaks(text: string | undefined) {
+  if (!text) return null;
+  return text.split(/\r\n|\r|\n/).map((line, index, array) => (
+    <span key={`${index}-${line.substring(0, 10)}`}>
+      {line}
+      {index < array.length - 1 && <br />}
+    </span>
+  ));
+}
+
 interface PositionInformationFormProps {
   cancelLink: I18nRouteFile;
   formValues: Partial<SomcConditions> | undefined;
@@ -88,13 +99,13 @@ export function SomcConditionsForm({
             <CardHeader>
               <CardTitle>{t('somc-conditions.english-somc-label')}</CardTitle>
             </CardHeader>
-            <CardContent>{formValues?.englishStatementOfMerit}</CardContent>
+            <CardContent>{formatTextWithLineBreaks(formValues?.englishStatementOfMerit)}</CardContent>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle>{t('somc-conditions.french-somc-label')}</CardTitle>
             </CardHeader>
-            <CardContent>{formValues?.frenchStatementOfMerit}</CardContent>
+            <CardContent>{formatTextWithLineBreaks(formValues?.frenchStatementOfMerit)}</CardContent>
           </Card>
         </div>
       )}
