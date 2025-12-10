@@ -428,7 +428,8 @@ export default {
     'request-saved': "Demande d'autorisation en matière de priorité enregistrée avec succès.",
     'previous-status': {
       'label': "Retour à l'état précédent",
-      'success-msg': 'La demande est revenue à un état précédent.',
+      'success-msg':
+        'Statut rétabli avec succès. La demande a été replacée au statut précédent. Toutes les données du statut annulé ont été effacées.',
     },
   },
   'hr-advisor-referral-requests': {
@@ -468,6 +469,12 @@ export default {
       content:
         'Cette demande est actuellement assignée à {{current-hr-advisor-name}}. Êtes-vous certain-e de vouloir vous la réassigner?',
       reassign: 'Réassigner à moi',
+    },
+    'revert-to-previous-status': {
+      title: 'Revenir au statut précédent',
+      content:
+        'Si vous revenez en arrière, toutes les modifications effectuées dans le statut courant seront perdues. Cette action est irréversible et vos données ne seront pas enregistrées. Voulez-vous continuer?',
+      revert: 'Oui, revenir en arrière',
     },
     'status': {
       'request-pending-approval': "Demande en attente d'approbation",
@@ -676,8 +683,8 @@ export default {
     'feedback': 'Rétroaction',
     'comments': 'Commentaires',
     'approval': 'Approbation',
-    'approved-successfully-msg': 'Candidature de {{name}} approuvée avec succès.',
-    'revert-approval-successfully-msg': 'Approbation de la candidature de {{name}} annulée avec succès.',
+    'approved-successfully-msg': 'La rétroaction pour {{name}} a été approuvée avec succès.',
+    'revert-approval-successfully-msg': 'La rétroaction pour {{name}} a été réinitialisée avec succès.',
     'comment-label': {
       'add': 'Ajouter un commentaire',
       'view-add': 'Voir/ajouter un commentaire',
