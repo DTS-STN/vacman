@@ -44,8 +44,8 @@ export const MsGraphUser = Schema.Struct({
   '@odata.type': Schema.String,
   'id': Schema.String,
   'displayName': Schema.String,
-  'givenName': Schema.String,
-  'surname': Schema.String,
+  'givenName': Schema.optional(Schema.String),
+  'surname': Schema.optional(Schema.String),
   'mail': Schema.String,
 });
 
