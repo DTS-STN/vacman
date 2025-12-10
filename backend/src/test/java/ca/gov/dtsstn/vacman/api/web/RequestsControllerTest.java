@@ -1925,7 +1925,7 @@ class RequestsControllerTest {
 
 			// Verify status changed in database and VMS number is removed
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
-			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().feedbackPendingApproval());
+			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().noMatchHrReview());
 			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
 		}
 
