@@ -296,6 +296,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
     feedbackProgress: getFeedbackProgress(requestMatches),
+    feedbackPending: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PENDING,
     feedbackReadonly: requestData.status?.code !== REQUEST_STATUS_CODE.FDBK_PENDING,
     search: searchParams.toString(),
     page,
@@ -405,13 +406,15 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
       )}
 
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
-      <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hiring-manager')}</p>
+      {loaderData.feedbackPending && <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hiring-manager')}</p>}
 
-      {loaderData.feedbackSubmitted ? (
+      {loaderData.feedbackSubmitted && (
         <AlertMessage ref={alertRef} type="success" role="alert" ariaLive="assertive">
           <p className="font-semibold">{t('app:matches.feedback.success')}</p>
         </AlertMessage>
-      ) : (
+      )}
+
+      {loaderData.feedbackPending && (
         <fetcher.Form method="post" noValidate>
           <div className="mt-10 justify-between space-y-5 md:flex md:space-y-0">
             <div className="md:w-1/2">
@@ -448,7 +451,7 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
           </div>
         </fetcher.Form>
       )}
-      {!loaderData.feedbackSubmitted && (
+      {loaderData.feedbackPending && (
         <Progress
           className="mt-8 mb-8"
           variant="blue"
