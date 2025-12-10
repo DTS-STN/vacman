@@ -423,7 +423,8 @@ export default {
     'request-saved': 'Priority clearance request saved successfully.',
     'previous-status': {
       'label': 'Return to previous status',
-      'success-msg': 'Request returned to a previous status.',
+      'success-msg':
+        'Status reverted successfully. The request has been moved back to the previous status. All data from the reverted status has been cleared.',
     },
   },
   'hr-advisor-referral-requests': {
@@ -463,6 +464,12 @@ export default {
       content:
         'This request is currently assigned to {{current-hr-advisor-name}}. Are you sure you want to re-assign it to yourself?',
       reassign: 'Re-assign to me',
+    },
+    'revert-to-previous-status': {
+      title: 'Revert to previous status',
+      content:
+        'If you revert, all changes made in this status will be discarded. This action cannot be undone, and your data will not be saved. Do you want to continue?',
+      revert: 'Yes, revert',
     },
     'status': {
       'request-pending-approval': 'Request pending approval',
@@ -666,8 +673,8 @@ export default {
     'feedback': 'Feedback',
     'comments': 'Comments',
     'approval': 'Approval',
-    'approved-successfully-msg': 'Request candidate {{name}} approved successfully.',
-    'revert-approval-successfully-msg': 'Request candidate {{name}} approval reverted successfully.',
+    'approved-successfully-msg': 'Feedback for {{name}} has been approved successfully.',
+    'revert-approval-successfully-msg': 'Feedback for {{name}} has been reverted successfully.',
     'comment-label': {
       'add': 'Add Comment',
       'view-add': 'View/add Comment',

@@ -342,6 +342,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
   const isReassigning = fetcherState.submitting && fetcherState.action === 're-assign-request';
+  const isReturningToPreviousStatus = fetcherState.submitting && fetcherState.action === 'return-to-previous';
 
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -350,6 +351,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const alertRef = useRef<HTMLDivElement>(null);
   const cancelRequestButtonRef = useRef<HTMLButtonElement>(null);
   const reAssignButtonRef = useRef<HTMLButtonElement>(null);
+  const revertToPreviousStatusButtonRef = useRef<HTMLButtonElement>(null);
 
   const successMessage = useSaveSuccessMessage({
     searchParams,
@@ -366,12 +368,19 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
   const [showCancelRequestDialog, setShowCancelRequestDialog] = useState(false);
   const [showReAssignDialog, setShowReAssignDialog] = useState(false);
+  const [showRevertToPreviousStatusDialog, setShowRevertToPreviousStatusDialog] = useState(false);
 
   useEffect(() => {
     if (isReassigning && showReAssignDialog) {
       setShowReAssignDialog(false);
     }
   }, [isReassigning, showReAssignDialog]);
+
+  useEffect(() => {
+    if (isReturningToPreviousStatus && showRevertToPreviousStatusDialog) {
+      setShowRevertToPreviousStatusDialog(false);
+    }
+  }, [isReturningToPreviousStatus, showRevertToPreviousStatusDialog]);
 
   const alertConfig: Record<string, { type: 'success' | 'info'; message: string }> = {
     [REQUEST_STATUS_CODE.PSC_GRANTED]: {
@@ -580,8 +589,10 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   isSubmitting={isSubmitting}
                   onCancelRequestClick={() => setShowCancelRequestDialog(true)}
                   onReAssignClick={() => setShowReAssignDialog(true)}
+                  onRevertToPreviousStatusClick={() => setShowRevertToPreviousStatusDialog(true)}
                   cancelRequestButtonRef={cancelRequestButtonRef}
                   reAssignButtonRef={reAssignButtonRef}
+                  revertToPreviousStatusButtonRef={revertToPreviousStatusButtonRef}
                 />
               </fetcher.Form>
             </ActionDataErrorSummary>
@@ -646,6 +657,41 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog
+        open={showRevertToPreviousStatusDialog}
+        onOpenChange={setShowRevertToPreviousStatusDialog}
+        triggerRef={revertToPreviousStatusButtonRef}
+      >
+        <DialogContent aria-describedby="revert-to-previous-status-dialog-description" role="alertdialog">
+          <DialogHeader>
+            <DialogTitle id="revert-to-previous-status-dialog-title">
+              {t('app:hr-advisor-referral-requests.revert-to-previous-status.title')}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription id="revert-to-previous-status-dialog-description">
+            {t('app:hr-advisor-referral-requests.revert-to-previous-status.content')}
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
+                {t('app:form.cancel')}
+              </Button>
+            </DialogClose>
+            <fetcher.Form method="post" noValidate>
+              <Button
+                id="return-to-previous"
+                variant="primary"
+                name="action"
+                value="return-to-previous"
+                onClick={() => setShowRevertToPreviousStatusDialog(false)}
+                disabled={isSubmitting}
+              >
+                {t('app:hr-advisor-referral-requests.revert-to-previous-status.revert')}
+              </Button>
+            </fetcher.Form>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -657,8 +703,10 @@ interface RenderButtonsByStatusProps {
   isSubmitting: boolean;
   onCancelRequestClick: () => void;
   onReAssignClick: () => void;
+  onRevertToPreviousStatusClick: () => void;
   cancelRequestButtonRef?: React.RefObject<HTMLButtonElement | null>;
   reAssignButtonRef?: React.RefObject<HTMLButtonElement | null>;
+  revertToPreviousStatusButtonRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 function RenderButtonsByStatus({
@@ -668,8 +716,10 @@ function RenderButtonsByStatus({
   isSubmitting,
   onCancelRequestClick,
   onReAssignClick,
+  onRevertToPreviousStatusClick,
   cancelRequestButtonRef,
   reAssignButtonRef,
+  revertToPreviousStatusButtonRef,
 }: RenderButtonsByStatusProps): JSX.Element {
   const { t } = useTranslation('app');
 
@@ -684,21 +734,21 @@ function RenderButtonsByStatus({
           className="w-full"
           variant="alternative"
           id="cancel-request"
+          disabled={isSubmitting}
           onClick={onCancelRequestClick}
         >
           {t('form.cancel-request')}
         </Button>
-        <LoadingButton
+        <Button
+          ref={revertToPreviousStatusButtonRef}
           className="mb-8 w-full"
-          name="action"
           variant="alternative"
-          id="return-to-previous"
+          id="return-to-previous-status"
           disabled={isSubmitting}
-          loading={isSubmitting}
-          value="return-to-previous"
+          onClick={onRevertToPreviousStatusClick}
         >
           {t('referral-requests.previous-status.label')}
-        </LoadingButton>
+        </Button>
         <InputField
           className="w-full"
           id="psc-clearance-number"
@@ -801,17 +851,16 @@ function RenderButtonsByStatus({
           <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
-          <LoadingButton
+          <Button
+            ref={revertToPreviousStatusButtonRef}
             className="w-full"
-            name="action"
             variant="alternative"
-            id="return-to-previous"
+            id="return-to-previous-status"
             disabled={isSubmitting}
-            loading={isSubmitting}
-            value="return-to-previous"
+            onClick={onRevertToPreviousStatusClick}
           >
             {t('referral-requests.previous-status.label')}
-          </LoadingButton>
+          </Button>
           <Button value="save" name="action" className="w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
           </Button>
@@ -831,17 +880,16 @@ function RenderButtonsByStatus({
           >
             {t('form.cancel-request')}
           </Button>
-          <LoadingButton
+          <Button
+            ref={revertToPreviousStatusButtonRef}
             className="w-full"
-            name="action"
             variant="alternative"
-            id="return-to-previous"
+            id="return-to-previous-status"
             disabled={isSubmitting}
-            loading={isSubmitting}
-            value="return-to-previous"
+            onClick={onRevertToPreviousStatusClick}
           >
             {t('referral-requests.previous-status.label')}
-          </LoadingButton>
+          </Button>
           <Button value="save" name="action" className="w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
           </Button>
@@ -875,17 +923,16 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.CLR_GRANTED:
       return (
         <div className="flex flex-col space-y-4">
-          <LoadingButton
+          <Button
+            ref={revertToPreviousStatusButtonRef}
             className="w-full"
-            name="action"
             variant="alternative"
-            id="return-to-previous"
+            id="return-to-previous-status"
             disabled={isSubmitting}
-            loading={isSubmitting}
-            value="return-to-previous"
+            onClick={onRevertToPreviousStatusClick}
           >
             {t('referral-requests.previous-status.label')}
-          </LoadingButton>
+          </Button>
         </div>
       );
     default:
