@@ -30,6 +30,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -39,7 +41,11 @@ import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
@@ -111,6 +117,18 @@ class RequestsControllerTest {
 
 	@Autowired
 	EmploymentEquityRepository employmentEquityRepository;
+
+	@Autowired
+	MatchRepository matchRepository;
+
+	@Autowired
+	MatchStatusRepository matchStatusRepository;
+
+	@Autowired
+	ProfileRepository profileRepository;
+
+	@Autowired
+	ProfileStatusRepository profileStatusRepository;
 
 	@Autowired
 	LookupCodes lookupCodes;
@@ -2037,6 +2055,203 @@ class RequestsControllerTest {
 
 			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
 				.andExpect(status().isConflict());
+		}
+
+	}
+
+	/**
+	 * Tests to verify transactional behavior of the undoRequestStatus method.
+	 * These tests ensure that the @Transactional annotation properly commits
+	 * delete operations and prevents match duplication when undoing and re-running matches.
+	 */
+	@Nested
+	@DisplayName("Transactional behavior tests for undoRequestStatus")
+	class UndoRequestStatusTransactionalTests {
+
+		@Test
+		@DisplayName("Should delete all matches when undoing from FDBK_PENDING to HR_REVIEW")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoFeedbackPendingDeletesMatches() throws Exception {
+			// Given: A request in FDBK_PENDING status with matches
+			final var feedbackPendingStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().feedbackPending()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Test Request")
+				.nameFr("Demande de test")
+				.requestNumber("TRANS-001")
+				.requestStatus(feedbackPendingStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			// Create a test user for the profile
+			final var employee = userRepository.save(UserEntity.builder()
+				.firstName("Test").lastName("Employee")
+				.businessEmailAddress("test.employee@example.com")
+				.microsoftEntraId("dddddddd-dddd-dddd-dddd-dddddddddddd")
+				.userType(userTypeRepository.findByCode(lookupCodes.userTypes().employee()).orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// Create a test profile
+			final var profile = profileRepository.save(ProfileEntity.builder()
+				.user(employee)
+				.profileStatus(profileStatusRepository.findByCode(lookupCodes.profileStatuses().approved()).orElseThrow())
+				.isAvailableForReferral(true)
+				.build());
+
+			// Create matches for the request
+			matchRepository.save(MatchEntity.builder()
+				.request(request)
+				.profile(profile)
+				.matchStatus(matchStatusRepository.findByCode(lookupCodes.matchStatuses().pendingApproval()).orElseThrow())
+				.build());
+
+			matchRepository.save(MatchEntity.builder()
+				.request(request)
+				.profile(profile)
+				.matchStatus(matchStatusRepository.findByCode(lookupCodes.matchStatuses().pendingApproval()).orElseThrow())
+				.build());
+
+			// Verify matches exist before undo
+			final var matchesBeforeUndo = matchRepository.findAll().stream()
+				.filter(m -> m.getRequest().getId().equals(request.getId()))
+				.toList();
+			assertThat(matchesBeforeUndo).hasSize(2);
+
+			// When: Undo the status change
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().hrReview())));
+
+			// Then: Verify all matches are deleted (transactional behavior)
+			final var matchesAfterUndo = matchRepository.findAll().stream()
+				.filter(m -> m.getRequest().getId().equals(request.getId()))
+				.toList();
+			assertThat(matchesAfterUndo).isEmpty();
+		}
+
+		@Test
+		@DisplayName("Should persist match status updates when undoing from CLR_GRANTED")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoClearanceGrantedPersistsMatchStatusUpdates() throws Exception {
+			// Given: A request in CLR_GRANTED status with approved matches
+			final var clearanceGrantedStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().clearanceGranted()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Test Request")
+				.nameFr("Demande de test")
+				.requestNumber("TRANS-002")
+				.requestStatus(clearanceGrantedStatus)
+				.priorityClearanceNumber("VMS123456")
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			// Create a test user for the profile
+			final var employee = userRepository.save(UserEntity.builder()
+				.firstName("Test").lastName("Employee2")
+				.businessEmailAddress("test.employee2@example.com")
+				.microsoftEntraId("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee")
+				.userType(userTypeRepository.findByCode(lookupCodes.userTypes().employee()).orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// Create a test profile
+			final var profile = profileRepository.save(ProfileEntity.builder()
+				.user(employee)
+				.profileStatus(profileStatusRepository.findByCode(lookupCodes.profileStatuses().approved()).orElseThrow())
+				.isAvailableForReferral(true)
+				.build());
+
+			// Create matches with APPROVED status
+			matchRepository.save(MatchEntity.builder()
+				.request(request)
+				.profile(profile)
+				.matchStatus(matchStatusRepository.findByCode(lookupCodes.matchStatuses().approved()).orElseThrow())
+				.build());
+
+			// When: Undo the status change
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().feedbackPendingApproval())));
+
+			// Then: Verify match status changed to PENDING_APPROVAL (transactional behavior)
+			final var updatedMatches = matchRepository.findAll().stream()
+				.filter(m -> m.getRequest().getId().equals(request.getId()))
+				.toList();
+			assertThat(updatedMatches).isNotEmpty();
+			assertThat(updatedMatches)
+				.allMatch(m -> lookupCodes.matchStatuses().pendingApproval().equals(m.getMatchStatus().getCode()));
+
+			// And: Verify VMS number is removed
+			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
+			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
+		}
+
+		@Test
+		@DisplayName("Should persist match status updates when undoing from PENDING_PSC")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUndoPendingPscPersistsMatchStatusUpdates() throws Exception {
+			// Given: A request in PENDING_PSC status with approved matches
+			final var pendingPscStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().pendingPscClearance()).orElseThrow();
+
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Test Request")
+				.nameFr("Demande de test")
+				.requestNumber("TRANS-003")
+				.requestStatus(pendingPscStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			// Create a test user for the profile
+			final var employee = userRepository.save(UserEntity.builder()
+				.firstName("Test").lastName("Employee3")
+				.businessEmailAddress("test.employee3@example.com")
+				.microsoftEntraId("ffffffff-ffff-ffff-ffff-ffffffffffff")
+				.userType(userTypeRepository.findByCode(lookupCodes.userTypes().employee()).orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// Create a test profile
+			final var profile = profileRepository.save(ProfileEntity.builder()
+				.user(employee)
+				.profileStatus(profileStatusRepository.findByCode(lookupCodes.profileStatuses().approved()).orElseThrow())
+				.isAvailableForReferral(true)
+				.build());
+
+			// Create matches with APPROVED status
+			matchRepository.save(MatchEntity.builder()
+				.request(request)
+				.profile(profile)
+				.matchStatus(matchStatusRepository.findByCode(lookupCodes.matchStatuses().approved()).orElseThrow())
+				.build());
+
+			// When: Undo the status change
+			mockMvc.perform(post("/api/v1/requests/{id}/status-undo", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status.code", is(lookupCodes.requestStatuses().feedbackPendingApproval())));
+
+			// Then: Verify match status changed to PENDING_APPROVAL (transactional behavior)
+			final var updatedMatches = matchRepository.findAll().stream()
+				.filter(m -> m.getRequest().getId().equals(request.getId()))
+				.toList();
+			assertThat(updatedMatches).isNotEmpty();
+			assertThat(updatedMatches)
+				.allMatch(m -> lookupCodes.matchStatuses().pendingApproval().equals(m.getMatchStatus().getCode()));
 		}
 
 	}

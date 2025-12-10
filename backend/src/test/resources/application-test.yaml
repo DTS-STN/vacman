@@ -6,6 +6,21 @@
 spring:
   liquibase:
     contexts: dev
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Disable JWT validation for tests
+          issuer-uri: ""
+      client:
+        registration:
+          ms-graph:
+            client-id: test-client-id
+            client-secret: test-client-secret
+        provider:
+          esdc-edsc:
+            # Disable issuer URI validation for tests
+            issuer-uri: ""
 
 application:
   gcnotify:
