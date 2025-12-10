@@ -76,6 +76,7 @@ export default {
     'approve': 'Approve',
     'cancel': 'Cancel',
     'cancel-request': 'Cancel Request',
+    'expired': 'Expired',
     'save': 'Save',
     'save-and-exit': 'Save and Exit',
     'submit': 'Submit',
@@ -144,6 +145,9 @@ export default {
     'hr-advisor': 'HR advisor identified on your WFA/CT letter',
     'errors': {
       'substantive-group-and-level-required': 'Group and level of your substantive position is required.',
+      'substantive-group-and-level-invalid': 'Selected group and level of your substantive position is invalid.',
+      'substantive-group-and-level-expired':
+        'The selected group and level of your substantive position has expired. Please select a valid option.',
       'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',
       'directorate-required': 'Directorate is required.',
       'provinces-required': 'Province of the designated work location is required.',
@@ -513,6 +517,8 @@ export default {
       'position-number-max-length': 'Each position number must be 8 digits.',
       'position-number-duplicate': 'Position number cannot have duplicates.',
       'group-and-level-required': 'Group and level is required.',
+      'group-and-level-invalid': 'Selected group and level is invalid.',
+      'group-and-level-expired': 'The selected group and level has expired. Please select a valid option.',
       'title-en-required': 'Title in English is required.',
       'title-en-max-length': 'Title in English cannot exceed 200 characters.',
       'title-fr-required': 'Title in French is required.',

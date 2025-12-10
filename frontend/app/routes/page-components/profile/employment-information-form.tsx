@@ -27,6 +27,7 @@ import { WFA_STATUS } from '~/domain/constants';
 import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/profile/validation.server';
+import { buildExpiredAwareSelectOptions } from '~/utils/lookup-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 interface EmploymentProps {
@@ -74,10 +75,13 @@ export function EmploymentInformationForm({
   );
   const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus?.id)?.code);
 
-  const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...substantivePositions].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : name,
-  }));
+  // Build substantivePositionOptions with expired classification handling
+  const substantivePositionOptions = buildExpiredAwareSelectOptions({
+    activeItems: substantivePositions,
+    selectedItem: formValues?.substantiveClassification,
+    language: currentLanguage ?? 'en',
+    selectOptionLabel: t('form.select-option'),
+  });
 
   const branchOrServiceCanadaRegionOptions = [{ id: 'select-option', name: '' }, ...branchOrServiceCanadaRegions].map(
     ({ id, name }) => ({

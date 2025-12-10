@@ -15,12 +15,14 @@ exports[`InputSelect - Snapshot Only > should render correctly when label is emp
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -55,12 +57,14 @@ exports[`InputSelect - Snapshot Only > should render correctly when label is emp
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -101,12 +105,14 @@ exports[`InputSelect - Snapshot Only > should render input select component as r
       required=""
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -147,12 +153,14 @@ exports[`InputSelect - Snapshot Only > should render input select component as r
       required=""
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -203,12 +211,14 @@ exports[`InputSelect - Snapshot Only > should render input select component with
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -259,12 +269,14 @@ exports[`InputSelect - Snapshot Only > should render input select component with
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -301,12 +313,14 @@ exports[`InputSelect - Snapshot Only > should render input select component with
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -350,12 +364,14 @@ exports[`InputSelect - Snapshot Only > should render input select component with
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -413,12 +429,14 @@ exports[`InputSelect - Snapshot Only > should render input select with both help
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -476,12 +494,14 @@ exports[`InputSelect - Snapshot Only > should render input select with both help
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -524,12 +544,14 @@ exports[`InputSelect - Snapshot Only > should render the select component within
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option
@@ -565,12 +587,14 @@ exports[`InputSelect - Snapshot Only > should render the select component within
       name="test"
     >
       <option
+        class=""
         selected=""
         value="first"
       >
         First option
       </option>
       <option
+        class=""
         value="second"
       >
         Second option

@@ -36,7 +36,7 @@ import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
-import { isLookupExpired } from '~/utils/lookup-utils';
+import { buildExpiredAwareSelectOptions, isLookupExpired } from '~/utils/lookup-utils';
 import { extractValidationKey, normalizeErrors } from '~/utils/validation-utils';
 
 interface PositionInformationFormProps {
@@ -89,10 +89,13 @@ export function PositionInformationForm({
     setLanguageRequirementCode(selectedStatus);
   };
 
-  const groupAndLevelOptions = [{ id: 'select-option', name: '' }, ...classifications].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? tApp('form.select-option') : name,
-  }));
+  // Build groupAndLevelOptions with expired classification handling
+  const groupAndLevelOptions = buildExpiredAwareSelectOptions({
+    activeItems: classifications,
+    selectedItem: formValues?.classification,
+    language: currentLanguage ?? 'en',
+    selectOptionLabel: tApp('form.select-option'),
+  });
 
   const languageLevelOptions = [{ id: 'select-option', value: '' }, ...LANGUAGE_LEVEL].map(({ id, value }) => ({
     value: id === 'select-option' ? '' : value,
