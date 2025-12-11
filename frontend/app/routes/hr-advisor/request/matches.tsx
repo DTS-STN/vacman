@@ -333,6 +333,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       email: requestData.hrAdvisor?.businessEmailAddress,
     },
     feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
+    feedbackPending: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PENDING,
     approvalProgress: getApprovalProgress(requestMatches),
     search: searchParams.toString(),
     page,
@@ -406,11 +407,12 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       <div className="mb-10 justify-between space-y-5 sm:flex sm:space-y-0">
         <div className="col-span-4 flex flex-col justify-end space-y-2">
           <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
+          {/* feedbackSubmitted and feedbackPending are mutually exclusive */}
           {loaderData.feedbackSubmitted ? (
             <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info.hr-advisor')}</p>
-          ) : (
+          ) : loaderData.feedbackPending ? (
             <p className="sm:w-2/3 md:w-3/4">{t('app:matches.matches-available-hr-advisor-detail')}</p>
-          )}
+          ) : null}
         </div>
         <div className="flex flex-col justify-end">
           <ButtonLink
@@ -433,7 +435,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
         </AlertMessage>
       )}
 
-      {loaderData.approvalProgress >= 100 && (
+      {loaderData.feedbackSubmitted && loaderData.approvalProgress >= 100 && (
         <AlertMessage ref={alertRef} type="info" role="alert" ariaLive="assertive">
           <Trans
             i18nKey="app:matches.feedback.approved"
