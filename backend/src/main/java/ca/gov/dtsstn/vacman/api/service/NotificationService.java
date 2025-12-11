@@ -206,7 +206,7 @@ public class NotificationService {
 			case PSC_REQUIRED -> "pscClearanceRequired.ftl";
 			case FEEDBACK_PENDING -> "prioritiesIdentified.ftl";
 			case FEEDBACK_COMPLETED -> "pendingFeedbackApprovalHR.ftl";
-			case PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
+			case PSC_NOT_REQUIRED -> "pscClearanceNotRequired.ftl";
 			case COMPLETED -> "feedbackApprovedPSC.ftl";
 			case COMPLETED_NO_VMS -> "feedbackApprovedPscNoVms.ftl";
 			case CANCELLED -> "requestCancelled.ftl";

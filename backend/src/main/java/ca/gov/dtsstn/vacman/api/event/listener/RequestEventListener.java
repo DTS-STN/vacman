@@ -393,7 +393,9 @@ public class RequestEventListener {
 			request.additionalContactEmails(),
 			request.submitterEmails(),
 			request.hiringManagerEmails(),
-			request.subDelegatedManagerEmails()
+			request.subDelegatedManagerEmails(),
+			Optional.ofNullable(request.hrAdvisorEmail()).map(List::of).orElse(List.of()),
+			List.of(applicationProperties.gcnotify().hrGdInboxEmail())
 		).flatMap(List::stream).collect(toSet());
 
 		emails.forEach(email -> notificationService.sendRequestNotification(
