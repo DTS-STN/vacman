@@ -7,9 +7,9 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type CityService = {
-  listAll(): Promise<readonly City[]>;
+  listAll(includeInactive?: boolean): Promise<readonly City[]>;
   getById(id: number): Promise<Result<City, AppError>>;
-  listAllLocalized(language: Language): Promise<readonly LocalizedCity[]>;
+  listAllLocalized(language: Language, includeInactive?: boolean): Promise<readonly LocalizedCity[]>;
   getLocalizedById(id: number, language: Language): Promise<Result<LocalizedCity, AppError>>;
   findLocalizedById(id: number, language: Language): Promise<Option<LocalizedCity>>;
 };

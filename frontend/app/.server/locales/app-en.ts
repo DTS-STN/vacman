@@ -149,9 +149,16 @@ export default {
       'substantive-group-and-level-expired':
         'The selected group and level of your substantive position has expired. Please select a valid option.',
       'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',
+      'branch-or-service-canada-region-invalid': 'Branch or Service Canada Region is invalid.',
+      'branch-or-service-canada-region-expired':
+        'The selected Branch or Service Canada Region has expired. Please select a valid option.',
       'directorate-required': 'Directorate is required.',
+      'directorate-invalid': 'Directorate is invalid.',
+      'directorate-expired': 'The selected directorate has expired. Please select a valid option.',
       'provinces-required': 'Province of the designated work location is required.',
       'city-required': 'City of the designated work location is required.',
+      'city-invalid': 'City of the designated work location is invalid.',
+      'city-expired': 'The selected city of the designated work location has expired. Please select a valid option.',
       'wfa-status-required': 'Current WFA/CT status is required.',
       'wfa-effective-date': {
         'invalid': 'Effective date of your WFA/CT status is invalid.',
@@ -603,7 +610,12 @@ export default {
       'sub-delegate-email-invalid': 'Staffing sub-delegated manager email address is invalid.',
       'alternate-contact-email-invalid': 'Alternate contact email address is invalid.',
       'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',
+      'branch-or-service-canada-region-invalid': 'Branch or Service Canada Region is invalid.',
+      'branch-or-service-canada-region-expired':
+        'The selected Branch or Service Canada Region has expired. Please select a valid option.',
       'directorate-required': 'Directorate is required.',
+      'directorate-invalid': 'Directorate is invalid.',
+      'directorate-expired': 'The selected directorate has expired. Please select a valid option.',
       'preferred-language-of-correspondence-required': 'Preferred language for correspondence is required.',
       'additional-comments-max-length': 'Additional comments must be less than 100 characters.',
     },

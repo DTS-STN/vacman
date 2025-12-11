@@ -148,14 +148,20 @@ export default {
     'hr-advisor': 'Conseiller-ère identifié-e dans votre lettre de RE/TC',
     'errors': {
       'substantive-group-and-level-required': "Le groupe et le niveau de votre poste d'attache sont obligatoires.",
-      'substantive-group-and-level-invalid':
-        "Le groupe et le niveau sélectionnés de votre poste d'attache ne sont pas valides.",
+      'substantive-group-and-level-invalid': "Le groupe et le niveau sélectionnés de votre poste d'attache n'est pas valide.",
       'substantive-group-and-level-expired':
         "Le groupe et le niveau sélectionnés de votre poste d'attache ont expiré. Veuillez sélectionner une option valide.",
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est obligatoire.',
+      'branch-or-service-canada-region-invalid': "La direction générale ou la région de Service Canada n'est pas valide.",
+      'branch-or-service-canada-region-expired':
+        'La direction générale ou la région de Service Canada sélectionnée a expiré. Veuillez sélectionner une option valide.',
       'directorate-required': 'La direction est obligatoire.',
+      'directorate-invalid': "La direction n'est pas valide.",
+      'directorate-expired': 'La direction sélectionnée a expiré. Veuillez sélectionner une option valide.',
       'provinces-required': 'La province du lieu de travail désigné de votre poste substantif est obligatoire.',
       'city-required': 'La ville du lieu de travail désigné de votre poste substantif est obligatoire.',
+      'city-invalid': "La ville du lieu de travail désigné de votre poste substantif n'est pas valide.",
+      'city-expired': 'La ville du lieu de travail désigné sélectionnée a expiré. Veuillez sélectionner une option valide.',
       'wfa-status-required': 'Le statut de RE/TC actuel est obligatoire.',
       'wfa-effective-date': {
         'invalid': "La date d'effet de votre statut de RE/TC n'est pas valide.",
@@ -614,7 +620,12 @@ export default {
       'sub-delegate-email-required': "L'adresse courriel du (de la) gestionnaire subdélégué-e à la dotation est obligatoire.",
       'alternate-contact-email-invalid': "L'adresse courriel du contact secondaire n'est pas valide.",
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est obligatoire.',
+      'branch-or-service-canada-region-invalid': "La direction générale ou la région de Service Canada n'est pas valide.",
+      'branch-or-service-canada-region-expired':
+        'La direction générale ou la région de Service Canada sélectionnée a expiré. Veuillez sélectionner une option valide.',
       'directorate-required': 'La direction est obligatoire.',
+      'directorate-invalid': "La direction n'est pas valide.",
+      'directorate-expired': 'La direction sélectionnée a expiré. Veuillez sélectionner une option valide.',
       'preferred-language-of-correspondence-required': 'La langue de préférence pour la correspondance est obligatoire.',
       'additional-comments-max-length': 'Les commentaires supplémentaires doivent comporter moins de 100 caractères.',
     },
