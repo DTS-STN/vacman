@@ -35,7 +35,7 @@ describe('RequestServiceDefault', () => {
           positionNumber: '123456',
           englishTitle: 'Test Request',
           frenchTitle: 'Demande de Test',
-          languageRequirement: { id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' },
+          languageRequirements: [{ id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' }],
           status: { code: 'PENDING', id: 1, nameEn: 'Pending', nameFr: 'En attente' },
         },
       ],
@@ -106,7 +106,7 @@ describe('RequestServiceDefault', () => {
           positionNumber: '123456',
           englishTitle: 'Test Request',
           frenchTitle: 'Demande de Test',
-          languageRequirement: { id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' },
+          languageRequirements: [{ id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' }],
           status: { code: 'APPROVED', id: 2, nameEn: 'Approved', nameFr: 'Approuvé' },
         },
       ],
@@ -134,7 +134,8 @@ describe('RequestServiceDefault', () => {
         expect(response.content[0]?.id).toBe(1);
         expect(response.content[0]?.englishTitle).toBe('Test Request');
         expect(response.content[0]?.frenchTitle).toBe('Demande de Test');
-        expect(response.content[0]?.languageRequirement).toEqual({
+        expect(response.content[0]?.languageRequirements).toHaveLength(1);
+        expect(response.content[0]?.languageRequirements?.[0]).toEqual({
           id: 1,
           code: 'BNI',
           nameEn: 'Bilingual Non-imperative',
@@ -165,7 +166,7 @@ describe('RequestServiceDefault', () => {
       positionNumber: '123456',
       englishTitle: 'Test Request',
       frenchTitle: 'Demande de Test',
-      languageRequirement: { id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' },
+      languageRequirements: [{ id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' }],
       status: { code: 'INCOMPLETE', id: 3, nameEn: 'Incomplete', nameFr: 'Incomplet' },
     };
 
@@ -208,7 +209,7 @@ describe('RequestServiceDefault', () => {
       positionNumber: '123456',
       englishTitle: 'Test Request',
       frenchTitle: 'Demande de Test',
-      languageRequirement: { id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' },
+      languageRequirements: [{ id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' }],
       status: { code: 'PENDING', id: 1, nameEn: 'Pending', nameFr: 'En attente' },
     };
 
@@ -253,7 +254,7 @@ describe('RequestServiceDefault', () => {
       positionNumber: '123456',
       englishTitle: 'Test Request',
       frenchTitle: 'Demande de Test',
-      languageRequirement: { id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' },
+      languageRequirements: [{ id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' }],
       status: { code: 'APPROVED', id: 2, nameEn: 'Approved', nameFr: 'Approuvé' },
     };
 

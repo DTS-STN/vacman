@@ -133,9 +133,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     preferredCities: partiallySelectedCities,
     locationScope,
     provinceNames,
-    languageRequirement: currentRequest.languageRequirement,
-    englishLanguageProfile: currentRequest.englishLanguageProfile,
-    frenchLanguageProfile: currentRequest.frenchLanguageProfile,
+    languageRequirements: currentRequest.languageRequirements
+      ?.map((req) => (lang === 'en' ? req.nameEn : req.nameFr))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b))
+      .join(', '),
     securityClearance: currentRequest.securityClearance,
     englishStatementOfMerit: currentRequest.englishStatementOfMerit,
     frenchStatementOfMerit: currentRequest.frenchStatementOfMerit,
@@ -150,8 +152,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     additionalComment: currentRequest.additionalComment,
     status: currentRequest.status,
     hasMatches: currentRequest.hasMatches,
-    languageRequirementName:
-      lang === 'en' ? currentRequest.languageRequirement?.nameEn : currentRequest.languageRequirement?.nameFr,
     securityClearanceName: lang === 'en' ? currentRequest.securityClearance?.nameEn : currentRequest.securityClearance?.nameFr,
     lang,
     isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,

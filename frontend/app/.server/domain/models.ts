@@ -267,19 +267,17 @@ export type RequestReadModel = Readonly<{
   classification?: Classification;
   employmentEquities?: EmploymentEquity[];
   employmentTenure?: EmploymentTenure;
-  englishLanguageProfile?: string;
   englishStatementOfMerit?: string;
   englishTitle?: string;
   equityNeeded?: boolean;
   hasMatches?: boolean;
-  frenchLanguageProfile?: string;
   frenchStatementOfMerit?: string;
   frenchTitle?: string;
   hasPerformedSameDuties?: boolean;
   hiringManager?: User;
   hrAdvisor?: User;
   languageOfCorrespondence?: LanguageOfCorrespondence;
-  languageRequirement?: LanguageRequirement;
+  languageRequirements?: LanguageRequirement[];
   positionNumber?: string;
   priorityClearanceNumber?: string;
   priorityEntitlement?: boolean;
@@ -314,6 +312,10 @@ export type EmploymentEquityId = {
   value: number;
 };
 
+export type LanguageRequirementId = {
+  value: number;
+};
+
 // Request Update Model
 export type RequestUpdateModel = Partial<{
   additionalComment: string;
@@ -323,18 +325,16 @@ export type RequestUpdateModel = Partial<{
   classificationId: number;
   employmentEquityIds: EmploymentEquityId[];
   employmentTenureId: number;
-  englishLanguageProfile: string;
   englishStatementOfMerit: string;
   englishTitle: string;
   equityNeeded: boolean;
-  frenchLanguageProfile: string;
   frenchStatementOfMerit: string;
   frenchTitle: string;
   hasPerformedSameDuties: boolean | null;
   hiringManagerId: number;
   hrAdvisorId: number;
   languageOfCorrespondenceId: number;
-  languageRequirementId: number;
+  languageRequirementIds: LanguageRequirementId[];
   positionNumbers: string;
   priorityClearanceNumber: string;
   priorityEntitlement: boolean;

@@ -23,16 +23,15 @@ import type {
 } from '~/components/choice-tags';
 import { ChoiceTags } from '~/components/choice-tags';
 import { FormErrorSummary } from '~/components/error-summary';
+import { InputCheckboxes } from '~/components/input-checkboxes';
 import { InputField } from '~/components/input-field';
 import { InputHelp } from '~/components/input-help';
 import { InputLegend } from '~/components/input-legend';
 import { InputMultiSelect } from '~/components/input-multiselect';
-import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
@@ -77,17 +76,7 @@ export function PositionInformationForm({
 
   const [selectedCities, setSelectedCities] = useState(formValues?.cities?.map(({ id }) => id.toString()) ?? []);
 
-  const [languageRequirementCode, setLanguageRequirementCode] = useState(
-    languageRequirements.find((c) => c.id === formValues?.languageRequirement?.id)?.code,
-  );
-
   const [srAnnouncement, setSrAnnouncement] = useState('');
-
-  const handleLanguageRequirementChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedValue = event.target.value;
-    const selectedStatus = languageRequirements.find((c) => c.id === Number(selectedValue))?.code;
-    setLanguageRequirementCode(selectedStatus);
-  };
 
   // Build groupAndLevelOptions with expired classification handling
   const groupAndLevelOptions = buildExpiredAwareSelectOptions({
@@ -96,11 +85,6 @@ export function PositionInformationForm({
     language: currentLanguage ?? 'en',
     selectOptionLabel: tApp('form.select-option'),
   });
-
-  const languageLevelOptions = [{ id: 'select-option', value: '' }, ...LANGUAGE_LEVEL].map(({ id, value }) => ({
-    value: id === 'select-option' ? '' : value,
-    children: id === 'select-option' ? tApp('form.select') : value,
-  }));
 
   const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
@@ -121,11 +105,10 @@ export function PositionInformationForm({
     defaultChecked: id === formValues?.securityClearance?.id,
   }));
 
-  const languageRequirementOptions: InputRadiosProps['options'] = languageRequirements.map(({ id, name }) => ({
-    value: String(id),
-    children: name,
-    onChange: handleLanguageRequirementChange,
-    defaultChecked: formValues?.languageRequirement?.id === id,
+  const languageRequirementOptions = languageRequirements.map((option) => ({
+    value: String(option.id),
+    children: option.name,
+    defaultChecked: formValues?.languageRequirements?.find((req) => req.id === option.id) !== undefined,
   }));
 
   // Choice tags for cities
@@ -309,108 +292,14 @@ export function PositionInformationForm({
               {srAnnouncement}
             </span>
 
-            <InputRadios
-              id="language-requirement"
-              name="languageRequirement"
+            <InputCheckboxes
+              id="language-requirements"
+              name="languageRequirements"
               legend={tApp('position-information.language-requirement')}
               options={languageRequirementOptions}
-              errorMessage={tApp(extractValidationKey(formErrors?.languageRequirement))}
+              errorMessage={tApp(extractValidationKey(formErrors?.languageRequirements))}
               required
             />
-
-            {(languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-              languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
-              <>
-                <fieldset id="language-profile-fieldset" aria-describedby="language-profile-legend" className="space-y-2">
-                  <InputLegend id="language-profile-legend" className="text-xl" required>
-                    {tApp('position-information.language-profile')}
-                  </InputLegend>
-
-                  <fieldset
-                    className="flex space-x-2"
-                    id="reading-comprehension-fieldset"
-                    aria-describedby="reading-comprehension-legend"
-                  >
-                    <InputLegend id="reading-comprehension-legend" required>
-                      {tApp('position-information.reading-comprehension')}
-                    </InputLegend>
-                    <InputSelect
-                      id="reading-en"
-                      name="readingEn"
-                      label={tApp('position-information.english')}
-                      className="w-32"
-                      options={languageLevelOptions}
-                      defaultValue={formValues?.englishLanguageProfile?.charAt(0) ?? ''}
-                      errorMessage={tApp(extractValidationKey(formErrors?.readingEn))}
-                    />
-                    <InputSelect
-                      id="reading-fr"
-                      name="readingFr"
-                      label={tApp('position-information.french')}
-                      className="w-32"
-                      options={languageLevelOptions}
-                      defaultValue={formValues?.frenchLanguageProfile?.charAt(0) ?? ''}
-                      errorMessage={tApp(extractValidationKey(formErrors?.readingFr))}
-                    />
-                  </fieldset>
-                  <fieldset
-                    className="flex space-x-2"
-                    id="written-expression-fieldset"
-                    aria-describedby="written-expression-legend"
-                  >
-                    <InputLegend id="written-expression-legend" required>
-                      {tApp('position-information.written-expression')}
-                    </InputLegend>
-                    <InputSelect
-                      id="writing-en"
-                      name="writingEn"
-                      label={tApp('position-information.english')}
-                      className="w-32"
-                      options={languageLevelOptions}
-                      defaultValue={formValues?.englishLanguageProfile?.charAt(1) ?? ''}
-                      errorMessage={tApp(extractValidationKey(formErrors?.writingEn))}
-                    />
-                    <InputSelect
-                      id="writing-fr"
-                      name="writingFr"
-                      label={tApp('position-information.french')}
-                      className="w-32"
-                      options={languageLevelOptions}
-                      defaultValue={formValues?.frenchLanguageProfile?.charAt(1) ?? ''}
-                      errorMessage={tApp(extractValidationKey(formErrors?.writingFr))}
-                    />
-                  </fieldset>
-                  <fieldset
-                    className="flex space-x-2"
-                    id="oral-proficiency-fieldset"
-                    aria-describedby="oral-proficiency-legend"
-                  >
-                    <InputLegend id="oral-proficiency-legend" required>
-                      {tApp('position-information.oral-proficiency')}
-                    </InputLegend>
-                    <InputSelect
-                      id="oral-en"
-                      name="oralEn"
-                      label={tApp('position-information.english')}
-                      className="w-32"
-                      options={languageLevelOptions}
-                      defaultValue={formValues?.englishLanguageProfile?.charAt(2) ?? ''}
-                      errorMessage={tApp(extractValidationKey(formErrors?.oralEn))}
-                    />
-                    <InputSelect
-                      id="oral-fr"
-                      name="oralFr"
-                      label={tApp('position-information.french')}
-                      className="w-32"
-                      options={languageLevelOptions}
-                      defaultValue={formValues?.frenchLanguageProfile?.charAt(2) ?? ''}
-                      errorMessage={tApp(extractValidationKey(formErrors?.oralFr))}
-                    />
-                  </fieldset>
-                </fieldset>
-              </>
-            )}
-
             <InputRadios
               id="security-requirement"
               name="securityRequirement"
