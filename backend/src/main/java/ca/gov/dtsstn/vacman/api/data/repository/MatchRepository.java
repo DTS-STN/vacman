@@ -16,6 +16,13 @@ import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 public interface MatchRepository extends AbstractBaseRepository<MatchEntity> {
 
 	/**
+	 * Delete all matches for a specific request ID
+	 *
+	 * @param requestId The request ID
+	 */
+	void deleteByRequestId(Long requestId);
+
+	/**
 	 * Specification to find matches by request ID
 	 *
 	 * @param requestId The request ID

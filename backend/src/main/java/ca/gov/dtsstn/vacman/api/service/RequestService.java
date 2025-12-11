@@ -711,6 +711,7 @@ public class RequestService {
 	 * @param request The request entity to undo the status change for
 	 * @return The updated request entity
 	 */
+	@Transactional
 	@Counted("service.request.undoRequestStatus.count")
 	public RequestEntity undoRequestStatus(RequestEntity request) {
 		final var currentStatus = request.getRequestStatus().getCode();
@@ -773,10 +774,7 @@ public class RequestService {
 			// FDBK_PENDING → HR_REVIEW (undo when HR advisor ran matches and matches were found)
 			newStatus = requestStatuses.hrReview();
 
-			// Delete all matches for the request
-			final var query = MatchQuery.builder().requestId(request.getId()).build();
-			final var matches = findMatches(query);
-			matchRepository.deleteAll(matches);
+			matchRepository.deleteByRequestId(request.getId());
 		} else if (requestStatuses.noMatchHrReview().equals(currentStatus)) {
 			// NO_MATCH_HR_REVIEW → HR_REVIEW (undo when HR advisor ran matches and no matches were found)
 			newStatus = requestStatuses.hrReview();
