@@ -367,10 +367,6 @@ public class RequestService {
 			request.setLanguage(languageRepository.getReferenceById(updateModel.languageOfCorrespondenceId()));
 		}
 
-		Optional.ofNullable(updateModel.languageRequirementId())
-			.map(languageRequirementRepository::getReferenceById)
-			.ifPresent(request::setLanguageRequirement);
-
 		Optional.ofNullable(updateModel.securityClearanceId())
 			.map(securityClearanceRepository::getReferenceById)
 			.ifPresent(request::setSecurityClearance);
@@ -392,6 +388,12 @@ public class RequestService {
 			.flatMap(Collection::stream)
 			.map(RequestUpdateModel.CityId::value)
 			.map(cityRepository::getReferenceById)
+			.toList());
+
+		request.setLanguageRequirements(Optional.ofNullable(updateModel.languageRequirementIds()).stream()
+			.flatMap(Collection::stream)
+			.map(RequestUpdateModel.LanguageRequirementId::value)
+			.map(languageRequirementRepository::getReferenceById)
 			.toList());
 
 		request.setAdditionalContact(resolveUser(updateModel.additionalContactId()));

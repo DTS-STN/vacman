@@ -249,7 +249,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa, toronto, montreal))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -376,7 +376,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -469,7 +469,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -555,7 +555,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -644,7 +644,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(180))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -731,7 +731,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(180))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -821,7 +821,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(180))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -932,7 +932,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(180))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1106,7 +1106,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("EE-AE"))
+					.languageRequirements(List.of(findLanguageRequirement("EE-AE")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1175,7 +1175,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("FE"))
+					.languageRequirements(List.of(findLanguageRequirement("FE")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1245,7 +1245,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("EF-AF"))
+					.languageRequirements(List.of(findLanguageRequirement("EF-AF")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1331,7 +1331,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("VAR"))
+					.languageRequirements(List.of(findLanguageRequirement("VAR")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1413,7 +1413,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1482,7 +1482,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BNI"))
+					.languageRequirements(List.of(findLanguageRequirement("BNI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1570,7 +1570,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1691,7 +1691,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(180))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1878,7 +1878,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -1980,7 +1980,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -2051,7 +2051,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -2123,7 +2123,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -2197,7 +2197,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -2280,7 +2280,7 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(findLanguageRequirement("BI"))
+					.languageRequirements(List.of(findLanguageRequirement("BI")))
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
 					.build());
@@ -2331,11 +2331,12 @@ class RequestMatchingServiceTest {
 					.endDate(LocalDate.now().plusDays(60))
 					.cities(List.of(ottawa))
 					.classification(findClassification("IT-01"))
-					.languageRequirement(LanguageRequirementEntity.builder()
-						.code("UNKNOWN-CODE")
-						.build())
 					.requestStatus(findRequestStatus("SUBMIT"))
 					.submitter(requestSubmitter)
+					.build());
+
+			request.addLanguageRequirement(LanguageRequirementEntity.builder()
+					.code("UNKNOWN-CODE")
 					.build());
 
 			assertThatThrownBy(() -> requestMatchingService.performRequestMatching(request.getId(), 10))
@@ -2372,7 +2373,7 @@ class RequestMatchingServiceTest {
 			.endDate(LocalDate.now().plusDays(60))
 			.cities(List.of(ottawa, stjohns))
 			.classification(findClassification("IT-01"))
-			.languageRequirement(findLanguageRequirement("BI"))
+			.languageRequirements(List.of(findLanguageRequirement("BI")))
 			.requestStatus(findRequestStatus("SUBMIT"))
 			.submitter(requestSubmitter)
 			.build());

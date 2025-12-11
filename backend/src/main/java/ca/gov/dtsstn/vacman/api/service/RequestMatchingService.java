@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Function;
 
@@ -131,14 +132,14 @@ public class RequestMatchingService {
 		final var approvedStatus = profileStatuses.approved();
 		final var cities = request.getCities().stream().map(AbstractCodeEntity::getCode).toList();
 		final var classification = request.getClassification().getCode();
-		final var languageRequirement = request.getLanguageRequirement().getCode();
+		final var languageRequirementCodes = request.getLanguageRequirements().stream().map(AbstractCodeEntity::getCode).toList();
 		final var today = LocalDate.now();
 
-		log.debug("Request {} found -- classification: {}; language requirement: {}; eligible cities: {}", requestId, classification, languageRequirement, cities);
+		log.debug("Request {} found -- classification: {}; language requirements: {}; eligible cities: {}", requestId, classification, languageRequirementCodes, cities);
 
 		// Map the language requirement to the matching profile language referral types
-		final var preferredLanguages = getMatchingLanguageReferralTypeCodes(languageRequirement);
-		log.debug("Language requirement [{}] mapped to referral types: {}", languageRequirement, preferredLanguages);
+		final var preferredLanguages = getMatchingLanguageReferralTypeCodes(languageRequirementCodes);
+		log.debug("Language requirements {} mapped to referral types: {}", languageRequirementCodes, preferredLanguages);
 
 		// Query for profiles that satisfy ALL of the request's criteria
 		// This uses JPA Specifications to build a dynamic query with AND logic
@@ -201,34 +202,46 @@ public class RequestMatchingService {
 	 *   - EF-AF (Either/or): matches both ENGLISH and FRENCH profiles
 	 *   - VAR (Various): matches all profiles regardless of language preference
 	 */
-	private List<String> getMatchingLanguageReferralTypeCodes(String languageRequirementCode) {
-		if (languageRequirementCode.equals(languageRequirements.bilingualImperative())) {
-			return List.of(languageReferralTypes.bilingual());
+	private List<String> getMatchingLanguageReferralTypeCodes(List<String> languageRequirementCodes) {
+		final var matchingLanguageReferralTypes = new HashSet<String>();
+
+		for (String languageRequirementCode : languageRequirementCodes) {
+			if (languageRequirementCode.equals(languageRequirements.bilingualImperative())) {
+				matchingLanguageReferralTypes.add(languageReferralTypes.bilingual());
+				continue;
+			}
+
+			if (languageRequirementCode.equals(languageRequirements.bilingualNonImperative())) {
+				matchingLanguageReferralTypes.add(languageReferralTypes.bilingual());
+				continue;
+			}
+
+			if (languageRequirementCode.equals(languageRequirements.englishEssential())) {
+				matchingLanguageReferralTypes.add(languageReferralTypes.english());
+				continue;
+			}
+
+			if (languageRequirementCode.equals(languageRequirements.frenchEssential())) {
+				matchingLanguageReferralTypes.add(languageReferralTypes.french());
+				continue;
+			}
+
+			if (languageRequirementCode.equals(languageRequirements.eitherOr())) {
+				matchingLanguageReferralTypes.add(languageReferralTypes.english());
+				matchingLanguageReferralTypes.add(languageReferralTypes.french());
+				continue;
+			}
+
+			if (languageRequirementCode.equals(languageRequirements.various())) {
+				// For "various", we return an empty list. The hasPreferredLanguageCodeIn() specification in ProfileRepository
+				// is designed to interpret an empty list as a wildcard, effectively disabling the language filter.
+				return List.of();
+			}
+
+			throw new IllegalArgumentException("Unknown language requirement code: " + languageRequirementCode);
 		}
 
-		if (languageRequirementCode.equals(languageRequirements.bilingualNonImperative())) {
-			return List.of(languageReferralTypes.bilingual());
-		}
-
-		if (languageRequirementCode.equals(languageRequirements.englishEssential())) {
-			return List.of(languageReferralTypes.english());
-		}
-
-		if (languageRequirementCode.equals(languageRequirements.frenchEssential())) {
-			return List.of(languageReferralTypes.french());
-		}
-
-		if (languageRequirementCode.equals(languageRequirements.eitherOr())) {
-			return List.of(languageReferralTypes.english(), languageReferralTypes.french());
-		}
-
-		if (languageRequirementCode.equals(languageRequirements.various())) {
-			// For "various", we return an empty list. The hasPreferredLanguageCodeIn() specification in ProfileRepository
-			// is designed to interpret an empty list as a wildcard, effectively disabling the language filter.
-			return List.of();
-		}
-
-		throw new IllegalArgumentException("Unknown language requirement code: " + languageRequirementCode);
+		return List.copyOf(matchingLanguageReferralTypes);
 	}
 
 	/**

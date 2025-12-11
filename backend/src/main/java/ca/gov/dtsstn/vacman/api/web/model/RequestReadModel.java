@@ -68,8 +68,8 @@ public record RequestReadModel(
 	@Schema(description = "Language of Correspondence for this request.")
 	LanguageReadModel languageOfCorrespondence,
 
-	@Schema(description = "Language requirement of this request.")
-	LanguageRequirementReadModel languageRequirement,
+	@Schema(description = "Language requirements of this request.")
+	Collection<LanguageRequirementReadModel> languageRequirements,
 
 	@Schema(description = "Position numbers of this request. Comma separated list of position numbers.", example = "12345, 67890")
 	String positionNumber,
