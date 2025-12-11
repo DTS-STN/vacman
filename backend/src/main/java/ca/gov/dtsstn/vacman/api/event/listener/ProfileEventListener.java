@@ -110,6 +110,7 @@ public class ProfileEventListener {
 
 		final var newStatusIsApproved = hasNewStatus && isApproved(newStatus);
 		final var newStatusIsPending = hasNewStatus && isPending(newStatus);
+		final var newStatusIsArchived = hasNewStatus && isArchived(newStatus);
 		final var previousStatusWasIncompleteOrApproved = hasPreviousStatus && (isIncomplete(previousStatus) || isApproved(previousStatus));
 
 		if (newStatusIsApproved) {
@@ -117,6 +118,9 @@ public class ProfileEventListener {
 		}
 		else if (previousStatusWasIncompleteOrApproved && newStatusIsPending) {
 			sendPendingNotificationToHrAdvisor(profile);
+		}
+		else if (newStatusIsArchived) {
+			sendArchivedNotification(profile);
 		}
 	}
 
@@ -130,6 +134,10 @@ public class ProfileEventListener {
 
 	private boolean isPending(ProfileStatusEntity previousStatus) {
 		return profileStatusCodes.pending().equals(previousStatus.getCode());
+	}
+
+	private boolean isArchived(ProfileStatusEntity status) {
+		return profileStatusCodes.archived().equals(status.getCode());
 	}
 
 	private void sendApprovalNotification(ProfileEventDto profile) {
@@ -161,5 +169,23 @@ public class ProfileEventListener {
 
 			notificationService.sendProfileNotification(email, profileId, name, language, ProfileStatus.PENDING);
 		}, () -> log.warn("Could not send pending notification - no HR advisor found for profile ID: {}", profile.id()));
+	}
+
+	private void sendArchivedNotification(ProfileEventDto profile) {
+		final var profileId = profile.id().toString();
+		final var firstName = Optional.ofNullable(profile.userFirstName()).orElse("");
+		final var lastName = Optional.ofNullable(profile.userLastName()).orElse("");
+		final var rawName = (firstName + " " + lastName).trim();
+		final var name = rawName.isEmpty() ? "Unknown User" : rawName;
+		final var language = Optional.ofNullable(profile.languageOfCorrespondenceCode()).orElse(lookupCodes.languages().english());
+
+		// Gather available emails
+		final var emails = Optional.ofNullable(profile.userEmails()).orElse(List.of());
+
+		if (!emails.isEmpty()) {
+			notificationService.sendProfileNotification(emails, profileId, name, language, ProfileStatus.ARCHIVED);
+		} else {
+			log.warn("Could not send archived notification - no email addresses found for profile ID: {}", profile.id());
+		}
 	}
 }
