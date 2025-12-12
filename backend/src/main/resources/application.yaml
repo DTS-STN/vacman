@@ -318,7 +318,7 @@ codes:
     eitherOr: EF-AF
     various: VAR
   match-statuses:
-    approved: A-A;
+    approved: A-A
     in-progress: IP-EC
     pending-approval: PA-EAA
   profile-statuses:
