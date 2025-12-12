@@ -293,9 +293,11 @@ function RequestsColumns({
       {view === 'hr-advisor' && (
         <Column
           accessorKey={`${keyPrefix}Branch`}
-          accessorFn={(row: RequestReadModel) =>
-            (currentLanguage === 'en' ? row.workUnit?.parent?.nameEn : row.workUnit?.parent?.nameFr) ?? '-'
-          }
+          accessorFn={(row: RequestReadModel) => {
+            // Branch is the parent if work unit has one, otherwise the work unit itself
+            const branch = row.workUnit?.parent ?? row.workUnit;
+            return currentLanguage === 'en' ? branch?.nameEn : branch?.nameFr;
+          }}
           header={({ column }) => (
             <ColumnOptions
               column={column}
@@ -307,13 +309,11 @@ function RequestsColumns({
               showClearAll
             />
           )}
-          cell={(info) => (
-            <span>
-              {currentLanguage === 'en'
-                ? (info.row.original.workUnit?.parent?.nameEn ?? '-')
-                : (info.row.original.workUnit?.parent?.nameFr ?? '-')}
-            </span>
-          )}
+          cell={(info) => {
+            // Branch is the parent if work unit has one, otherwise the work unit itself
+            const branch = info.row.original.workUnit?.parent ?? info.row.original.workUnit;
+            return <span>{currentLanguage === 'en' ? branch?.nameEn : branch?.nameFr}</span>;
+          }}
         />
       )}
       <Column

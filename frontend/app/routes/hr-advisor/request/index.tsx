@@ -144,9 +144,18 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     submitter: currentRequest.submitter,
     subDelegatedManager: currentRequest.subDelegatedManager,
     additionalContact: currentRequest.additionalContact,
-    branchOrServiceCanadaRegion:
-      lang === 'en' ? currentRequest.workUnit?.parent?.nameEn : currentRequest.workUnit?.parent?.nameFr,
-    directorate: lang === 'en' ? currentRequest.workUnit?.nameEn : currentRequest.workUnit?.nameFr,
+    branchOrServiceCanadaRegion: currentRequest.workUnit?.parent
+      ? lang === 'en'
+        ? currentRequest.workUnit.parent.nameEn
+        : currentRequest.workUnit.parent.nameFr
+      : lang === 'en'
+        ? currentRequest.workUnit?.nameEn
+        : currentRequest.workUnit?.nameFr,
+    directorate: currentRequest.workUnit?.parent
+      ? lang === 'en'
+        ? currentRequest.workUnit.nameEn
+        : currentRequest.workUnit.nameFr
+      : undefined,
     languageOfCorrespondence:
       lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
     additionalComment: currentRequest.additionalComment,

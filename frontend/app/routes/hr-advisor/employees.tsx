@@ -378,7 +378,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               setSearchParams={setSearchParams}
             />
           )}
-          cell={(info) => <p>{info.getValue() as string}</p>}
+          cell={(info) => <span>{info.getValue() as string}</span>}
         />
 
         <Column
@@ -406,20 +406,22 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             const lastModifiedDate = info.row.original.lastModifiedDate;
             const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
             const dateUpdated = formatDateYMD(lastModifiedDate);
-            return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+            return <span>{`${dateUpdated}: ${userUpdated}`}</span>;
           }}
         />
 
         <Column
           id={getBranchColumnId}
           accessorFn={(row: Profile) => {
-            const branch = row.substantiveWorkUnit?.parent;
+            // Branch is the parent if work unit has one, otherwise the work unit itself
+            const branch = row.substantiveWorkUnit?.parent ?? row.substantiveWorkUnit;
             return loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr;
           }}
           header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.branch')} />}
           cell={(info) => {
-            const branch = info.row.original.substantiveWorkUnit?.parent;
-            return <p className="text-neutral-600">{loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr}</p>;
+            // Branch is the parent if work unit has one, otherwise the work unit itself
+            const branch = info.row.original.substantiveWorkUnit?.parent ?? info.row.original.substantiveWorkUnit;
+            return <span>{loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr}</span>;
           }}
         />
 
