@@ -474,66 +474,61 @@ public class RequestEventListener {
 	 * @param requestDto The request DTO
 	 */
 	private void sendJobOpportunityHRNotificationsToMatchedProfiles(RequestEventDto requestDto) {
-		final var request = requestRepository.findById(requestDto.id()).orElse(null);
+		requestRepository.findById(requestDto.id()).ifPresentOrElse(request -> {
+			final var matches = matchRepository.findAll(MatchRepository.hasRequestId(request.getId()));
+			log.info("Found {} matches for request ID: {}", matches.size(), request.getId());
 
-		if (request == null) {
-			log.warn("Request not found for ID: {}", requestDto.id());
-			return;
-		}
+			for (final var match : matches) {
+				final var matchStatusCode = match.getMatchStatus().getCode();
+				final var approvedStatusCode = lookupCodes.matchStatuses().approved();
 
-		final var matches = matchRepository.findAll(MatchRepository.hasRequestId(request.getId()));
-		log.info("Found {} matches for request ID: {}", matches.size(), request.getId());
+				// Check if match status is APPROVED
+				if (!approvedStatusCode.equals(matchStatusCode)) {
+					log.debug("Skipping match ID: {} with status: {}. Expected: {}", match.getId(), matchStatusCode, approvedStatusCode);
+					continue;
+				}
 
-		for (final var match : matches) {
-			final var matchStatusCode = match.getMatchStatus().getCode();
-			final var approvedStatusCode = lookupCodes.matchStatuses().approved();
+				final var profile = match.getProfile();
+				final List<String> profileEmails = new ArrayList<>();
 
-			// Check if match status is APPROVED
-			if (!approvedStatusCode.equals(matchStatusCode)) {
-				log.debug("Skipping match ID: {} with status: {}. Expected: {}", match.getId(), matchStatusCode, approvedStatusCode);
-				continue;
+				if (StringUtils.hasText(profile.getPersonalEmailAddress())) {
+					profileEmails.add(profile.getPersonalEmailAddress());
+				}
+
+				if (profile.getUser() != null && StringUtils.hasText(profile.getUser().getBusinessEmailAddress())) {
+					profileEmails.add(profile.getUser().getBusinessEmailAddress());
+				}
+
+				if (profileEmails.isEmpty()) {
+					log.warn("No emails found for profile ID: [{}]", profile.getId());
+					continue;
+				}
+
+				final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
+					.map(LanguageEntity::getCode)
+					.orElse(lookupCodes.languages().english());
+
+				final var jobModel = createJobModel(request, language);
+
+				final var matchFeedback = Optional.ofNullable(match.getMatchFeedback())
+					.map(feedback -> lookupCodes.languages().english().equals(language) ? feedback.getNameEn() : feedback.getNameFr())
+					.orElse("N/A");
+
+				final var jobOpportunityHR = new EmailTemplateModel.JobOpportunityHR(
+					jobModel.requestNumber(),
+					jobModel.positionTitle(),
+					jobModel.classification(),
+					jobModel.languageRequirement(),
+					jobModel.location(),
+					jobModel.securityClearance(),
+					matchFeedback,
+					jobModel.submitterName(),
+					jobModel.submitterEmail()
+				);
+
+				notificationService.sendJobOpportunityHRNotification(profileEmails, jobOpportunityHR, language);
 			}
-
-			final var profile = match.getProfile();
-			final List<String> profileEmails = new ArrayList<>();
-
-			if (StringUtils.hasText(profile.getPersonalEmailAddress())) {
-				profileEmails.add(profile.getPersonalEmailAddress());
-			}
-
-			if (profile.getUser() != null && StringUtils.hasText(profile.getUser().getBusinessEmailAddress())) {
-				profileEmails.add(profile.getUser().getBusinessEmailAddress());
-			}
-
-			if (profileEmails.isEmpty()) {
-				log.warn("No emails found for profile ID: [{}]", profile.getId());
-				continue;
-			}
-
-			final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
-				.map(LanguageEntity::getCode)
-				.orElse(lookupCodes.languages().english());
-
-			final var jobModel = createJobModel(request, language);
-
-			final var matchFeedback = Optional.ofNullable(match.getMatchFeedback())
-				.map(feedback -> lookupCodes.languages().english().equals(language) ? feedback.getNameEn() : feedback.getNameFr())
-				.orElse("N/A");
-
-			final var jobOpportunityHR = new EmailTemplateModel.JobOpportunityHR(
-				jobModel.requestNumber(),
-				jobModel.positionTitle(),
-				jobModel.classification(),
-				jobModel.languageRequirement(),
-				jobModel.location(),
-				jobModel.securityClearance(),
-				matchFeedback,
-				jobModel.submitterName(),
-				jobModel.submitterEmail()
-			);
-
-			notificationService.sendJobOpportunityHRNotification(profileEmails, jobOpportunityHR, language);
-		}
+		}, () -> log.warn("Request not found for ID: {}", requestDto.id()));
 	}
 
 	/**
