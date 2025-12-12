@@ -379,11 +379,14 @@ public class RequestEventListener {
 	}
 
 	/**
-	 * Sends a notification when a request is marked as PSC not required.
-	 * The notification is sent to the request owner which could be the submitter,
-	 * the hiring manager or the hr delegate. Send email to all 3.
+	 * Sends PSC (Personnel Security Clearance) not required notifications to all relevant stakeholders.
 	 *
-	 * @param request The request DTO
+	 * <p>This method collects email addresses from multiple sources including additional contacts,
+	 * submitters, hiring managers, sub-delegated managers, HR advisors, and the HR GD inbox,
+	 * then sends a notification to each unique recipient informing them that PSC is not required
+	 * for the request.
+	 *
+	 * @param request the request event data transfer object containing request details and recipient information
 	 */
 	private void sendPscNotRequiredNotification(RequestEventDto request) {
 		final var language = Optional.ofNullable(request.languageCode()).
