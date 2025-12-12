@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -14,6 +15,21 @@ import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 
 @Repository
 public interface MatchRepository extends AbstractBaseRepository<MatchEntity> {
+
+	/**
+	 * Find all matches for a specific request ID with eager loading of related entities.
+	 *
+	 * @param requestId The request ID
+	 * @return List of matches
+	 */
+	@EntityGraph(attributePaths = {
+		"matchFeedback",
+		"matchStatus",
+		"profile",
+		"profile.languageOfCorrespondence",
+		"profile.user"
+	})
+	Collection<MatchEntity> findAllByRequestId(Long requestId);
 
 	/**
 	 * Delete all matches for a specific request ID
