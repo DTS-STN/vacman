@@ -152,7 +152,6 @@ export default {
       'branch-or-service-canada-region-invalid': 'Branch or Service Canada Region is invalid.',
       'branch-or-service-canada-region-expired':
         'The selected Branch or Service Canada Region has expired. Please select a valid option.',
-      'directorate-required': 'Directorate is required.',
       'directorate-invalid': 'Directorate is invalid.',
       'directorate-expired': 'The selected directorate has expired. Please select a valid option.',
       'provinces-required': 'Province of the designated work location is required.',

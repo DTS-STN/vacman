@@ -86,10 +86,19 @@ export function SubmissionDetailsForm({
     setAlternateContactName(''); // email changed
   }
 
-  const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
-  const [directorate, setDirectorate] = useState(
-    formValues?.workUnit !== undefined ? String(formValues.workUnit.id) : undefined,
+  const [branch, setBranch] = useState(
+    formValues?.workUnit?.parent
+      ? String(formValues.workUnit.parent.id)
+      : formValues?.workUnit && !formValues.workUnit.parent
+        ? String(formValues.workUnit.id) // Branch-only work unit (no parent means it's a branch)
+        : undefined,
   );
+  const [directorate, setDirectorate] = useState(
+    formValues?.workUnit?.parent !== undefined ? String(formValues.workUnit.id) : undefined,
+  );
+
+  // Check if selected branch has directorates
+  const branchHasDirectorates = branch ? directorates.some((d) => d.parent?.id === Number(branch)) : false;
 
   const handleIsSubmiterHiringManagerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = event.target.value;
@@ -153,14 +162,16 @@ export function SubmissionDetailsForm({
 
   const branchOrServiceCanadaRegionOptions = buildExpiredAwareSelectOptions({
     activeItems: branchOrServiceCanadaRegions,
-    selectedItem: formValues?.workUnit?.parent,
+    selectedItem: formValues?.workUnit
+      ? (formValues.workUnit.parent ?? formValues.workUnit) // If work unit has no parent, it itself is the branch
+      : undefined,
     language: currentLanguage ?? 'en',
     selectOptionLabel: tApp('form.select-option'),
   });
 
   const directorateOptions = buildExpiredAwareSelectOptions({
     activeItems: directorates.filter((c) => c.parent?.id === Number(branch)),
-    selectedItem: formValues?.workUnit,
+    selectedItem: formValues?.workUnit?.parent?.id === Number(branch) ? formValues.workUnit : undefined,
     language: currentLanguage ?? 'en',
     selectOptionLabel: tApp('form.select-option'),
   });
@@ -175,15 +186,8 @@ export function SubmissionDetailsForm({
     const newBranch = event.target.value;
     setBranch(newBranch);
 
-    // Clear directorate if the new branch has no child directorates
-    if (newBranch) {
-      const hasChildren = directorates.some((directorate) => directorate.parent?.id === Number(newBranch));
-      if (!hasChildren) {
-        setDirectorate(undefined);
-      }
-    } else {
-      setDirectorate(undefined);
-    }
+    // Always clear directorate when branch changes
+    setDirectorate(undefined);
   };
   const submitterName = getUserFullName(formValues?.submitter);
 
@@ -313,10 +317,16 @@ export function SubmissionDetailsForm({
               onChange={handleBranchChange}
               options={branchOrServiceCanadaRegionOptions}
               label={tApp('submission-details.branch-or-service-canada-region')}
-              defaultValue={formValues?.workUnit !== undefined ? String(formValues.workUnit.parent?.id) : ''}
+              defaultValue={
+                formValues?.workUnit?.parent
+                  ? String(formValues.workUnit.parent.id)
+                  : formValues?.workUnit
+                    ? String(formValues.workUnit.id)
+                    : ''
+              }
               className="w-full sm:w-1/2"
             />
-            {branch && (
+            {branch && branchHasDirectorates && (
               <InputSelect
                 id="directorate"
                 name="directorate"
@@ -329,6 +339,8 @@ export function SubmissionDetailsForm({
                 className="w-full sm:w-1/2"
               />
             )}
+            {/* Hidden input to submit branch ID when no directorates exist */}
+            {branch && !branchHasDirectorates && <input type="hidden" name="directorate" value={branch} />}
             <InputRadios
               id="language-of-correspondence"
               name="languageOfCorrespondenceId"

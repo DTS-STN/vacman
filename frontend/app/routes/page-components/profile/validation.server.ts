@@ -84,18 +84,42 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
             }, 'app:employment-information.errors.branch-or-service-canada-region-expired'),
           ),
         ),
-        directorate: v.lazy(() =>
-          v.pipe(
-            stringToIntegerSchema('app:employment-information.errors.directorate-required'),
-            v.picklist(
-              allDirectorates.map(({ id }) => id),
-              'app:employment-information.errors.directorate-invalid',
-            ),
-            v.custom((directorateId) => {
-              const directorate = allDirectorates.find((c) => c.id === directorateId);
-              return directorate ? !isLookupExpired(directorate) : false;
-            }, 'app:employment-information.errors.directorate-expired'),
-          ),
+        directorate: v.optional(
+          v.lazy((input) => {
+            // Get the branch ID and directorate value from form data
+            const formData = (input ?? {}) as Record<string, unknown>;
+            const branchId = formData.branchOrServiceCanadaRegion;
+            const directorateValue = formData.directorate;
+
+            // If directorate is empty, allow it (optional field)
+            if (!directorateValue || String(directorateValue).trim() === '') {
+              return v.optional(v.string());
+            }
+
+            // If branchId is not available, just do basic validation
+            if (!branchId) {
+              return v.pipe(stringToIntegerSchema('app:employment-information.errors.directorate-invalid'));
+            }
+
+            // Check if this branch has any directorates
+            const branchHasDirectorates = allDirectorates.some((d) => d.parent?.id === Number(branchId));
+
+            // If branch has directorates, validate as directorate
+            // If branch has NO directorates, validate as branch (work unit without parent)
+            const validIds = branchHasDirectorates
+              ? allDirectorates.map(({ id }) => id)
+              : [...allBranchOrServiceCanadaRegions.map(({ id }) => id), ...allDirectorates.map(({ id }) => id)];
+
+            return v.pipe(
+              stringToIntegerSchema('app:employment-information.errors.directorate-invalid'),
+              v.picklist(validIds, 'app:employment-information.errors.directorate-invalid'),
+              v.custom((workUnitId) => {
+                // Check expiry for the selected work unit (could be branch or directorate)
+                const workUnit = [...allBranchOrServiceCanadaRegions, ...allDirectorates].find((wu) => wu.id === workUnitId);
+                return workUnit ? !isLookupExpired(workUnit) : false;
+              }, 'app:employment-information.errors.directorate-expired'),
+            );
+          }),
         ),
         provinceId: v.lazy(() =>
           v.pipe(
@@ -214,6 +238,31 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
         'app:employment-information.errors.wfa-status-required',
       ),
     ]),
+    // Custom forward validation to ensure directorate matches the selected branch (only when directorate is provided)
+    v.forward(
+      v.check((input) => {
+        // If directorate is not provided (optional), validation passes
+        if (!input.directorate || String(input.directorate).trim() === '') {
+          return true;
+        }
+
+        const branchId = Number(input.branchOrServiceCanadaRegion);
+        const directorateId = Number(input.directorate);
+
+        // Check if branch has directorates
+        const branchHasDirectorates = allDirectorates.some((d) => d.parent?.id === branchId);
+
+        if (branchHasDirectorates) {
+          // If branch has directorates, validate that directorate belongs to branch
+          const directorate = allDirectorates.find((d) => d.id === directorateId);
+          return directorate?.parent?.id === branchId;
+        } else {
+          // If branch has no directorates, directorate ID should equal branch ID
+          return directorateId === branchId;
+        }
+      }, 'app:employment-information.errors.directorate-invalid'),
+      ['directorate'],
+    ),
     v.forward(
       v.partialCheck(
         [['wfaStartDate'], ['wfaEndDate']],

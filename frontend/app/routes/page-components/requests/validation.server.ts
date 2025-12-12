@@ -189,19 +189,44 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
         }, 'app:submission-details.errors.branch-or-service-canada-region-expired'),
       ),
     ),
-    directorateSchema: v.lazy(() =>
-      v.pipe(
+    directorateSchema: v.lazy((input) => {
+      // Get the branch ID and directorate value from form data
+      const formData = (input ?? {}) as Record<string, unknown>;
+      const branchId = formData.branchOrServiceCanadaRegion;
+      const directorateValue = formData.directorate;
+
+      // If branchId is not available, just do basic validation
+      if (!branchId) {
+        return v.pipe(stringToIntegerSchema('app:submission-details.errors.directorate-required'));
+      }
+
+      // Check if this branch has any directorates
+      const branchHasDirectorates = allDirectorates.some((d) => d.parent?.id === Number(branchId));
+
+      // If branch has directorates but directorate is empty, fail early with required error
+      if (branchHasDirectorates && (!directorateValue || String(directorateValue).trim() === '')) {
+        return v.pipe(
+          v.string('app:submission-details.errors.directorate-required'),
+          v.nonEmpty('app:submission-details.errors.directorate-required'),
+        );
+      }
+
+      // If branch has directorates, validate as directorate
+      // If branch has NO directorates, validate as branch (work unit without parent)
+      const validIds = branchHasDirectorates
+        ? allDirectorates.map(({ id }) => id)
+        : [...allBranchOrServiceCanadaRegions.map(({ id }) => id), ...allDirectorates.map(({ id }) => id)];
+
+      return v.pipe(
         stringToIntegerSchema('app:submission-details.errors.directorate-required'),
-        v.picklist(
-          allDirectorates.map(({ id }) => id),
-          'app:submission-details.errors.directorate-invalid',
-        ),
-        v.custom((directorateId) => {
-          const directorate = allDirectorates.find((c) => c.id === directorateId);
-          return directorate ? !isLookupExpired(directorate) : false;
+        v.picklist(validIds, 'app:submission-details.errors.directorate-invalid'),
+        v.custom((workUnitId) => {
+          // Check expiry for the selected work unit (could be branch or directorate)
+          const workUnit = [...allBranchOrServiceCanadaRegions, ...allDirectorates].find((wu) => wu.id === workUnitId);
+          return workUnit ? !isLookupExpired(workUnit) : false;
         }, 'app:submission-details.errors.directorate-expired'),
-      ),
-    ),
+      );
+    }),
     languageOfCorrespondenceIdSchema: v.lazy(() =>
       v.pipe(
         stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
@@ -254,6 +279,26 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
 
   return v.pipe(
     baseCombinedSchema,
+    // Custom forward validation to ensure directorate matches the selected branch
+    v.forward(
+      v.check((input) => {
+        const branchId = Number(input.branchOrServiceCanadaRegion);
+        const directorateId = Number(input.directorate);
+
+        // Check if branch has directorates
+        const branchHasDirectorates = allDirectorates.some((d) => d.parent?.id === branchId);
+
+        if (branchHasDirectorates) {
+          // If branch has directorates, validate that directorate belongs to branch
+          const directorate = allDirectorates.find((d) => d.id === directorateId);
+          return directorate?.parent?.id === branchId;
+        } else {
+          // If branch has no directorates, directorate ID should equal branch ID
+          return directorateId === branchId;
+        }
+      }, 'app:submission-details.errors.directorate-invalid'),
+      ['directorate'],
+    ),
     v.forward(
       v.check((input) => {
         const data = input as {

@@ -63,10 +63,14 @@ export function EmploymentInformationForm({
   const { currentLanguage } = useLanguage();
 
   const [branch, setBranch] = useState(
-    formValues?.substantiveWorkUnit ? String(formValues.substantiveWorkUnit.parent?.id) : undefined,
+    formValues?.substantiveWorkUnit?.parent
+      ? String(formValues.substantiveWorkUnit.parent.id)
+      : formValues?.substantiveWorkUnit && !formValues.substantiveWorkUnit.parent
+        ? String(formValues.substantiveWorkUnit.id) // Branch-only work unit (no parent means it's a branch)
+        : undefined,
   );
   const [directorate, setDirectorate] = useState(
-    formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveWorkUnit.id) : undefined,
+    formValues?.substantiveWorkUnit?.parent !== undefined ? String(formValues.substantiveWorkUnit.id) : undefined,
   );
   const [province, setProvince] = useState(
     formValues?.substantiveCity?.provinceTerritory !== undefined
@@ -74,6 +78,9 @@ export function EmploymentInformationForm({
       : undefined,
   );
   const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus?.id)?.code);
+
+  // Check if selected branch has directorates
+  const branchHasDirectorates = branch ? directorates.some((d) => d.parent?.id === Number(branch)) : false;
 
   // Build substantivePositionOptions with expired classification handling
   const substantivePositionOptions = buildExpiredAwareSelectOptions({
@@ -85,14 +92,16 @@ export function EmploymentInformationForm({
 
   const branchOrServiceCanadaRegionOptions = buildExpiredAwareSelectOptions({
     activeItems: branchOrServiceCanadaRegions,
-    selectedItem: formValues?.substantiveWorkUnit?.parent,
+    selectedItem: formValues?.substantiveWorkUnit
+      ? (formValues.substantiveWorkUnit.parent ?? formValues.substantiveWorkUnit) // If work unit has no parent, it itself is the branch
+      : undefined,
     language: currentLanguage ?? 'en',
     selectOptionLabel: t('form.select-option'),
   });
 
   const directorateOptions = buildExpiredAwareSelectOptions({
     activeItems: directorates.filter((c) => c.parent?.id === Number(branch)),
-    selectedItem: formValues?.substantiveWorkUnit,
+    selectedItem: formValues?.substantiveWorkUnit?.parent?.id === Number(branch) ? formValues.substantiveWorkUnit : undefined,
     language: currentLanguage ?? 'en',
     selectOptionLabel: t('form.select-option'),
   });
@@ -123,16 +132,8 @@ export function EmploymentInformationForm({
   const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newBranch = event.target.value;
     setBranch(newBranch);
-
-    // Clear directorate if the new branch has no child directorates
-    if (newBranch) {
-      const hasChildren = directorates.some((directorate) => directorate.parent?.id === Number(newBranch));
-      if (!hasChildren) {
-        setDirectorate(undefined);
-      }
-    } else {
-      setDirectorate(undefined);
-    }
+    // Always clear directorate when branch changes
+    setDirectorate(undefined);
   };
 
   const hrAdvisorOptions = [{ id: 'select-option', firstName: '', lastName: '' }, ...hrAdvisors]
@@ -174,16 +175,19 @@ export function EmploymentInformationForm({
               options={branchOrServiceCanadaRegionOptions}
               label={t('employment-information.branch-or-service-canada-region')}
               defaultValue={
-                formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveWorkUnit.parent?.id) : ''
+                formValues?.substantiveWorkUnit?.parent
+                  ? String(formValues.substantiveWorkUnit.parent.id)
+                  : formValues?.substantiveWorkUnit
+                    ? String(formValues.substantiveWorkUnit.id)
+                    : ''
               }
               className="w-full sm:w-1/2"
             />
-            {branch && (
+            {branch && branchHasDirectorates && (
               <InputSelect
                 id="directorate"
                 name="directorate"
                 errorMessage={t(extractValidationKey(formErrors?.directorate))}
-                required
                 options={directorateOptions}
                 label={t('employment-information.directorate')}
                 value={directorate ?? ''}
@@ -191,6 +195,8 @@ export function EmploymentInformationForm({
                 className="w-full sm:w-1/2"
               />
             )}
+            {/* Hidden input to submit branch ID when directorate is not selected */}
+            {branch && !directorate && <input type="hidden" name="directorate" value={branch} />}
             <InputSelect
               className="w-full sm:w-1/2"
               id="province"

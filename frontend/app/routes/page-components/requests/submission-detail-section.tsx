@@ -88,9 +88,9 @@ export default function SubmissionDetailSection({
             {branchOrServiceCanadaRegion ?? t('app:referral-requests.not-provided')}
           </DescriptionListItem>
 
-          <DescriptionListItem term={t('app:submission-details.directorate')}>
-            {directorate ?? t('app:referral-requests.not-provided')}
-          </DescriptionListItem>
+          {directorate && (
+            <DescriptionListItem term={t('app:submission-details.directorate')}>{directorate}</DescriptionListItem>
+          )}
 
           <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
             {languageOfCorrespondence ?? t('app:referral-requests.not-provided')}

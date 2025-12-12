@@ -66,8 +66,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // convert the IDs to display names
   const substantivePosition = substantivePositionResult?.into()?.name;
-  const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
-  const directorate = workUnitResult?.into()?.name;
+  const workUnit = workUnitResult?.into();
+  const branchOrServiceCanadaRegion = workUnit?.parent ? workUnit.parent.name : workUnit?.name;
+  const directorate = workUnit?.parent ? workUnit.name : undefined;
   const city = cityResult?.into();
   const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
