@@ -7,9 +7,9 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type WorkUnitService = {
-  listAll(): Promise<readonly WorkUnit[]>;
+  listAll(includeInactive?: boolean): Promise<readonly WorkUnit[]>;
   getById(id: number): Promise<Result<WorkUnit, AppError>>;
-  listAllLocalized(language: Language): Promise<readonly LocalizedWorkUnit[]>;
+  listAllLocalized(language: Language, includeInactive?: boolean): Promise<readonly LocalizedWorkUnit[]>;
   getLocalizedById(id: number, language: Language): Promise<Result<LocalizedWorkUnit, AppError>>;
   findLocalizedById(id: number, language: Language): Promise<Option<LocalizedWorkUnit>>;
   listBranches(): Promise<readonly WorkUnit[]>;

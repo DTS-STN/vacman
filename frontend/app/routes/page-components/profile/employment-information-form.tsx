@@ -83,33 +83,31 @@ export function EmploymentInformationForm({
     selectOptionLabel: t('form.select-option'),
   });
 
-  const branchOrServiceCanadaRegionOptions = [{ id: 'select-option', name: '' }, ...branchOrServiceCanadaRegions].map(
-    ({ id, name }) => ({
-      value: id === 'select-option' ? '' : String(id),
-      children: id === 'select-option' ? t('form.select-option') : name,
-    }),
-  );
+  const branchOrServiceCanadaRegionOptions = buildExpiredAwareSelectOptions({
+    activeItems: branchOrServiceCanadaRegions,
+    selectedItem: formValues?.substantiveWorkUnit?.parent,
+    language: currentLanguage ?? 'en',
+    selectOptionLabel: t('form.select-option'),
+  });
 
-  const directorateOptions = [
-    { id: 'select-option', name: '' },
-    ...directorates.filter((c) => c.parent?.id === Number(branch)),
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : name,
-  }));
+  const directorateOptions = buildExpiredAwareSelectOptions({
+    activeItems: directorates.filter((c) => c.parent?.id === Number(branch)),
+    selectedItem: formValues?.substantiveWorkUnit,
+    language: currentLanguage ?? 'en',
+    selectOptionLabel: t('form.select-option'),
+  });
 
   const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('form.select-option') : name,
   }));
 
-  const cityOptions = [
-    { id: 'select-option', name: '' },
-    ...cities.filter((c) => c.provinceTerritory.id === Number(province)),
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : name,
-  }));
+  const cityOptions = buildExpiredAwareSelectOptions({
+    activeItems: cities.filter((c) => c.provinceTerritory.id === Number(province)),
+    selectedItem: formValues?.substantiveCity,
+    language: currentLanguage ?? 'en',
+    selectOptionLabel: t('form.select-option'),
+  });
 
   const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...wfaStatuses].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),

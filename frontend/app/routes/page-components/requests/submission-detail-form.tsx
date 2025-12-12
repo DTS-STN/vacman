@@ -22,8 +22,10 @@ import { InputTextarea } from '~/components/input-textarea';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
+import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
+import { buildExpiredAwareSelectOptions } from '~/utils/lookup-utils';
 import { getUserFullName } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -52,6 +54,7 @@ export function SubmissionDetailsForm({
 }: SubmissionDetailsFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
+  const { currentLanguage } = useLanguage();
 
   const [isSubmitterHiringManager, setIsSubmiterHiringManager] = useState(
     formValues?.submitter && formValues.hiringManager ? formValues.submitter.id === formValues.hiringManager.id : undefined,
@@ -148,20 +151,19 @@ export function SubmissionDetailsForm({
     },
   ];
 
-  const branchOrServiceCanadaRegionOptions = [{ id: 'select-option', name: '' }, ...branchOrServiceCanadaRegions].map(
-    ({ id, name }) => ({
-      value: id === 'select-option' ? '' : String(id),
-      children: id === 'select-option' ? tApp('form.select-option') : name,
-    }),
-  );
+  const branchOrServiceCanadaRegionOptions = buildExpiredAwareSelectOptions({
+    activeItems: branchOrServiceCanadaRegions,
+    selectedItem: formValues?.workUnit?.parent,
+    language: currentLanguage ?? 'en',
+    selectOptionLabel: tApp('form.select-option'),
+  });
 
-  const directorateOptions = [
-    { id: 'select-option', name: '' },
-    ...directorates.filter((c) => c.parent?.id === Number(branch)),
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? tApp('form.select-option') : name,
-  }));
+  const directorateOptions = buildExpiredAwareSelectOptions({
+    activeItems: directorates.filter((c) => c.parent?.id === Number(branch)),
+    selectedItem: formValues?.workUnit,
+    language: currentLanguage ?? 'en',
+    selectOptionLabel: tApp('form.select-option'),
+  });
 
   const languageOptions = languagesOfCorrespondence.map(({ id, name }) => ({
     value: String(id),

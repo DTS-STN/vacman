@@ -139,7 +139,7 @@ export const somcConditionsSchema = v.pipe(
 );
 
 export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-manager') {
-  const allDirectorates = await getWorkUnitService().listAll();
+  const allDirectorates = await getWorkUnitService().listAll(true);
   const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
   const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 
@@ -181,8 +181,12 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
         stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
         v.picklist(
           allBranchOrServiceCanadaRegions.map(({ id }) => id),
-          'app:submission-details.errors.branch-or-service-canada-region-required',
+          'app:submission-details.errors.branch-or-service-canada-region-invalid',
         ),
+        v.custom((branchId) => {
+          const branch = allBranchOrServiceCanadaRegions.find((c) => c.id === branchId);
+          return branch ? !isLookupExpired(branch) : false;
+        }, 'app:submission-details.errors.branch-or-service-canada-region-expired'),
       ),
     ),
     directorateSchema: v.lazy(() =>
@@ -190,8 +194,12 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
         stringToIntegerSchema('app:submission-details.errors.directorate-required'),
         v.picklist(
           allDirectorates.map(({ id }) => id),
-          'app:submission-details.errors.directorate-required',
+          'app:submission-details.errors.directorate-invalid',
         ),
+        v.custom((directorateId) => {
+          const directorate = allDirectorates.find((c) => c.id === directorateId);
+          return directorate ? !isLookupExpired(directorate) : false;
+        }, 'app:submission-details.errors.directorate-expired'),
       ),
     ),
     languageOfCorrespondenceIdSchema: v.lazy(() =>

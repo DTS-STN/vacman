@@ -26,10 +26,10 @@ export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>
 
 export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
   const allSubstantivePositions = await getClassificationService().listAll(true); // Include inactive for validation
-  const allDirectorates = await getWorkUnitService().listAll();
+  const allDirectorates = await getWorkUnitService().listAll(true); // Include inactive for validation
   const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
   const allProvinces = await getProvinceService().listAll();
-  const allCities = await getCityService().listAll();
+  const allCities = await getCityService().listAll(true); // Include inactive for validation
   const allWfaStatus = await getWFAStatuses().listAll();
 
   const validWFAStatusesForRequiredDate = [
@@ -76,8 +76,12 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
             stringToIntegerSchema('app:employment-information.errors.branch-or-service-canada-region-required'),
             v.picklist(
               allBranchOrServiceCanadaRegions.map(({ id }) => id),
-              'app:employment-information.errors.branch-or-service-canada-region-required',
+              'app:employment-information.errors.branch-or-service-canada-region-invalid',
             ),
+            v.custom((branchId) => {
+              const branch = allBranchOrServiceCanadaRegions.find((c) => c.id === branchId);
+              return branch ? !isLookupExpired(branch) : false;
+            }, 'app:employment-information.errors.branch-or-service-canada-region-expired'),
           ),
         ),
         directorate: v.lazy(() =>
@@ -85,8 +89,12 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
             stringToIntegerSchema('app:employment-information.errors.directorate-required'),
             v.picklist(
               allDirectorates.map(({ id }) => id),
-              'app:employment-information.errors.directorate-required',
+              'app:employment-information.errors.directorate-invalid',
             ),
+            v.custom((directorateId) => {
+              const directorate = allDirectorates.find((c) => c.id === directorateId);
+              return directorate ? !isLookupExpired(directorate) : false;
+            }, 'app:employment-information.errors.directorate-expired'),
           ),
         ),
         provinceId: v.lazy(() =>
@@ -103,8 +111,12 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
             stringToIntegerSchema('app:employment-information.errors.city-required'),
             v.picklist(
               allCities.map(({ id }) => id),
-              'app:employment-information.errors.city-required',
+              'app:employment-information.errors.city-invalid',
             ),
+            v.custom((cityId) => {
+              const city = allCities.find((c) => c.id === cityId);
+              return city ? !isLookupExpired(city) : false;
+            }, 'app:employment-information.errors.city-expired'),
           ),
         ),
         wfaStartDateYear: v.pipe(
