@@ -334,6 +334,40 @@ class RequestEventListenerTest {
 			verify(notificationService).sendRequestNotification(eq("advisor@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
 			verify(notificationService).sendRequestNotification(eq(hrInboxEmail), eq(1L), eq("Test Request"), eq(RequestEvent.CANCELLED), eq("en"));
 		}
+
+		@Test
+		@DisplayName("Should send PSC not required notification to all contacts and HR inbox")
+		void shouldSendPscNotRequiredNotificationToAllContactsAndHrInbox() throws Exception {
+			// Arrange
+			final var hrInboxEmail = "hr-inbox@example.com";
+			when(gcNotifyProperties.hrGdInboxEmail()).thenReturn(hrInboxEmail);
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+				.id(1L)
+				.nameEn("Test Request")
+				.languageCode("en")
+				.additionalContactEmails(List.of("additional@example.com"))
+				.submitterEmails(List.of("submitter@example.com"))
+				.hiringManagerEmails(List.of("manager@example.com"))
+				.subDelegatedManagerEmails(List.of("delegate@example.com"))
+				.hrAdvisorEmail("advisor@example.com")
+				.priorityClearanceNumber("PRI-123")
+				.pscClearanceNumber("PSC-123")
+				.build();
+
+			final var event = new ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendRequestNotification(eq("additional@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
+			verify(notificationService).sendRequestNotification(eq("submitter@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
+			verify(notificationService).sendRequestNotification(eq("manager@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
+			verify(notificationService).sendRequestNotification(eq("delegate@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
+			verify(notificationService).sendRequestNotification(eq("advisor@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
+			verify(notificationService).sendRequestNotification(eq(hrInboxEmail), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
+		}
 	}
 
 }

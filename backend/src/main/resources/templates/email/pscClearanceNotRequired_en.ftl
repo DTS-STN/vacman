@@ -1,0 +1,21 @@
+<#assign emailSubject>Departmental Clearance granted – VMS Request # ${requestNumber}</#assign>
+
+
+
+PLEASE DO NOT REPLY to this email. This is a system-generated email.
+
+Hello,
+
+Thank you for submitting the VMS request.
+
+
+
+The following clearance number has been issued:
+
+Departmental Clearance Number: ${priorityClearanceNumber}
+
+As a PSC priority clearance is not required in this situation, you may now proceed with your proposed staffing action.
+
+If you have any questions, please contact the HR Advisor assigned to your request.
+
+Thank you.
