@@ -489,7 +489,7 @@ public class RequestEventListener {
 				}
 
 				final var profile = match.getProfile();
-				final List<String> profileEmails = new ArrayList<>();
+				final var profileEmails = new ArrayList<String>();
 
 				if (StringUtils.hasText(profile.getPersonalEmailAddress())) {
 					profileEmails.add(profile.getPersonalEmailAddress());
