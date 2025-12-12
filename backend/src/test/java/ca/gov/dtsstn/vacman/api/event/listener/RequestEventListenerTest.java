@@ -1,13 +1,17 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,16 +26,26 @@ import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
+import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDtoBuilder;
+import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 
 @ExtendWith({ MockitoExtension.class })
 @DisplayName("RequestEventListener tests")
@@ -371,6 +385,700 @@ class RequestEventListenerTest {
 			verify(notificationService).sendRequestNotification(eq("delegate@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
 			verify(notificationService).sendRequestNotification(eq("advisor@example.com"), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
 			verify(notificationService).sendRequestNotification(eq(hrInboxEmail), eq(1L), eq("Test Request"), eq(RequestEvent.PSC_NOT_REQUIRED), eq("en"), eq("PRI-123"), eq("PSC-123"));
+		}
+	}
+
+	@Nested
+	@DisplayName("sendJobOpportunityHRNotificationsToMatchedProfiles()")
+	class SendJobOpportunityHRNotificationsToMatchedProfiles {
+
+		@Test
+		@DisplayName("Should send notifications to approved matches with personal email")
+		void shouldSendNotificationToApprovedMatchesWithPersonalEmail() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("en")
+				.nameEn("English")
+				.nameFr("Anglais")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile@personal.com")
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+				.id(100L)
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of())
+				.hiringManagerEmails(List.of())
+				.subDelegatedManagerEmails(List.of())
+				.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendJobOpportunityHRNotification(
+				eq(List.of("profile@personal.com")),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("en")
+			);
+		}
+
+		@Test
+		@DisplayName("Should send notifications to approved matches with business email only")
+		void shouldSendNotificationToApprovedMatchesWithBusinessEmail() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("en")
+				.nameEn("English")
+				.nameFr("Anglais")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var user = UserEntity.builder()
+				.id(1L)
+				.businessEmailAddress("profile@business.com")
+				.firstName("John")
+				.lastName("Doe")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.user(user)
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+				.id(100L)
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of())
+				.hiringManagerEmails(List.of())
+				.subDelegatedManagerEmails(List.of())
+				.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendJobOpportunityHRNotification(
+				eq(List.of("profile@business.com")),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("en")
+			);
+		}
+
+		@Test
+		@DisplayName("Should send notifications to approved matches with both personal and business emails")
+		void shouldSendNotificationToApprovedMatchesWithBothEmails() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("en")
+				.nameEn("English")
+				.nameFr("Anglais")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var user = UserEntity.builder()
+				.id(1L)
+				.businessEmailAddress("profile@business.com")
+				.firstName("John")
+				.lastName("Doe")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile@personal.com")
+				.user(user)
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendJobOpportunityHRNotification(
+				eq(List.of("profile@personal.com", "profile@business.com")),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("en")
+			);
+		}
+
+		@Test
+		@DisplayName("Should not send notifications to approved matches with no emails")
+		void shouldNotSendNotificationToApprovedMatchesWithNoEmails() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("en")
+				.nameEn("English")
+				.nameFr("Anglais")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService, never()).sendJobOpportunityHRNotification(
+				anyList(),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				anyString()
+			);
+		}
+
+		@Test
+		@DisplayName("Should not send notifications to non-approved matches")
+		void shouldNotSendNotificationToNonApprovedMatches() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("en")
+				.nameEn("English")
+				.nameFr("Anglais")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("PENDING")
+				.nameEn("Pending")
+				.nameFr("En attente")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile@personal.com")
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService, never()).sendJobOpportunityHRNotification(
+				anyList(),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				anyString()
+			);
+		}
+
+		@Test
+		@DisplayName("Should send notifications in French when profile has French language preference")
+		void shouldSendNotificationInFrenchForFrenchPreference() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("fr")
+				.nameEn("French")
+				.nameFr("Français")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile@personal.com")
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendJobOpportunityHRNotification(
+				eq(List.of("profile@personal.com")),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("fr")
+			);
+		}
+
+		@Test
+		@DisplayName("Should default to English when profile has no language preference")
+		void shouldDefaultToEnglishWhenNoLanguagePreference() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile@personal.com")
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendJobOpportunityHRNotification(
+				eq(List.of("profile@personal.com")),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("en")
+			);
+		}
+
+		@Test
+		@DisplayName("Should include match feedback in English when available")
+		void shouldIncludeMatchFeedbackInEnglish() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("en")
+				.nameEn("English")
+				.nameFr("Anglais")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var matchFeedback = MatchFeedbackEntity.builder()
+				.code("GOOD_FIT")
+				.nameEn("Good fit for position")
+				.nameFr("Bon candidat pour le poste")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile@personal.com")
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.matchFeedback(matchFeedback)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendJobOpportunityHRNotification(
+				eq(List.of("profile@personal.com")),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("en")
+			);
+		}
+
+		@Test
+		@DisplayName("Should include match feedback in French when profile prefers French")
+		void shouldIncludeMatchFeedbackInFrench() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("fr")
+				.nameEn("French")
+				.nameFr("Français")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var matchFeedback = MatchFeedbackEntity.builder()
+				.code("GOOD_FIT")
+				.nameEn("Good fit for position")
+				.nameFr("Bon candidat pour le poste")
+				.build();
+
+			final var profile = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile@personal.com")
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match = MatchEntity.builder()
+				.id(1L)
+				.profile(profile)
+				.request(request)
+				.matchStatus(matchStatus)
+				.matchFeedback(matchFeedback)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService).sendJobOpportunityHRNotification(
+				eq(List.of("profile@personal.com")),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("fr")
+			);
+		}
+
+		@Test
+		@DisplayName("Should send notifications to multiple approved matches")
+		void shouldSendNotificationsToMultipleApprovedMatches() throws Exception {
+			// Arrange
+			when(lookupCodes.matchStatuses().approved()).thenReturn("APPROVED");
+			when(lookupCodes.languages().english()).thenReturn("en");
+
+			final var language = LanguageEntity.builder()
+				.code("en")
+				.nameEn("English")
+				.nameFr("Anglais")
+				.build();
+
+			final var matchStatus = MatchStatusEntity.builder()
+				.code("APPROVED")
+				.nameEn("Approved")
+				.nameFr("Approuvé")
+				.build();
+
+			final var profile1 = ProfileEntity.builder()
+				.id(1L)
+				.personalEmailAddress("profile1@personal.com")
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var profile2 = ProfileEntity.builder()
+				.id(2L)
+				.personalEmailAddress("profile2@personal.com")
+				.languageOfCorrespondence(language)
+				.build();
+
+			final var request = RequestEntity.builder()
+				.id(100L)
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.build();
+
+			final var match1 = MatchEntity.builder()
+				.id(1L)
+				.profile(profile1)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			final var match2 = MatchEntity.builder()
+				.id(2L)
+				.profile(profile2)
+				.request(request)
+				.matchStatus(matchStatus)
+				.build();
+
+			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
+			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match1, match2));
+			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService, times(2)).sendJobOpportunityHRNotification(
+				anyList(),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				eq("en")
+			);
+		}
+
+		@Test
+		@DisplayName("Should handle request not found gracefully")
+		void shouldHandleRequestNotFoundGracefully() throws Exception {
+			// Arrange
+			when(requestRepository.findById(100L)).thenReturn(Optional.empty());
+
+			final var requestDto = RequestEventDtoBuilder.builder()
+.id(100L)
+.additionalContactEmails(List.of())
+.submitterEmails(List.of())
+.hiringManagerEmails(List.of())
+.subDelegatedManagerEmails(List.of())
+.build();
+
+			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
+
+			// Act
+			requestEventListener.handleRequestStatusChange(event);
+
+			// Assert
+			verify(notificationService, never()).sendJobOpportunityHRNotification(
+				anyList(),
+				any(EmailTemplateModel.JobOpportunityHR.class),
+				anyString()
+			);
 		}
 	}
 
