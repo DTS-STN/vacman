@@ -475,7 +475,7 @@ public class RequestEventListener {
 	 */
 	private void sendJobOpportunityHRNotificationsToMatchedProfiles(RequestEventDto requestDto) {
 		requestRepository.findById(requestDto.id()).ifPresentOrElse(request -> {
-			final var matches = matchRepository.findAll(MatchRepository.hasRequestId(request.getId()));
+			final var matches = matchRepository.findAllByRequestId(request.getId());
 			log.info("Found {} matches for request ID: {}", matches.size(), request.getId());
 
 			for (final var match : matches) {
