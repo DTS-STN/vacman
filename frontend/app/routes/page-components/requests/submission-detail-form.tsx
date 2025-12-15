@@ -297,6 +297,7 @@ export function SubmissionDetailsForm({
               defaultValue={formValues?.additionalContact?.businessEmailAddress}
               errorMessage={tApp(extractValidationKey(formErrors?.additionalContactBusinessEmailAddress))}
               onChange={onAlternateContactEmailChange}
+              helpMessagePrimary={tApp('submission-details.alternate-contact-email-help-message')}
             />
             {alternateContactName && (
               <NameTag
