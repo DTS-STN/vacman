@@ -34,7 +34,7 @@ import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { LoadingLink } from '~/components/loading-link';
 import { PageTitle } from '~/components/page-title';
-import { Column, ColumnHeader, ColumnOptions, ColumnSearch, ServerTable } from '~/components/server-table';
+import { Column, ColumnOptions, ColumnSearch, ColumnSort, ServerTable } from '~/components/server-table';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -369,14 +369,10 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         <Column
           id="employeeName"
           accessorFn={(row: Profile) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`}
-          header={({ column }) => (
-            <ColumnSearch
-              column={column}
-              title={t('app:hr-advisor-employees-table.employee')}
-              page="page"
-              searchParams={searchParams}
-              setSearchParams={setSearchParams}
-            />
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('app:hr-advisor-employees-table.employee')}>
+              <ColumnSearch />
+            </ColumnHeader>
           )}
           cell={(info) => <span>{info.getValue() as string}</span>}
         />
@@ -384,7 +380,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         <Column
           id="user.businessEmailAddress"
           accessorFn={(row: Profile) => row.profileUser.businessEmailAddress}
-          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />}
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('app:hr-advisor-employees-table.email')}>
+              <ColumnSort />
+            </ColumnHeader>
+          )}
           cell={(info) => {
             const email = info.row.original.profileUser.businessEmailAddress;
             return (
@@ -401,7 +401,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         <Column
           id="lastModifiedDate"
           accessorFn={(row: Profile) => formatDateYMD(row.lastModifiedDate)}
-          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />}
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('app:hr-advisor-employees-table.updated')}>
+              <ColumnSort />
+            </ColumnHeader>
+          )}
           cell={(info) => {
             const lastModifiedDate = info.row.original.lastModifiedDate;
             const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
@@ -417,7 +421,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             const branch = row.substantiveWorkUnit?.parent ?? row.substantiveWorkUnit;
             return loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr;
           }}
-          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.branch')} />}
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('app:hr-advisor-employees-table.branch')}>
+              <ColumnSort />
+            </ColumnHeader>
+          )}
           cell={(info) => {
             // Branch is the parent if work unit has one, otherwise the work unit itself
             const branch = info.row.original.substantiveWorkUnit?.parent ?? info.row.original.substantiveWorkUnit;
@@ -431,15 +439,10 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           accessorFn={(row: Profile) =>
             (loaderData.lang === 'en' ? row.profileStatus?.nameEn : row.profileStatus?.nameFr) ?? '-'
           }
-          header={({ column }) => (
-            <ColumnOptions
-              column={column}
-              title={t('app:hr-advisor-employees-table.status')}
-              options={loaderData.statuses}
-              page={`page`}
-              searchParams={searchParams}
-              setSearchParams={setSearchParams}
-            />
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('app:hr-advisor-employees-table.status')}>
+              <ColumnOptions options={loaderData.statuses} />
+            </ColumnHeader>
           )}
           cell={(info) => {
             const status = info.row.original.profileStatus;
