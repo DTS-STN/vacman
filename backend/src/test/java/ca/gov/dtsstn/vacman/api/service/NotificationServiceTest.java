@@ -49,8 +49,9 @@ class NotificationServiceTest {
 
 	@BeforeEach
 	void beforeEach() {
-		lenient().when(applicationProperties.frontend()).thenReturn(mock(FrontendProperties.class));
-		lenient().when(applicationProperties.frontend().baseUrl()).thenReturn("http://localhost:3000");
+		final var frontendPropertiesMock = mock(FrontendProperties.class);
+		lenient().when(applicationProperties.frontend()).thenReturn(frontendPropertiesMock);
+		lenient().when(frontendPropertiesMock.baseUrl()).thenReturn("http://localhost:3000");
 
 		when(applicationProperties.gcnotify()).thenReturn(mock(GcNotifyProperties.class));
 		when(applicationProperties.gcnotify().apiKey()).thenReturn("test-api-key");
