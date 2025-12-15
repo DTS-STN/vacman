@@ -60,9 +60,9 @@ export async function createPositionInformationSchema() {
           allClassifications.map(({ id }) => id),
           'app:position-information.errors.group-and-level-invalid',
         ),
-        v.custom((branchId) => {
-          const branch = allClassifications.find((c) => c.id === branchId);
-          return branch ? !isLookupExpired(branch) : false;
+        v.custom((classificationId) => {
+          const classification = allClassifications.find((c) => c.id === classificationId);
+          return classification ? !isLookupExpired(classification) : false;
         }, 'app:position-information.errors.group-and-level-expired'),
       ),
     ),
