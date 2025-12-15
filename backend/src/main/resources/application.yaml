@@ -271,6 +271,8 @@ application:
     roles-claim-name: roles
     roles:
       hr-advisor: hr-advisor
+  frontend:
+    base-url: http://localhost:3000
   gcnotify:
     base-url: https://api.notification.canada.ca/v2/notifications
     connect-timeout: 30s

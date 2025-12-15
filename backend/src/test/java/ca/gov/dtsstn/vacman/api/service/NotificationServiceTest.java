@@ -21,6 +21,7 @@ import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.FrontendProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
@@ -48,6 +49,9 @@ class NotificationServiceTest {
 
 	@BeforeEach
 	void beforeEach() {
+		lenient().when(applicationProperties.frontend()).thenReturn(mock(FrontendProperties.class));
+		lenient().when(applicationProperties.frontend().baseUrl()).thenReturn("http://localhost:3000");
+
 		when(applicationProperties.gcnotify()).thenReturn(mock(GcNotifyProperties.class));
 		when(applicationProperties.gcnotify().apiKey()).thenReturn("test-api-key");
 		when(applicationProperties.gcnotify().baseUrl()).thenReturn("https://notification.example.com/notifications/email");
