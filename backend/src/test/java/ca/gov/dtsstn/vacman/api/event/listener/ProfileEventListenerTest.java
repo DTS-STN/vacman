@@ -209,7 +209,6 @@ class ProfileEventListenerTest {
 
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
-			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			when(profileStatusRepository.findById(2L))
 				.thenReturn(Optional.of(ProfileStatusEntity.builder()
