@@ -8,7 +8,9 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
@@ -30,6 +32,7 @@ export async function createPositionInformationSchema() {
   const allCities = await getCityService().listAll();
   const allClassifications = await getClassificationService().listAll(true); // Include inactive for validation
   const allLanguageRequirements = await getLanguageRequirementService().listAll();
+  const allSecurityClearances = await getSecurityClearanceService().listAll();
 
   return v.object({
     positionNumber: v.pipe(
@@ -50,20 +53,18 @@ export async function createPositionInformationSchema() {
         return uniqueNumbers.size === numbers.length;
       }, 'app:position-information.errors.position-number-duplicate'),
     ),
-    groupAndLevel: v.pipe(
-      v.string('app:position-information.errors.group-and-level-required'),
-      v.trim(),
-      v.nonEmpty('app:position-information.errors.group-and-level-required'),
-      v.transform((value) => Number(value)),
-      v.number('app:position-information.errors.group-and-level-required'),
-      v.picklist(
-        allClassifications.map(({ id }) => id),
-        'app:position-information.errors.group-and-level-invalid',
+    groupAndLevel: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:position-information.errors.group-and-level-required'),
+        v.picklist(
+          allClassifications.map(({ id }) => id),
+          'app:position-information.errors.group-and-level-invalid',
+        ),
+        v.custom((classificationId) => {
+          const classification = allClassifications.find((c) => c.id === classificationId);
+          return classification ? !isLookupExpired(classification) : false;
+        }, 'app:position-information.errors.group-and-level-expired'),
       ),
-      v.custom((classificationId) => {
-        const classification = allClassifications.find((c) => c.id === classificationId);
-        return classification ? !isLookupExpired(classification) : false;
-      }, 'app:position-information.errors.group-and-level-expired'),
     ),
     titleEn: v.pipe(
       v.string('app:position-information.errors.title-en-required'),
@@ -115,10 +116,14 @@ export async function createPositionInformationSchema() {
       ),
       v.nonEmpty('app:position-information.errors.language-requirement-required'),
     ),
-    securityRequirement: v.pipe(
-      v.string('app:position-information.errors.security-requirement-required'),
-      v.trim(),
-      v.nonEmpty('app:position-information.errors.security-requirement-required'),
+    securityRequirement: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:position-information.errors.security-requirement-required'),
+        v.picklist(
+          allSecurityClearances.map(({ id }) => id),
+          'app:position-information.errors.security-requirement-invalid',
+        ),
+      ),
     ),
   });
 }
@@ -343,6 +348,7 @@ export async function createProcessInformationSchema() {
   const allNonAdvertisedAppointments = await getNonAdvertisedAppointmentService().listAll();
   const allEmploymentTenures = await getEmploymentTenureService().listAll();
   const allEmploymentEquities = await getEmploymentEquityService().listAll();
+  const allWorkSchedules = await getWorkScheduleService().listAll();
 
   const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes.filter(
     (c) => c.id === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id,
@@ -384,10 +390,14 @@ export async function createProcessInformationSchema() {
           ),
         ),
         approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
-        workSchedule: v.pipe(
-          v.string('app:process-information.errors.work-schedule-required'),
-          v.trim(),
-          v.nonEmpty('app:process-information.errors.work-schedule-required'),
+        workSchedule: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:process-information.errors.work-schedule-required'),
+            v.picklist(
+              allWorkSchedules.map(({ id }) => id),
+              'app:process-information.errors.work-schedule-invalid',
+            ),
+          ),
         ),
       }),
       v.variant(

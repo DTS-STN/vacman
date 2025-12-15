@@ -276,6 +276,7 @@ export default {
       'non-advertised-appointment-required': 'Reason for non-advertised appointment is required.',
       'selection-process-type-required': 'Selection process type is required.',
       'work-schedule-required': 'Work schedule is required.',
+      'work-schedule-invalid': 'Work schedule is invalid.',
       'projected-start-date': {
         'invalid': 'Projected start date is invalid.',
         'invalid-future-date': 'Projected start date must be in past or today.',
@@ -509,12 +510,6 @@ export default {
     'select-all-cities-sr': 'All cities in {{province}} selected.',
     'province': 'Province',
     'city': 'City',
-    'language-profile': 'Language profile',
-    'reading-comprehension': 'Reading comprehension',
-    'written-expression': 'Written expression',
-    'oral-proficiency': 'Oral proficiency',
-    'english': 'English',
-    'french': 'French',
     'language-requirement': 'Language requirement',
     'security-requirement': 'Security requirement',
     'errors': {
@@ -534,15 +529,8 @@ export default {
       'city-invalid': 'City is invalid.',
       'city-duplicate': 'Duplicate items for same city are not allowed.',
       'language-requirement-required': 'Language requirement is required.',
-      'language-profile': {
-        'reading-comprehension-en-required': 'Reading comprehension for English is required.',
-        'reading-comprehension-fr-required': 'Reading comprehension for French is required.',
-        'written-expression-en-required': 'Written expression for English is required.',
-        'written-expression-fr-required': 'Written expression for French is required.',
-        'oral-proficiency-en-required': 'Oral proficiency for English is required.',
-        'oral-proficiency-fr-required': 'Oral proficiency for French is required.',
-      },
       'security-requirement-required': 'Security requirement is required.',
+      'security-requirement-invalid': 'Security requirement is invalid.',
     },
     'choice-tag': {
       city: 'city',
@@ -586,6 +574,8 @@ export default {
     'sub-delegate-email': 'Staffing sub-delegated manager email address',
     'sub-delegate-name': 'Staffing sub-delegated manager: {{name}}',
     'alternate-contact-email': 'Alternate contact email address',
+    'alternate-contact-email-help-message':
+      'Using a generic mailbox as a contact does not give members access to the request in their dashboard.',
     'alternate-contact-name': 'Alternate contact: {{name}}',
     'alternate-contact-title': 'Alternate contact',
     'branch-or-service-canada-region': 'Branch or Service Canada Region',

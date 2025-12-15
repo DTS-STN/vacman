@@ -279,6 +279,7 @@ export default {
       'non-advertised-appointment-required': "Raison de la nomination d'un processus non-annoncé est obligatoire.",
       'selection-process-type-required': 'Type de processus de sélection est obligatoire.',
       'work-schedule-required': 'Horaire de travail est obligatoire.',
+      'work-schedule-invalid': "Horaire de travail n'est pas valide.",
       'projected-start-date': {
         'invalid': "La date de début prévue n'est pas valide.",
         'invalid-future-date': "La date de début prévue doit être dans le passé ou aujourd'hui.",
@@ -514,12 +515,6 @@ export default {
     'select-all-cities-sr': 'Toutes les villes de {{province}} ont été sélectionnées.',
     'province': 'Province',
     'city': 'Ville',
-    'language-profile': 'Profil linguistique',
-    'reading-comprehension': "Compréhension de l'écrit",
-    'written-expression': 'Expression écrite',
-    'oral-proficiency': 'Compétence orale',
-    'english': 'Anglais',
-    'french': 'Français',
     'language-requirement': 'Exigence linguistique',
     'security-requirement': 'Exigences en matière de sécurité',
     'errors': {
@@ -539,15 +534,8 @@ export default {
       'city-invalid': "La ville n'est pas valide.",
       'city-duplicate': 'Les doublons pour la ville ne sont pas autorisés.',
       'language-requirement-required': "L'exigence linguistique est obligatoire.",
-      'language-profile': {
-        'reading-comprehension-en-required': "La compréhension de l'écrit de l'anglais est obligatoire.",
-        'reading-comprehension-fr-required': "La compréhension de l'écrit du français est obligatoire.",
-        'written-expression-en-required': "L'expression écrite en anglais est obligatoire.",
-        'written-expression-fr-required': "L'expression écrite en français est obligatoire.",
-        'oral-proficiency-en-required': "La compétence à l'oral en anglais est obligatoire.",
-        'oral-proficiency-fr-required': "La compétence à l'oral en français est obligatoire.",
-      },
       'security-requirement-required': "L'exigence de sécurité est obligatoire.",
+      'security-requirement-invalid': "L'exigence de sécurité n'est pas valide.",
     },
     'choice-tag': {
       city: 'ville',
@@ -591,6 +579,8 @@ export default {
     'sub-delegate-email': 'Adresse courriel du (de la) gestionnaire subdélégué-e à la dotation',
     'sub-delegate-name': 'Gestionnaire subdélégué-e à la dotation\u00A0: {{name}}',
     'alternate-contact-email': 'Adresse courriel du contact secondaire',
+    'alternate-contact-email-help-message':
+      "Utiliser une boite générique comme contact ne permet pas aux membres d'accéder à la demande dans leur tableau de bord.",
     'alternate-contact-name': 'Contact secondaire\u00A0: {{name}}',
     'alternate-contact-title': 'Contact secondaire',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
