@@ -277,7 +277,7 @@ export default {
       'non-advertised-appointment-required': 'Reason for non-advertised appointment is required.',
       'selection-process-type-required': 'Selection process type is required.',
       'work-schedule-required': 'Work schedule is required.',
-      'work-schedule-invalid': 'Work schedule is required.',
+      'work-schedule-invalid': 'Work schedule is invalid.',
       'projected-start-date': {
         'invalid': 'Projected start date is invalid.',
         'invalid-future-date': 'Projected start date must be in past or today.',
