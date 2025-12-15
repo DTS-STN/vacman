@@ -522,6 +522,8 @@ public class RequestService {
 		// Set status to HR_REVIEW
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.hrReview()));
 
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(requestEntityMapper.toEventDto(request), currentStatus, requestStatuses.hrReview()));
+
 		return request;
 	}
 
