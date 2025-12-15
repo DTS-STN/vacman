@@ -58,7 +58,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
     classificationId: parseResult.output.substantiveClassification,
-    workUnitId: parseResult.output.directorate,
+    workUnitId: parseResult.output.directorate
+      ? Number(parseResult.output.directorate)
+      : parseResult.output.branchOrServiceCanadaRegion
+        ? Number(parseResult.output.branchOrServiceCanadaRegion)
+        : undefined,
     cityId: parseResult.output.cityId,
     wfaStatusId: parseResult.output.wfaStatusId,
     wfaStartDate: parseResult.output.wfaStartDate,
@@ -90,9 +94,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
-  const directorates = await getWorkUnitService().listAllLocalized(lang);
-  // Extract unique branches from directorates that have parents
-  const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(directorates);
+  const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
+  const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
+  // Extract all unique branches (both standalone and those with directorates)
+  const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);

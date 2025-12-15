@@ -155,7 +155,6 @@ export default {
       'branch-or-service-canada-region-invalid': "La direction générale ou la région de Service Canada n'est pas valide.",
       'branch-or-service-canada-region-expired':
         'La direction générale ou la région de Service Canada sélectionnée a expiré. Veuillez sélectionner une option valide.',
-      'directorate-required': 'La direction est obligatoire.',
       'directorate-invalid': "La direction n'est pas valide.",
       'directorate-expired': 'La direction sélectionnée a expiré. Veuillez sélectionner une option valide.',
       'provinces-required': 'La province du lieu de travail désigné de votre poste substantif est obligatoire.',

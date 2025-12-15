@@ -245,9 +245,18 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countCompletedItems(employmentInformationData) === 0,
       substantivePosition:
         lang === 'en' ? profileData.substantiveClassification?.nameEn : profileData.substantiveClassification?.nameFr,
-      branchOrServiceCanadaRegion:
-        lang === 'en' ? profileData.substantiveWorkUnit?.parent?.nameEn : profileData.substantiveWorkUnit?.parent?.nameFr,
-      directorate: lang === 'en' ? profileData.substantiveWorkUnit?.nameEn : profileData.substantiveWorkUnit?.nameFr,
+      branchOrServiceCanadaRegion: profileData.substantiveWorkUnit?.parent
+        ? lang === 'en'
+          ? profileData.substantiveWorkUnit.parent.nameEn
+          : profileData.substantiveWorkUnit.parent.nameFr
+        : lang === 'en'
+          ? profileData.substantiveWorkUnit?.nameEn
+          : profileData.substantiveWorkUnit?.nameFr,
+      directorate: profileData.substantiveWorkUnit?.parent
+        ? lang === 'en'
+          ? profileData.substantiveWorkUnit.nameEn
+          : profileData.substantiveWorkUnit.nameFr
+        : undefined,
       province:
         lang === 'en'
           ? profileData.substantiveCity?.provinceTerritory.nameEn

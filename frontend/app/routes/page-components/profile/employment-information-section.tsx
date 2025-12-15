@@ -43,9 +43,9 @@ export function EmploymentInformationSection({
           <DescriptionListItem term={t('employment-information.branch-or-service-canada-region')}>
             {branchOrServiceCanadaRegion ?? t('profile.not-provided')}
           </DescriptionListItem>
-          <DescriptionListItem term={t('employment-information.directorate')}>
-            {directorate ?? t('profile.not-provided')}
-          </DescriptionListItem>
+          {directorate && (
+            <DescriptionListItem term={t('employment-information.directorate')}>{directorate}</DescriptionListItem>
+          )}
           <DescriptionListItem term={t('employment-information.provinces')}>
             {province ?? t('profile.not-provided')}
           </DescriptionListItem>
