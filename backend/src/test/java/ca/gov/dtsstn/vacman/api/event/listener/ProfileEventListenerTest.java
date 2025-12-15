@@ -209,6 +209,7 @@ class ProfileEventListenerTest {
 
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			when(profileStatusRepository.findById(2L))
 				.thenReturn(Optional.of(ProfileStatusEntity.builder()
@@ -240,6 +241,7 @@ class ProfileEventListenerTest {
 
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			when(profileStatusRepository.findById(2L))
 				.thenReturn(Optional.of(ProfileStatusEntity.builder()
@@ -271,6 +273,7 @@ class ProfileEventListenerTest {
 
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			when(profileStatusRepository.findById(2L))
 				.thenReturn(Optional.of(ProfileStatusEntity.builder()
@@ -302,6 +305,7 @@ class ProfileEventListenerTest {
 
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			when(profileStatusRepository.findById(2L))
 				.thenReturn(Optional.of(ProfileStatusEntity.builder()
@@ -333,6 +337,7 @@ class ProfileEventListenerTest {
 
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			when(profileStatusRepository.findById(2L))
 				.thenReturn(Optional.of(ProfileStatusEntity.builder()
@@ -365,6 +370,7 @@ class ProfileEventListenerTest {
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
 			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			when(profileStatusRepository.findById(1L))
 				.thenReturn(Optional.of(ProfileStatusEntity.builder()
@@ -415,6 +421,7 @@ class ProfileEventListenerTest {
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
 			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
@@ -452,6 +459,7 @@ class ProfileEventListenerTest {
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
 			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
@@ -488,6 +496,7 @@ class ProfileEventListenerTest {
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
 			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
@@ -525,6 +534,7 @@ class ProfileEventListenerTest {
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
 			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
@@ -575,6 +585,7 @@ class ProfileEventListenerTest {
 
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
@@ -608,6 +619,7 @@ class ProfileEventListenerTest {
 			when(profileStatusCodes.approved()).thenReturn("APPROVED");
 			when(profileStatusCodes.pending()).thenReturn("PENDING");
 			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 3L));
 
@@ -617,6 +629,255 @@ class ProfileEventListenerTest {
 				any(String.class),
 				any(String.class),
 				any(ProfileStatus.class)
+			);
+		}
+
+		@Test
+		@DisplayName("Should send archived notification to profile owner and HR advisor when status changes to archived")
+		void shouldSendArchivedNotificationWhenStatusChangesToArchived() throws Exception {
+			final var profile = ProfileEventDtoBuilder.builder()
+				.id(1313L)
+				.userFirstName("Sarah")
+				.userLastName("Connor")
+				.languageOfCorrespondenceCode("EN")
+				.userEmails(List.of("sarah.connor@example.com", "sarah.personal@example.com"))
+				.hrAdvisorEmail("hradvisor@example.com")
+				.build();
+
+			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
+			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+
+			when(profileStatusRepository.findById(1L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(1L)
+					.code("APPROVED")
+					.build()));
+
+			when(profileStatusRepository.findById(2L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(2L)
+					.code("ARCHIVED")
+					.build()));
+
+			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
+
+			// Verify notification sent to profile owner emails
+			verify(notificationService).sendProfileNotification(
+				eq(List.of("sarah.connor@example.com", "sarah.personal@example.com")),
+				eq("1313"),
+				eq("Sarah Connor"),
+				eq("EN"),
+				eq(ProfileStatus.ARCHIVED)
+			);
+
+			// Verify notification sent to HR advisor
+			verify(notificationService).sendProfileNotification(
+				eq("hradvisor@example.com"),
+				eq("1313"),
+				eq("Sarah Connor"),
+				eq("EN"),
+				eq(ProfileStatus.ARCHIVED)
+			);
+		}
+
+		@Test
+		@DisplayName("Should send archived notification with only business email when personal email is not available")
+		void shouldSendArchivedNotificationWithOnlyBusinessEmail() throws Exception {
+			final var profile = ProfileEventDtoBuilder.builder()
+				.id(1414L)
+				.userFirstName("John")
+				.userLastName("Connor")
+				.languageOfCorrespondenceCode("FR")
+				.userEmails(List.of("john.connor@example.com"))
+				.hrAdvisorEmail("hradvisor@example.com")
+				.build();
+
+			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
+			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+
+			when(profileStatusRepository.findById(1L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(1L)
+					.code("APPROVED")
+					.build()));
+
+			when(profileStatusRepository.findById(2L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(2L)
+					.code("ARCHIVED")
+					.build()));
+
+			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
+
+			// Verify notification sent to profile owner email
+			verify(notificationService).sendProfileNotification(
+				eq(List.of("john.connor@example.com")),
+				eq("1414"),
+				eq("John Connor"),
+				eq("FR"),
+				eq(ProfileStatus.ARCHIVED)
+			);
+
+			// Verify notification sent to HR advisor
+			verify(notificationService).sendProfileNotification(
+				eq("hradvisor@example.com"),
+				eq("1414"),
+				eq("John Connor"),
+				eq("FR"),
+				eq(ProfileStatus.ARCHIVED)
+			);
+		}
+
+		@Test
+		@DisplayName("Should not send archived notification to profile owner when no emails are available")
+		void shouldNotSendArchivedNotificationToOwnerWhenNoEmailsAvailable() throws Exception {
+			final var profile = ProfileEventDtoBuilder.builder()
+				.id(1515L)
+				.userFirstName("Kyle")
+				.userLastName("Reese")
+				.languageOfCorrespondenceCode("EN")
+				.userEmails(List.of())
+				.hrAdvisorEmail("hradvisor@example.com")
+				.build();
+
+			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
+			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+
+			when(profileStatusRepository.findById(1L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(1L)
+					.code("APPROVED")
+					.build()));
+
+			when(profileStatusRepository.findById(2L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(2L)
+					.code("ARCHIVED")
+					.build()));
+
+			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
+
+			// Verify no notification sent to profile owner (empty list)
+			verify(notificationService, never()).sendProfileNotification(
+				eq(List.of()),
+				any(String.class),
+				any(String.class),
+				any(String.class),
+				eq(ProfileStatus.ARCHIVED)
+			);
+
+			// But still verify notification sent to HR advisor
+			verify(notificationService).sendProfileNotification(
+				eq("hradvisor@example.com"),
+				eq("1515"),
+				eq("Kyle Reese"),
+				eq("EN"),
+				eq(ProfileStatus.ARCHIVED)
+			);
+		}
+
+		@Test
+		@DisplayName("Should not send archived notification to HR advisor when HR advisor email is null")
+		void shouldNotSendArchivedNotificationToHrAdvisorWhenEmailIsNull() throws Exception {
+			final var profile = ProfileEventDtoBuilder.builder()
+				.id(1616L)
+				.userFirstName("Miles")
+				.userLastName("Dyson")
+				.languageOfCorrespondenceCode("EN")
+				.userEmails(List.of("miles.dyson@example.com"))
+				.hrAdvisorEmail(null)
+				.build();
+
+			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
+			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+
+			when(profileStatusRepository.findById(1L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(1L)
+					.code("APPROVED")
+					.build()));
+
+			when(profileStatusRepository.findById(2L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(2L)
+					.code("ARCHIVED")
+					.build()));
+
+			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
+
+			// Verify notification sent to profile owner
+			verify(notificationService).sendProfileNotification(
+				eq(List.of("miles.dyson@example.com")),
+				eq("1616"),
+				eq("Miles Dyson"),
+				eq("EN"),
+				eq(ProfileStatus.ARCHIVED)
+			);
+
+			// Verify no notification sent to HR advisor with null email (single string overload)
+			verify(notificationService, never()).sendProfileNotification(
+				eq((String) null),
+				any(String.class),
+				any(String.class),
+				any(String.class),
+				eq(ProfileStatus.ARCHIVED)
+			);
+		}
+
+		@Test
+		@DisplayName("Should handle archived notification with unknown user name")
+		void shouldHandleArchivedNotificationWithUnknownUserName() throws Exception {
+			final var profile = ProfileEventDtoBuilder.builder()
+				.id(1717L)
+				.userFirstName(null)
+				.userLastName(null)
+				.languageOfCorrespondenceCode("EN")
+				.userEmails(List.of("unknown@example.com"))
+				.hrAdvisorEmail("hradvisor@example.com")
+				.build();
+
+			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.pending()).thenReturn("PENDING");
+			when(profileStatusCodes.archived()).thenReturn("ARCHIVED");
+			when(profileStatusCodes.incomplete()).thenReturn("INCOMPLETE");
+
+			when(profileStatusRepository.findById(1L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(1L)
+					.code("APPROVED")
+					.build()));
+
+			when(profileStatusRepository.findById(2L))
+				.thenReturn(Optional.of(ProfileStatusEntity.builder()
+					.id(2L)
+					.code("ARCHIVED")
+					.build()));
+
+			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
+
+			// Verify notification sent with "Unknown User" as the name
+			verify(notificationService).sendProfileNotification(
+				eq(List.of("unknown@example.com")),
+				eq("1717"),
+				eq("Unknown User"),
+				eq("EN"),
+				eq(ProfileStatus.ARCHIVED)
+			);
+
+			verify(notificationService).sendProfileNotification(
+				eq("hradvisor@example.com"),
+				eq("1717"),
+				eq("Unknown User"),
+				eq("EN"),
+				eq(ProfileStatus.ARCHIVED)
 			);
 		}
 
