@@ -277,6 +277,9 @@ public class RequestEventListener {
 			sendJobOpportunityHRNotificationsToMatchedProfiles(request);
 		} else if ("CANCELLED".equals(newStatusCode)) {
 			sendCancelledNotification(request);
+		} else if ("HR_REVIEW".equals(newStatusCode)) {
+			log.debug("Entering HR_REVIEW notification case");
+			sendHrReviewNotification(request);
 		}
 		// Add more status change handlers here as needed
 	}
@@ -442,6 +445,39 @@ public class RequestEventListener {
 	}
 
 
+
+	/**
+	 * Sends a notification when a request is moved to HR review.
+	 * The notification is sent to the HR advisor (if assigned) and the generic HR inbox.
+	 *
+	 * @param request The request DTO
+	 */
+	private void sendHrReviewNotification(RequestEventDto request) {
+		final var language = Optional.ofNullable(request.languageCode())
+			.orElse(lookupCodes.languages().english());
+
+		final var hrEmail = applicationProperties.gcnotify().hrGdInboxEmail();
+
+		// Send to generic HR inbox
+		notificationService.sendRequestNotification(
+			hrEmail,
+			request.id(),
+			request.nameEn(),
+			RequestEvent.HR_REVIEW,
+			language
+		);
+
+		// Send to HR advisor if assigned
+		Optional.ofNullable(request.hrAdvisorEmail()).ifPresent(email ->
+			notificationService.sendRequestNotification(
+				email,
+				request.id(),
+				request.nameEn(),
+				RequestEvent.HR_REVIEW,
+				language
+			)
+		);
+	}
 
 	/**
 	 * Sends a notification when a request is cancelled.

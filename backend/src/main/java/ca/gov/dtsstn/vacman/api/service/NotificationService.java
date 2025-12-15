@@ -42,7 +42,7 @@ public class NotificationService {
 	 * The events in the request lifecycle that trigger notifications.
 	 */
 	public enum RequestEvent {
-		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED, PSC_NOT_REQUIRED, PSC_REQUIRED, COMPLETED, COMPLETED_NO_VMS, CANCELLED
+		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED, PSC_NOT_REQUIRED, PSC_REQUIRED, COMPLETED, COMPLETED_NO_VMS, CANCELLED, HR_REVIEW
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
@@ -202,7 +202,7 @@ public class NotificationService {
 		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = switch (requestEvent) {
-			case SUBMITTED, VMS_NOT_REQUIRED -> "requestAssigned.ftl";
+			case SUBMITTED, VMS_NOT_REQUIRED, HR_REVIEW -> "requestAssigned.ftl";
 			case PSC_REQUIRED -> "pscClearanceRequired.ftl";
 			case FEEDBACK_PENDING -> "prioritiesIdentified.ftl";
 			case FEEDBACK_COMPLETED -> "pendingFeedbackApprovalHR.ftl";
@@ -214,7 +214,7 @@ public class NotificationService {
 
 		// Create the appropriate model based on the request event
 		final var model = switch (requestEvent) {
-			case SUBMITTED, VMS_NOT_REQUIRED ->
+			case SUBMITTED, VMS_NOT_REQUIRED, HR_REVIEW ->
 				recordToMap(new EmailTemplateModel.RequestAssigned(formatRequestNumber(requestId)));
 			case PSC_REQUIRED ->
 				recordToMap(new EmailTemplateModel.PscClearanceRequired(formatRequestNumber(requestId)));
