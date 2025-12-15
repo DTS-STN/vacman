@@ -28,6 +28,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.event.MatchStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
@@ -56,6 +57,7 @@ public class RequestEventListener {
 	private final LookupCodes lookupCodes;
 	private final MatchRepository matchRepository;
 	private final NotificationService notificationService;
+	private final RequestRepository requestRepository;
 
 	private final ObjectMapper objectMapper = JsonMapper.builder()
 		.findAndAddModules()
@@ -66,12 +68,14 @@ public class RequestEventListener {
 			LookupCodes lookupCodes,
 			NotificationService notificationService,
 			ApplicationProperties applicationProperties,
-			MatchRepository matchRepository) {
+			MatchRepository matchRepository,
+			RequestRepository requestRepository) {
 		this.applicationProperties = applicationProperties;
 		this.eventRepository = eventRepository;
 		this.lookupCodes = lookupCodes;
 		this.matchRepository = matchRepository;
 		this.notificationService = notificationService;
+		this.requestRepository = requestRepository;
 	}
 
 	@Async
@@ -263,10 +267,14 @@ public class RequestEventListener {
 		final var newStatusCode = event.newStatusCode();
 
 		// Determine which users () notify based on the status change
-		if ("PENDING_PSC_NO_VMS".equals(newStatusCode) || "PENDING_PSC".equals(newStatusCode)) {
+		if ("PENDING_PSC_NO_VMS".equals(newStatusCode)) {
 			sendPscRequiredNotification(request);
+		} else if ("PENDING_PSC".equals(newStatusCode)) {
+			sendPscRequiredNotification(request);
+			sendJobOpportunityHRNotificationsToMatchedProfiles(request);
 		} else if ("CLR_GRANTED".equals(newStatusCode)) {
 			sendPscNotRequiredNotification(request);
+			sendJobOpportunityHRNotificationsToMatchedProfiles(request);
 		} else if ("CANCELLED".equals(newStatusCode)) {
 			sendCancelledNotification(request);
 		}
@@ -461,6 +469,69 @@ public class RequestEventListener {
 			RequestEvent.CANCELLED,
 			language
 		));
+	}
+
+	/**
+	 * Sends job opportunity HR notifications to matched profiles with APPROVED status.
+	 *
+	 * @param requestDto The request DTO
+	 */
+	private void sendJobOpportunityHRNotificationsToMatchedProfiles(RequestEventDto requestDto) {
+		requestRepository.findById(requestDto.id()).ifPresentOrElse(request -> {
+			final var matches = matchRepository.findAllByRequestId(request.getId());
+			log.info("Found {} matches for request ID: {}", matches.size(), request.getId());
+
+			for (final var match : matches) {
+				final var matchStatusCode = match.getMatchStatus().getCode();
+				final var approvedStatusCode = lookupCodes.matchStatuses().approved();
+
+				// Check if match status is APPROVED
+				if (!approvedStatusCode.equals(matchStatusCode)) {
+					log.debug("Skipping match ID: {} with status: {}. Expected: {}", match.getId(), matchStatusCode, approvedStatusCode);
+					continue;
+				}
+
+				final var profile = match.getProfile();
+				final var profileEmails = new ArrayList<String>();
+
+				if (StringUtils.hasText(profile.getPersonalEmailAddress())) {
+					profileEmails.add(profile.getPersonalEmailAddress());
+				}
+
+				if (profile.getUser() != null && StringUtils.hasText(profile.getUser().getBusinessEmailAddress())) {
+					profileEmails.add(profile.getUser().getBusinessEmailAddress());
+				}
+
+				if (profileEmails.isEmpty()) {
+					log.warn("No emails found for profile ID: [{}]", profile.getId());
+					continue;
+				}
+
+				final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
+					.map(LanguageEntity::getCode)
+					.orElse(lookupCodes.languages().english());
+
+				final var jobModel = createJobModel(request, language);
+
+				final var matchFeedback = Optional.ofNullable(match.getMatchFeedback())
+					.map(feedback -> lookupCodes.languages().english().equals(language) ? feedback.getNameEn() : feedback.getNameFr())
+					.orElse("N/A");
+
+				final var jobOpportunityHR = new EmailTemplateModel.JobOpportunityHR(
+					jobModel.requestNumber(),
+					jobModel.positionTitle(),
+					jobModel.classification(),
+					jobModel.languageRequirement(),
+					jobModel.location(),
+					jobModel.securityClearance(),
+					matchFeedback,
+					jobModel.submitterName(),
+					jobModel.submitterEmail()
+				);
+
+				notificationService.sendJobOpportunityHRNotification(profileEmails, jobOpportunityHR, language);
+			}
+		}, () -> log.warn("Request not found for ID: {}", requestDto.id()));
 	}
 
 	/**

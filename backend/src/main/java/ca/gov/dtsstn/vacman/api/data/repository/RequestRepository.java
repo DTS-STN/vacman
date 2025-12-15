@@ -4,8 +4,10 @@ import static org.springframework.data.jpa.domain.Specification.unrestricted;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -13,6 +15,15 @@ import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 
 @Repository
 public interface RequestRepository extends AbstractBaseRepository<RequestEntity> {
+
+	@EntityGraph(attributePaths = {
+		"cities",
+		"classification",
+		"languageRequirements",
+		"securityClearance",
+		"submitter"
+	})
+	Optional<RequestEntity> findById(Long id);
 
 	/**
 	 * JPA specification to find requests with a specific additional contact.

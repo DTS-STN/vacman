@@ -1,4 +1,4 @@
-<#assign emailSubject>Job Opportunity - VMS Request # ${requestNumber}</#assign>
+<#assign emailSubject>Job Opportunity Feedback – VMS Request # ${requestNumber}</#assign>
 
 Position Title: ${positionTitle}
 Position Tenure: Indeterminate
