@@ -44,6 +44,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
+import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDto;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDtoBuilder;
 import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 
@@ -392,6 +393,16 @@ class RequestEventListenerTest {
 	@DisplayName("sendJobOpportunityHRNotificationsToMatchedProfiles()")
 	class SendJobOpportunityHRNotificationsToMatchedProfiles {
 
+		private RequestEventDto createRequestEventDto() {
+			return RequestEventDtoBuilder.builder()
+				.id(100L)
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of())
+				.hiringManagerEmails(List.of())
+				.subDelegatedManagerEmails(List.of())
+				.build();
+		}
+
 		@Test
 		@DisplayName("Should send notifications to approved matches with personal email")
 		void shouldSendNotificationToApprovedMatchesWithPersonalEmail() throws Exception {
@@ -434,13 +445,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-				.id(100L)
-				.additionalContactEmails(List.of())
-				.submitterEmails(List.of())
-				.hiringManagerEmails(List.of())
-				.subDelegatedManagerEmails(List.of())
-				.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -504,13 +509,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-				.id(100L)
-				.additionalContactEmails(List.of())
-				.submitterEmails(List.of())
-				.hiringManagerEmails(List.of())
-				.subDelegatedManagerEmails(List.of())
-				.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -575,13 +574,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -636,13 +629,7 @@ class RequestEventListenerTest {
 			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -698,13 +685,7 @@ class RequestEventListenerTest {
 			when(requestRepository.findById(100L)).thenReturn(Optional.of(request));
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -761,13 +742,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -817,13 +792,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -887,13 +856,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -957,13 +920,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -1033,13 +990,7 @@ class RequestEventListenerTest {
 			when(matchRepository.findAllByRequestId(100L)).thenReturn(List.of(match1, match2));
 			when(notificationService.formatRequestNumber(100L)).thenReturn("REQ-100");
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
@@ -1060,13 +1011,7 @@ class RequestEventListenerTest {
 			// Arrange
 			when(requestRepository.findById(100L)).thenReturn(Optional.empty());
 
-			final var requestDto = RequestEventDtoBuilder.builder()
-.id(100L)
-.additionalContactEmails(List.of())
-.submitterEmails(List.of())
-.hiringManagerEmails(List.of())
-.subDelegatedManagerEmails(List.of())
-.build();
+			final var requestDto = createRequestEventDto();
 
 			final var event = new RequestStatusChangeEvent(requestDto, "SOME_STATUS", "CLR_GRANTED");
 
