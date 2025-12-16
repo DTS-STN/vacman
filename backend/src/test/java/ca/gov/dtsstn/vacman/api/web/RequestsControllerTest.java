@@ -660,7 +660,6 @@ class RequestsControllerTest {
 				.hiringManager(hiringManager)
 				.hrAdvisor(hrAdvisor)
 				.language(languageRepository.getReferenceById(1L))
-				.languageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)))
 				.nameEn("Software Developer")
 				.nameFr("Développeur logiciel")
 				.requestNumber("REQ-001")
@@ -669,6 +668,8 @@ class RequestsControllerTest {
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
+			request.setLanguageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)));
+			requestRepository.save(request);
 
 			// Prepare update model - model uses englishTitle/frenchTitle
 			final var updateModel = RequestUpdateModelBuilder.builder()
@@ -720,7 +721,6 @@ class RequestsControllerTest {
 				.hiringManager(hiringManager)
 				.hrAdvisor(hrAdvisor)
 				.language(languageRepository.getReferenceById(1L))
-				.languageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)))
 				.nameEn("Data Analyst")
 				.nameFr("Analyste de données")
 				.requestNumber("REQ-002")
@@ -728,6 +728,8 @@ class RequestsControllerTest {
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
+			request.setLanguageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)));
+			requestRepository.save(request);
 
 			// Prepare update with cities and employment equities
 			final var updateModel = RequestUpdateModelBuilder.builder()
@@ -789,7 +791,6 @@ class RequestsControllerTest {
 				.hiringManager(hiringManager)
 				.hrAdvisor(hrAdvisor)
 				.language(languageRepository.getReferenceById(1L))
-				.languageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)))
 				.nameEn("Project Manager")
 				.nameFr("Gestionnaire de projet")
 				.requestNumber("REQ-003")
@@ -798,6 +799,8 @@ class RequestsControllerTest {
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
+			request.setLanguageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)));
+			requestRepository.save(request);
 
 			// Update with null values for optional fields
 			final var updateModel = RequestUpdateModelBuilder.builder()
@@ -1035,7 +1038,6 @@ class RequestsControllerTest {
 			final var request = requestRepository.save(RequestEntity.builder()
 				.classification(classificationRepository.getReferenceById(1L))
 				.hiringManager(hiringManager)
-				.languageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)))
 				.nameEn("Complex Position")
 				.nameFr("Poste complexe")
 				.requestNumber("REQ-009")
@@ -1043,6 +1045,8 @@ class RequestsControllerTest {
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
+			request.setLanguageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)));
+			requestRepository.save(request);
 
 			final var updateModel = RequestUpdateModelBuilder.builder()
 				.appointmentNonAdvertisedId(1L)
@@ -1127,7 +1131,6 @@ class RequestsControllerTest {
 				.employmentEquities(List.of(
 					employmentEquityRepository.getReferenceById(1L)))
 				.hiringManager(hiringManager)
-				.languageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)))
 				.nameEn("Position with Collections")
 				.nameFr("Poste avec collections")
 				.requestNumber("REQ-010")
@@ -1135,6 +1138,8 @@ class RequestsControllerTest {
 				.submitter(submitter)
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
+			request.setLanguageRequirements(List.of(languageRequirementRepository.getReferenceById(1L)));
+			requestRepository.save(request);
 
 			// Update with empty collections
 			final var updateModel = RequestUpdateModelBuilder.builder()
