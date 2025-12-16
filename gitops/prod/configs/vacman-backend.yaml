@@ -32,3 +32,5 @@ application:
     pims-sle-team-email: EDSC.Priorites.2-2.Priorities.ESDC@hrsdc-rhdcc.gc.ca
   metrics:
     environment-name: prod
+  frontend:
+    base-url: https://vacman.esdc-edsc.canada.ca

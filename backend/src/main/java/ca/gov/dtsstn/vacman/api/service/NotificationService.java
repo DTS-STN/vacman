@@ -202,7 +202,8 @@ public class NotificationService {
 		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = switch (requestEvent) {
-			case SUBMITTED, VMS_NOT_REQUIRED, HR_REVIEW -> "requestAssigned.ftl";
+			case VMS_NOT_REQUIRED, HR_REVIEW -> "requestAssigned.ftl";
+			case SUBMITTED -> "requestSubmitted.ftl";
 			case PSC_REQUIRED -> "pscClearanceRequired.ftl";
 			case FEEDBACK_PENDING -> "prioritiesIdentified.ftl";
 			case FEEDBACK_COMPLETED -> "pendingFeedbackApprovalHR.ftl";
@@ -214,7 +215,17 @@ public class NotificationService {
 
 		// Create the appropriate model based on the request event
 		final var model = switch (requestEvent) {
-			case SUBMITTED, VMS_NOT_REQUIRED, HR_REVIEW ->
+			case SUBMITTED ->
+				recordToMap(new EmailTemplateModel.RequestSubmitted(
+					formatRequestNumber(requestId),
+					"%s/%s/%s/%d".formatted(
+						applicationProperties.frontend().baseUrl(),
+						language.toLowerCase(),
+						"fr".equalsIgnoreCase(language) ? "conseiller-rh/demande" : "hr-advisor/request",
+						requestId
+					)
+				));
+			case VMS_NOT_REQUIRED, HR_REVIEW ->
 				recordToMap(new EmailTemplateModel.RequestAssigned(formatRequestNumber(requestId)));
 			case PSC_REQUIRED ->
 				recordToMap(new EmailTemplateModel.PscClearanceRequired(formatRequestNumber(requestId)));
