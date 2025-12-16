@@ -7,4 +7,6 @@ Hello,
 
 A request has been assigned to you.
 
+You can view the request by clicking the following link: ${requestLink}
+
 Thank you
