@@ -6,6 +6,6 @@ Hello,
 
 A new request has been submitted.
 
-You can view the request by clicking the following link: ${requestLink} 
+You can view the request by clicking the following link: ${requestLink}
 
 Thank you
