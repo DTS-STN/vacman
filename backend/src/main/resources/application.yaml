@@ -272,7 +272,7 @@ application:
     roles:
       hr-advisor: hr-advisor
   frontend:
-    base-url: http://localhost:3000
+    base-url: http://localhost:3000 # must not have a trailing slash, trailing slashes are added explicity in code where needed
   gcnotify:
     base-url: https://api.notification.canada.ca/v2/notifications
     connect-timeout: 30s
