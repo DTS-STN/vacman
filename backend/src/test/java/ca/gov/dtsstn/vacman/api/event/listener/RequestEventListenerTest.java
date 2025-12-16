@@ -36,7 +36,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
-import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
@@ -87,13 +86,10 @@ class RequestEventListenerTest {
 	@DisplayName("sendRequestFeedbackCompletedNotification()")
 	class SendRequestFeedbackCompletedNotification {
 
-		@BeforeEach
-		void beforeEach() {
-			when(applicationProperties.gcnotify().hrGdInboxEmail()).thenReturn("generic@example.com");
-		}
+
 
 		@Test
-		@DisplayName("Should send notification to HR advisor and generic inbox")
+		@DisplayName("Should send notification to HR advisor")
 		void sendNotificationWhenHrAdvisorHasBusinessEmail() {
 			final var request = RequestEventDtoBuilder.builder()
 				.id(123L)
@@ -110,19 +106,11 @@ class RequestEventListenerTest {
 				eq(RequestEvent.FEEDBACK_COMPLETED),
 				any()
 			);
-
-			verify(notificationService).sendRequestNotification(
-				eq("generic@example.com"),
-				eq(123L),
-				eq("Test Request"),
-				eq(RequestEvent.FEEDBACK_COMPLETED),
-				any()
-			);
 		}
 
 		@Test
-		@DisplayName("Should send notification to generic inbox even when HR advisor is null")
-		void shouldSendNotificationToGenericInboxWhenHrAdvisorIsNull() {
+		@DisplayName("Should not send notification when HR advisor is null")
+		void shouldNotSendNotificationWhenHrAdvisorIsNull() {
 			final var request = RequestEventDtoBuilder.builder()
 				.id(123L)
 				.nameEn("Test Request")
@@ -130,11 +118,11 @@ class RequestEventListenerTest {
 
 			requestEventListener.sendRequestFeedbackCompletedNotification(new RequestFeedbackCompletedEvent(request));
 
-			verify(notificationService).sendRequestNotification(
-				eq("generic@example.com"),
-				eq(123L),
-				eq("Test Request"),
-				eq(RequestEvent.FEEDBACK_COMPLETED),
+			verify(notificationService, never()).sendRequestNotification(
+				anyString(),
+				any(),
+				any(),
+				any(),
 				any()
 			);
 		}
