@@ -1,6 +1,6 @@
 <#assign emailSubject>Nouvelle demande – Demande de SGPV # ${requestNumber}</#assign>
 
-VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s’agit d’un courriel généré par le système. 
+VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système. 
 
 Bonjour, 
 
