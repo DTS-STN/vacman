@@ -6,6 +6,6 @@ Bonjour, 
 
 Une nouvelle demande a été soumise. 
 
-Vous pouvez accéder à la demande en cliquant sur le lien suivant: ${requestLink} 
+Vous pouvez accéder à la demande en cliquant sur le lien suivant : ${requestLink} 
 
 Merci 
