@@ -69,7 +69,8 @@ public final class EmailTemplateModel {
 	) {}
 
 	public record RequestAssigned(
-		String requestNumber
+		String requestNumber,
+		String requestLink
 	) {}
 
 	public record RequestSubmitted(
