@@ -5,6 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: vacman-frontend
 spec:
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: vacman-frontend
@@ -29,11 +30,11 @@ spec:
               port: http
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 200m
+              cpu: 50m
               memory: 256Mi
+            limits:
+              cpu: 100m
+              memory: 512Mi
           securityContext:
             allowPrivilegeEscalation: false
   strategy:

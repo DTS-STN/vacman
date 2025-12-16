@@ -5,6 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: vacman-backend
 spec:
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: vacman-backend
@@ -40,9 +41,10 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              cpu: 200m
-              memory: 256Mi
+              cpu: 100m
+              memory: 512Mi
             limits:
+              cpu: 200m
               memory: 1024Mi
           securityContext:
             allowPrivilegeEscalation: false
