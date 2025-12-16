@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 @EnableConfigurationProperties({
 	CachingProperties.class,
 	EntraIdProperties.class,
+	FrontendProperties.class,
 	GcNotifyProperties.class,
 	MetricsProperties.class,
 	MSGraphProperties.class,
@@ -19,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 public record ApplicationProperties(
 	@NestedConfigurationProperty CachingProperties caching,
 	@NestedConfigurationProperty EntraIdProperties entraId,
+	@NestedConfigurationProperty FrontendProperties frontend,
 	@NestedConfigurationProperty GcNotifyProperties gcnotify,
 	@NestedConfigurationProperty MetricsProperties metrics,
 	@NestedConfigurationProperty RequestMatchingProperties matches,
