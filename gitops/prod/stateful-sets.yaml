@@ -8,6 +8,7 @@ metadata:
     app.kubernetes.io/name: redis
 spec:
   replicas: 3
+  revisionHistoryLimit: 2
   serviceName: redis-headless
   selector:
     matchLabels:
@@ -59,10 +60,9 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 32Mi
             limits:
-              cpu: 150m
               memory: 64Mi
           securityContext:
             readOnlyRootFilesystem: true
@@ -87,10 +87,9 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 16Mi
             limits:
-              cpu: 150m
               memory: 32Mi
           volumeMounts:
             - name: data

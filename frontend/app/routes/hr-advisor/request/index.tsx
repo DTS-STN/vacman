@@ -748,16 +748,18 @@ function RenderButtonsByStatus({
         >
           {t('form.cancel-request')}
         </Button>
-        <Button
-          ref={revertToPreviousStatusButtonRef}
-          className="mb-8 w-full"
-          variant="alternative"
-          id="return-to-previous-status"
-          disabled={isSubmitting}
-          onClick={onRevertToPreviousStatusClick}
-        >
-          {t('referral-requests.previous-status.label')}
-        </Button>
+        {code === REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS && (
+          <Button
+            ref={revertToPreviousStatusButtonRef}
+            className="mb-8 w-full"
+            variant="alternative"
+            id="return-to-previous-status"
+            disabled={isSubmitting}
+            onClick={onRevertToPreviousStatusClick}
+          >
+            {t('referral-requests.previous-status.label')}
+          </Button>
+        )}
         <InputField
           className="w-full"
           id="psc-clearance-number"
@@ -860,16 +862,6 @@ function RenderButtonsByStatus({
           <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
-          <Button
-            ref={revertToPreviousStatusButtonRef}
-            className="w-full"
-            variant="alternative"
-            id="return-to-previous-status"
-            disabled={isSubmitting}
-            onClick={onRevertToPreviousStatusClick}
-          >
-            {t('referral-requests.previous-status.label')}
-          </Button>
           <Button value="save" name="action" className="w-full" variant="alternative" id="save" disabled={isSubmitting}>
             {t('form.save-and-exit')}
           </Button>
@@ -929,7 +921,6 @@ function RenderButtonsByStatus({
 
     case REQUEST_STATUS_CODE.PSC_GRANTED:
     case REQUEST_STATUS_CODE.PSC_GRANTED_NO_VMS:
-    case REQUEST_STATUS_CODE.CLR_GRANTED:
       return (
         <div className="flex flex-col space-y-4">
           <Button

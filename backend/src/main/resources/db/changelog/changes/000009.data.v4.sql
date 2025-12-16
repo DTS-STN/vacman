@@ -38,3 +38,26 @@ VALUES
 
 --changeset system:add-cd-city-nov-2025-off dbms:mssql
 SET IDENTITY_INSERT CD_CITY OFF;
+
+--changeset system:selection-process-type-h2-forgot-nov-2025 dbms:h2
+ALTER TABLE [CD_SELECTION_PROCESS_TYPE] ALTER COLUMN [ID] RESTART WITH 12;
+
+
+--changeset system:cd-selection-process-type-h2-forgets-id-nov-2025 dbms:h2
+ALTER TABLE CD_SELECTION_PROCESS_TYPE ALTER COLUMN ID RESTART WITH (SELECT (MAX(ID)+1) FROM CD_SELECTION_PROCESS_TYPE);
+
+--changeset system:update-cd-selection-process-type-nov-2025 dbms:mssql,h2
+UPDATE CD_SELECTION_PROCESS_TYPE
+SET CODE='IAPI', NAME_EN='Initiate an Internal Advertised Process', NAME_FR='Initiation d''un processus interne anoncé', USER_UPDATED='system', DATE_UPDATED=CURRENT_TIMESTAMP
+WHERE CODE='IAP' AND NAME_EN='Initiate an Avertised Process (Internal or External)' AND NAME_FR='Initiation d''un processus annoncé (Interne ou externe)' AND EXPIRY_DATE IS NULL;
+
+INSERT INTO CD_SELECTION_PROCESS_TYPE (CODE, NAME_EN, NAME_FR, EFFECTIVE_DATE, USER_CREATED, DATE_CREATED, USER_UPDATED, DATE_UPDATED) VALUES
+('IAPE', 'Initiate an External Advertised Process', 'Initiation d''un processus externe anoncé', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+UPDATE CD_SELECTION_PROCESS_TYPE
+SET CODE='CRV', NAME_EN='Employee referrals from VMS', NAME_FR='Présentation d''employés du SGPV', USER_UPDATED='system', DATE_UPDATED=CURRENT_TIMESTAMP
+WHERE CODE='CRV' AND NAME_EN='Candidate referrals from VMS' AND NAME_FR='Présentation de candidats du SGPV' AND EXPIRY_DATE IS NULL;
+
+UPDATE CD_SELECTION_PROCESS_TYPE
+SET EXPIRY_DATE=CURRENT_TIMESTAMP, USER_UPDATED='system', DATE_UPDATED=CURRENT_TIMESTAMP
+WHERE CODE='DIE' AND NAME_EN='Deployment - Indeterminate (refer to exceptions)' AND NAME_FR='Mutation - Durée indéterminée (veuillez consulter les exceptions)' AND EXPIRY_DATE IS NULL;

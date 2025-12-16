@@ -1,12 +1,21 @@
-import type { ReactElement } from 'react';
-import React, { startTransition, useRef, useState } from 'react';
+import type { ComponentType, HTMLAttributes, JSX, ReactElement } from 'react';
+import { Children, isValidElement, startTransition, useMemo, useRef, useState } from 'react';
 
 import type { SetURLSearchParams } from 'react-router';
 
 import { faEllipsis, faSearch, faSliders, faSort, faSortDown, faSortUp, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Popover } from '@radix-ui/react-popover';
-import type { ColumnDef, SortingState, Column, ColumnFiltersState } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  SortingState,
+  Column,
+  ColumnFiltersState,
+  Table as TableType,
+  Header,
+  ColumnDefTemplate,
+  HeaderContext,
+} from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
@@ -30,6 +39,8 @@ import {
 import { parseCSVString } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
 
+//#region Server Table
+
 interface ServerTableProps<TData> {
   /** `PageMetadata` for server-sided pagination. */
   page: PageMetadata;
@@ -37,16 +48,16 @@ interface ServerTableProps<TData> {
   data: TData[];
   /** The columns `<Column/>` to use for the table. */
   children:
-    | (ReactElement<ColumnProps<TData, unknown>> | false | undefined)
-    | (ReactElement<ColumnProps<TData, unknown>> | false | undefined)[];
+    | (ReactElement<InternalColumnProps<TData, unknown>> | false | undefined)
+    | (ReactElement<InternalColumnProps<TData, unknown>> | false | undefined)[];
   /** `URLSearchParams` from `useSearchParams(...)` */
   searchParams: URLSearchParams;
   /** `SetURLSearchParams` from `useSearchParams(...)` */
   setSearchParams: SetURLSearchParams;
   /** Optional title used in displaying results */
-  title?: string;
+  resultsTitle?: string;
   /** Optional URL parameters override. */
-  urlParam?: {
+  urlParams?: {
     /** Pagination parameter, defaults to `'page'`. */
     page?: string;
     /** Column sort parameter, defaults to `'sort'`. */
@@ -63,8 +74,8 @@ interface ServerTableProps<TData> {
  * @param data The data to display in the table.
  * @param searchParams `URLSearchParams` from `useSearchParams(...)`
  * @param setSearchParams `SetURLSearchParams` from `useSearchParams(...)`
- * @param title `Optional title used in displaying results`
- * @param urlParam `Optional` URL parameters override.
+ * @param resultsTitle `Optional title used in displaying results`
+ * @param urlParams `Optional` URL parameters override.
  * @param onSortingChange `Optional` Change notifier when sorting updates
  *
  */
@@ -74,15 +85,15 @@ export function ServerTable<TData>({
   data,
   searchParams,
   setSearchParams,
-  title,
-  urlParam = {},
+  resultsTitle,
+  urlParams = {},
   onSortingChange,
 }: ServerTableProps<TData>) {
   const { t } = useTranslation(['gcweb']);
   const { currentLanguage } = useLanguage();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const { page: pageParam = 'page', sort: sortParam = 'sort' } = urlParam;
-  const columns = React.Children.map(baseColumns, (column) => (column ? column.props : undefined)) ?? [];
+  const { page: pageParam = 'page', sort: sortParam = 'sort' } = urlParams;
+  const columns = Children.map(baseColumns, (column) => (column ? column.props : undefined)) ?? [];
   const [sorting, setSorting] = useState<SortingState>(
     searchParams
       .getAll(sortParam)
@@ -136,7 +147,7 @@ export function ServerTable<TData>({
           start: start,
           end: end,
           total: page.totalElements,
-          title: title?.toLocaleLowerCase(currentLanguage) ?? t('gcweb:data-table.pagination.results'),
+          title: resultsTitle?.toLocaleLowerCase(currentLanguage) ?? t('gcweb:data-table.pagination.results'),
         })}
       </div>
       <Table className="rounded-md border-b border-neutral-300">
@@ -152,13 +163,30 @@ export function ServerTable<TData>({
                       ? 'descending'
                       : 'none'
                   : undefined;
+                const baseContext = header.getContext();
+                const headerContext: ColumnHeaderContext<TData, unknown> = {
+                  ColumnHeader: (props: ColumnHeaderProps) => (
+                    <InternalColumnHeader
+                      {...baseContext}
+                      {...props}
+                      filterParam={baseContext.column.id}
+                      searchParams={searchParams}
+                      setSearchParams={setSearchParams}
+                      urlParams={{
+                        page: pageParam,
+                        sort: sortParam,
+                      }}
+                    />
+                  ),
+                  ...header.getContext(),
+                };
                 return (
                   <TableHead
                     key={header.id}
                     className={cn('px-5 text-left text-sm font-semibold', header.column.columnDef.meta?.headerClassName)}
                     aria-sort={ariaSortValue}
                   >
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, headerContext)}
                   </TableHead>
                 );
               })}
@@ -258,13 +286,17 @@ export function ServerTable<TData>({
   );
 }
 
+//#endregion
+
+//#region Column Options
+
 type FilterOption = Readonly<{
   id: number[];
   code: string;
   value: string;
 }>;
 
-interface ColumnOptionsProps<TData, TValue> extends ColumnHeaderProps<TData, TValue> {
+interface ColumnOptionsProps extends BaseHeaderComponent {
   options:
     | Readonly<{
         id: number;
@@ -295,39 +327,46 @@ interface ColumnOptionsProps<TData, TValue> extends ColumnHeaderProps<TData, TVa
         }>,
         number[]
       >;
-  searchParams: URLSearchParams;
-  setSearchParams: SetURLSearchParams;
   filter?: 'id' | 'code' | 'value';
-  page?: string;
   onSelectionChange?: (selected: FilterOption[]) => void;
   showClearAll?: boolean;
-  id?: string;
 }
 
 /**
  * Component for providing filter options to `<Column/>`
+ * @see InternalColumnOptions for implementation
+ * @see HEADER_COMPONENTS_MAP for `ColumnOptions` -> `InternalColumnOptions`
  *
  * @example
  * ```tsx
  * <Column
- *   header={({ column }) => <ColumnOptions column={column} {...props} />
+ *   header={({ ColumnHeader }) => (
+ *     <ColumnHeader {...headerProps}>
+ *       <ColumnOptions options={options} {...props} />
+ *     </ColumnHeader>
+ *   )}
  *   {...columnProps}
  * />
  * ```
  */
-export function ColumnOptions<TData, TValue>({
-  column,
+export const ColumnOptions = (_: ColumnOptionsProps) => <></>; /** @see InternalColumnOptions */
+ColumnOptions.displayName = 'ColumnOptions';
+
+type InternalColumnOptionsProps<TData, TValue> = InternalHeaderProps<TData, TValue> & ColumnOptionsProps;
+export function InternalColumnOptions<TData, TValue>({
   title,
   options: baseOptions,
   searchParams,
   setSearchParams,
   filter = 'id',
-  page,
-  className,
+  urlParams,
   onSelectionChange,
   showClearAll = false,
+  className,
   id,
-}: ColumnOptionsProps<TData, TValue>) {
+  withTitle,
+  filterParam,
+}: InternalColumnOptionsProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
   const { currentLanguage } = useLanguage();
   const isLoading = useFetchLoading();
@@ -358,23 +397,23 @@ export function ColumnOptions<TData, TValue>({
       ? options.filter((option) =>
           option.id.some((id) =>
             searchParams
-              .getAll(column.id)
+              .getAll(filterParam)
               .flatMap((id) => parseCSVString(id))
               .includes(id.toString()),
           ),
         )
-      : options.filter((option) => searchParams.getAll(column.id).includes(option[filter])),
+      : options.filter((option) => searchParams.getAll(filterParam).includes(option[filter])),
   );
 
   const updateURLParams = () => {
     if (!hasChanged.current) return;
     const params = new URLSearchParams(searchParams.toString());
-    if (page) params.delete(page);
-    params.delete(column.id);
+    params.delete(urlParams.page);
+    params.delete(filterParam);
     selected
       .sort((a, b) => (a.id[0] ?? 0) - (b.id[0] ?? 0))
       .forEach((option) =>
-        filter === 'id' ? params.append(column.id, option.id.join(',')) : params.append(column.id, option[filter]),
+        filter === 'id' ? params.append(filterParam, option.id.join(',')) : params.append(filterParam, option[filter]),
       );
     startTransition(() => setSearchParams(params, { preventScrollReset: true }));
   };
@@ -411,28 +450,36 @@ export function ColumnOptions<TData, TValue>({
             type="button"
             variant="ghost"
             size="sm"
-            className="-ml-3.5 data-[state=open]:bg-neutral-100"
+            className={cn('data-[state=open]:bg-neutral-100', withTitle ? '-ml-3.5 pr-0' : 'p-0')}
             aria-label={ariaLabel}
           >
-            <span className="text-left font-sans">{title}</span>
-            {selectedCount > 0 &&
-              (isLoading ? (
-                <span
-                  aria-hidden="true"
-                  className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
-                >
-                  &#40;
-                  <FontAwesomeIcon icon={faSpinner} spin={true} />
-                  &#41;
+            {withTitle ? (
+              <>
+                <span className="text-left font-sans">{title}</span>
+                {selectedCount > 0 &&
+                  (isLoading ? (
+                    <span
+                      aria-hidden="true"
+                      className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
+                    >
+                      &#40;
+                      <FontAwesomeIcon icon={faSpinner} spin={true} />
+                      &#41;
+                    </span>
+                  ) : (
+                    <span aria-hidden="true" className="ml-1 text-xs font-semibold text-[#0535D2]">
+                      ({selectedCount})
+                    </span>
+                  ))}
+                <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
+                  <FontAwesomeIcon icon={faSliders} />
                 </span>
-              ) : (
-                <span aria-hidden="true" className="ml-1 text-xs font-semibold text-[#0535D2]">
-                  ({selectedCount})
-                </span>
-              ))}
-            <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
-              <FontAwesomeIcon icon={faSliders} />
-            </span>
+              </>
+            ) : (
+              <span className="rounded-sm px-0.5 py-3 text-neutral-500 hover:bg-slate-300">
+                <FontAwesomeIcon icon={faSliders} />
+              </span>
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -491,46 +538,57 @@ export function ColumnOptions<TData, TValue>({
   );
 }
 
-interface ColumnSearchProps<TData, TValue> extends ColumnHeaderProps<TData, TValue> {
-  searchParams: URLSearchParams;
-  setSearchParams: SetURLSearchParams;
-  page?: string;
+//#endregion
+
+//#region Column Search
+
+interface ColumnSearchProps extends BaseHeaderComponent {
   onSearchChange?: (search: string) => void;
 }
-
 /**
  * Component for providing a search filter to `<Column/>`
+ * @see InternalColumnSearch for implementation
+ * @see HEADER_COMPONENTS_MAP for `ColumnSearch` -> `InternalColumnSearch`
  *
  * @example
  * ```tsx
  * <Column
- *   header={({ column }) => <ColumnSearch column={column} {...props} />
+ *   header={({ ColumnHeader }) => (
+ *     <ColumnHeader {...headerProps}>
+ *       <ColumnSearch {...props} />
+ *     </ColumnHeader>
+ *   )}
  *   {...columnProps}
  * />
  * ```
  */
-export function ColumnSearch<TData, TValue>({
-  column,
+export const ColumnSearch = (_: ColumnSearchProps) => <></>; /** @see InternalColumnSearch */
+ColumnSearch.displayName = 'ColumnSearch';
+
+type InternalColumnSearchProps<TData, TValue> = InternalHeaderProps<TData, TValue> & ColumnSearchProps;
+function InternalColumnSearch<TData, TValue>({
   title,
   searchParams,
   setSearchParams,
-  page,
+  urlParams,
   className,
   onSearchChange,
-}: ColumnSearchProps<TData, TValue>) {
+  withTitle,
+  filterParam,
+}: InternalColumnSearchProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const prevSearchValue = searchParams.get(column.id) ?? '';
+  const prevSearchValue = searchParams.get(filterParam) ?? '';
   const search = useRef(prevSearchValue);
 
   const updateURLParam = () => {
     if (search.current === prevSearchValue) return;
     onSearchChange?.(search.current);
     const params = new URLSearchParams(searchParams.toString());
-    if (page) params.delete(page);
-    params.delete(column.id);
-    if (search.current !== '') params.append(column.id, search.current);
+    params.delete(urlParams.page);
+    params.delete(filterParam);
+    if (search.current !== '') params.append(filterParam, search.current);
     startTransition(() => setSearchParams(params, { preventScrollReset: true }));
   };
 
@@ -548,24 +606,32 @@ export function ColumnSearch<TData, TValue>({
             type="button"
             variant="ghost"
             size="sm"
-            className="-ml-3.5 h-10 data-[state=open]:bg-neutral-100"
+            className={cn('data-[state=open]:bg-neutral-100', withTitle ? '-ml-3.5 h-10 pr-0' : 'p-0')}
             aria-label={title}
             title={prevSearchValue ? `${t('search-bar.search')}: ${prevSearchValue}` : undefined}
           >
-            <span className="w-full text-left font-sans">{title}</span>
-            {prevSearchValue && (
-              <span
-                aria-hidden="true"
-                className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
-              >
-                &#40;
-                <FontAwesomeIcon icon={faEllipsis} />
-                &#41;
+            {withTitle ? (
+              <>
+                <span className="w-full text-left font-sans">{title}</span>
+                {prevSearchValue && (
+                  <span
+                    aria-hidden="true"
+                    className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
+                  >
+                    &#40;
+                    <FontAwesomeIcon icon={faEllipsis} />
+                    &#41;
+                  </span>
+                )}
+                <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
+                  <FontAwesomeIcon icon={faSearch} />
+                </span>
+              </>
+            ) : (
+              <span className="rounded-sm px-0.5 py-3 text-neutral-500 hover:bg-slate-300">
+                <FontAwesomeIcon icon={faSearch} />
               </span>
             )}
-            <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
-              <FontAwesomeIcon icon={faSearch} />
-            </span>
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -601,29 +667,57 @@ export function ColumnSearch<TData, TValue>({
   );
 }
 
-interface ColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLElement> {
-  column: Column<TData, TValue>;
-  title: string;
-}
+//#endregion
+
+//#region Column Sort
+
+interface ColumnSortProps extends BaseHeaderComponent {}
 /**
  * Component for providing a header and sort direction to `<Column/>`
+ * @see InternalColumnSort for implementation
+ * @see HEADER_COMPONENTS_MAP for `ColumnSort` -> `InternalColumnSort`
  *
  * @example
  * ```tsx
  * <Column
- *   header={({ column }) => <ColumnHeader column={column} {...props} />
+ *   header={({ ColumnHeader }) => (
+ *     <ColumnHeader {...headerProps}>
+ *       <ColumnSort {...props} />
+ *     </ColumnHeader>
+ *   )}
  *   {...columnProps}
  * />
  * ```
  */
-export function ColumnHeader<TData, TValue>({ column, title, className }: ColumnHeaderProps<TData, TValue>) {
-  const { t } = useTranslation(['gcweb']);
 
+export const ColumnSort = (_: ColumnSortProps) => <></>; /** @see InternalColumnSort */
+ColumnSort.displayName = 'ColumnSort';
+
+type InternalColumnSortProps<TData, TValue> = InternalHeaderProps<TData, TValue> & ColumnSortProps;
+function InternalColumnSort<TData, TValue>({
+  column,
+  title,
+  className,
+  withTitle,
+  searchParams,
+  setSearchParams,
+  urlParams,
+  filterParam,
+}: InternalColumnSortProps<TData, TValue>) {
+  const { t } = useTranslation(['gcweb']);
   if (!column.getCanSort()) {
     return <div className={cn('flex items-center', className)}>{title}</div>;
   }
-
-  const sortDirection = column.getIsSorted();
+  const sortParams = searchParams.getAll(urlParams.sort);
+  const sortDirection = useMemo(() => {
+    for (const sortParam of sortParams) {
+      const [key, value] = sortParam.split(',');
+      if (key !== filterParam) continue;
+      if (value !== 'asc' && value !== 'desc') break;
+      return value;
+    }
+    return null;
+  }, [sortParams]);
 
   // Create accessible label that describes the current state and action
   const getAriaLabel = () => {
@@ -635,32 +729,113 @@ export function ColumnHeader<TData, TValue>({ column, title, className }: Column
     return t('gcweb:data-table.sorting.not-sorted', { column: title });
   };
 
+  const toggleSorting = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    const sorts = params.getAll(urlParams.sort);
+    params.delete(urlParams.page);
+    params.delete(urlParams.sort);
+    sorts.forEach((sort) => {
+      const [key] = sort.split(',');
+      if (key !== filterParam) {
+        params.append(urlParams.sort, sort);
+      }
+    });
+    switch (sortDirection) {
+      default:
+        params.set(urlParams.sort, `${filterParam},asc`);
+        break;
+      case 'asc':
+        params.set(urlParams.sort, `${filterParam},desc`);
+        break;
+      case 'desc':
+        break;
+    }
+    startTransition(() => setSearchParams(params, { preventScrollReset: true }));
+  };
+
   return (
-    <button
-      onClick={() => column.toggleSorting()}
-      className={cn('flex items-center gap-1 text-left text-sm font-semibold hover:underline', className)}
+    <Button
+      role="button"
+      type="button"
+      variant="ghost"
+      size="sm"
+      className={cn('hover:underline data-[state=open]:bg-neutral-100', withTitle ? '-ml-3.5 h-10 pr-0' : 'p-0')}
       aria-label={getAriaLabel()}
+      onClick={() => toggleSorting()}
     >
-      {title}
-      <span className="rounded-sm p-1 text-neutral-500 hover:bg-slate-300" aria-hidden="true">
+      {withTitle && <>{title}</>}
+      <span
+        className={cn('rounded-sm text-neutral-500 hover:bg-slate-300', withTitle ? 'ml-2 py-1' : 'px-0.5 py-3')}
+        aria-hidden="true"
+      >
         <FontAwesomeIcon icon={sortDirection === 'desc' ? faSortDown : sortDirection === 'asc' ? faSortUp : faSort} />
       </span>
-    </button>
+    </Button>
   );
 }
 
-type ColumnProps<TData, TValue> = Omit<ColumnDef<TData, TValue>, 'filterFn'> & {
-  accessorFn: (data: TData) => TValue;
-} & (
-    | {
-        id?: string;
-        accessorKey: string;
-      }
-    | {
-        id: string;
-        accessorKey?: never;
-      }
+//#endregion
+
+//#region Column Header
+
+interface ColumnHeaderProps extends HTMLAttributes<HTMLElement> {
+  title: string;
+}
+
+type ColumnHeaderContext<TData, TValue> = HeaderContext<TData, TValue> & {
+  /**
+   * Component for providing a header to a `<Column/>`.
+   */
+  ColumnHeader: (props: ColumnHeaderProps) => JSX.Element; /** @see InternalColumnHeader */
+};
+
+/**
+ * Internal component for providing a header to a `<Column/>`.
+ * Replaces any header components passed in with their internal counterpart, allowing the header components to use the table's props
+ *
+ * @see HEADER_COMPONENTS_MAP for the internal mapping
+ */
+function InternalColumnHeader<TData, TValue>({
+  className,
+  id,
+  children: baseChildren,
+  ...internalProps
+}: InternalHeaderProps<TData, TValue>) {
+  const { title } = internalProps;
+  const renderedTitle = useRef(false);
+  const children = useMemo(() => {
+    renderedTitle.current = false;
+    return Children.map(baseChildren, (baseChild) => {
+      if (!isValidElement(baseChild)) return baseChild;
+      if (typeof baseChild.type !== 'function') return baseChild;
+      const childType = baseChild.type as typeof baseChild.type & { displayName: unknown };
+      if (typeof childType.displayName !== 'string') return baseChild;
+      const InternalComponent = HEADER_COMPONENTS_MAP.get(childType.displayName) as
+        | InternalHeaderComponentType<TData, TValue, object>
+        | undefined;
+      if (InternalComponent === undefined) return baseChild;
+      const { key, ...child } = baseChild;
+      const withTitle = renderedTitle.current === false;
+      if (!renderedTitle.current) renderedTitle.current = true;
+      const props: BaseHeaderComponent = child.props ?? {};
+      return <InternalComponent key={key} {...internalProps} {...props} withTitle={withTitle} />;
+    });
+  }, [baseChildren]);
+  return (
+    <div id={id} className={cn('flex items-center space-x-0.5', className)}>
+      {!renderedTitle.current && title}
+      {children}
+    </div>
   );
+}
+
+//#endregion
+
+//#region Column
+
+type ColumnProps<TData, TValue> = Omit<InternalColumnProps<TData, TValue>, 'header'> & {
+  header: ColumnHeaderTemplate<TData, TValue>;
+};
 
 /**
  * Component for creating `<ServerTable/>` columns
@@ -673,13 +848,80 @@ type ColumnProps<TData, TValue> = Omit<ColumnDef<TData, TValue>, 'filterFn'> & {
  *   <Column
  *     accessorKey="key"
  *     accessorFn={(data: TData) => ...}
- *     header={({ column }) => ...}
+ *     header={({ ColumnHeader }) => <ColumnHeader {...headerProps} />}
  *     cell={(info) => ...}
  *     {...props}
  *   />
  * </ServerTable>
  * ```
  */
-export function Column<TData, TValue>(_: ColumnProps<TData, TValue>): ReactElement<ColumnProps<TData, TValue>> {
+export function Column<TData, TValue>(_: ColumnProps<TData, TValue>): ReactElement<InternalColumnProps<TData, TValue>> {
   return <></>;
 }
+
+//#endregion
+
+//#region Helper Types
+
+// Header props for internal components
+interface InternalHeaderProps<TData, TValue> extends ColumnHeaderProps {
+  column: Column<TData, TValue>;
+  header: Header<TData, TValue>;
+  table: TableType<TData>;
+  title: string;
+  searchParams: URLSearchParams;
+  setSearchParams: SetURLSearchParams;
+  urlParams: {
+    [K in keyof NonNullable<ServerTableProps<TData>['urlParams']>]-?: NonNullable<
+      NonNullable<ServerTableProps<TData>['urlParams']>[K]
+    >;
+  };
+  filterParam: string;
+  withTitle?: boolean;
+}
+
+// Type for the custom implementation of tanstack's StringOrTemplateHeader
+type ColumnHeaderTemplate<TData, TValue> = string | ColumnDefTemplate<ColumnHeaderContext<TData, TValue>>;
+
+// Internal type that doesn't omit the header, avoids a type error with useReactTable's columns
+type InternalColumnProps<TData, TValue> = Omit<ColumnDef<TData, TValue>, 'filterFn'> & {
+  header: ColumnHeaderTemplate<TData, TValue>;
+  accessorFn: (data: TData) => TValue;
+} & (
+    | {
+        id?: string;
+        accessorKey: string;
+      }
+    | {
+        id: string;
+        accessorKey?: never;
+      }
+  );
+
+// Type for the base props of exported header components
+type BaseHeaderComponent = HTMLAttributes<HTMLElement> & {
+  /** Overrides the url param for filtering the Column. */
+  filterParam?: string;
+};
+
+// Types for internal components that implement InternalHeaderProps
+type InternalHeaderComponentType<TData, TValue, TProps = object> = ComponentType<InternalHeaderProps<TData, TValue> & TProps>;
+type UnknownInternalHeaderComponentType<TProps> = InternalHeaderComponentType<unknown, unknown, TProps>;
+
+//#endregion
+
+/**
+ * Maps all header components to their internal counterparts
+ *
+ * @see InternalColumnHeader
+ */
+const HEADER_COMPONENTS_MAP = new Map<
+  string | undefined,
+  | UnknownInternalHeaderComponentType<ColumnSearchProps>
+  | UnknownInternalHeaderComponentType<ColumnSortProps>
+  | UnknownInternalHeaderComponentType<ColumnOptionsProps>
+>([
+  [ColumnSearch.displayName, InternalColumnSearch],
+  [ColumnSort.displayName, InternalColumnSort],
+  [ColumnOptions.displayName, InternalColumnOptions],
+]);

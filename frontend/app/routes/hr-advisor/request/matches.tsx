@@ -498,13 +498,10 @@ function DisplayCandidatesTable({
         <Column
           accessorKey="employeeName"
           accessorFn={(row: MatchSummaryReadModel) => `${row.profile?.firstName} ${row.profile?.lastName}`}
-          header={({ column }) => (
-            <ColumnSearch
-              column={column}
-              title={t('matches-tables.employee')}
-              searchParams={searchParams}
-              setSearchParams={setSearchParams}
-            />
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('matches-tables.employee')}>
+              <ColumnSearch />
+            </ColumnHeader>
           )}
           cell={(info) => {
             const profile = info.row.original.profile;
@@ -534,15 +531,10 @@ function DisplayCandidatesTable({
           accessorFn={(row: MatchSummaryReadModel) =>
             (lang === 'en' ? row.profile?.wfaStatus?.nameEn : row.profile?.wfaStatus?.nameFr) ?? '-'
           }
-          header={({ column }) => (
-            <ColumnOptions
-              column={column}
-              title={t('matches-tables.wfa-status')}
-              options={wfaStatuses}
-              searchParams={searchParams}
-              setSearchParams={setSearchParams}
-              showClearAll
-            />
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('matches-tables.wfa-status')}>
+              <ColumnOptions options={wfaStatuses} showClearAll />
+            </ColumnHeader>
           )}
           cell={(info) => {
             return (
