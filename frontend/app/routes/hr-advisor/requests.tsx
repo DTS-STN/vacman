@@ -30,6 +30,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { MAX_PAGE_SIZE } from '~/utils/pagination-utils';
 import { removeNumberMask } from '~/utils/string-utils';
 
 export const handle = {
@@ -108,7 +109,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const hrAdvisors = (
     await getUserService().getUsers(
       {
-        page: 0,
+        size: MAX_PAGE_SIZE,
         userType: 'hr-advisor',
       },
       session.authState.accessToken,

@@ -36,6 +36,7 @@ import { useFormattedDate } from '~/hooks/use-formatted-date';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import MatchesTables from '~/routes/page-components/requests/matches-tables';
+import { MAX_PAGE_SIZE } from '~/utils/pagination-utils';
 import { formatWithMask, formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -62,7 +63,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
-    { page: 0 },
+    { size: MAX_PAGE_SIZE },
     session.authState.accessToken,
   );
 
