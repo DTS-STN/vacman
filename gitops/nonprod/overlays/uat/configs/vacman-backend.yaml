@@ -35,4 +35,4 @@ application:
   metrics:
     environment-name: uat
   frontend:
-    base-url: https://vacman-uat.dev-dp-internal.dts-stn.com/
+    base-url: https://vacman-uat.dev-dp-internal.dts-stn.com

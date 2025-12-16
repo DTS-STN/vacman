@@ -33,4 +33,4 @@ application:
   metrics:
     environment-name: prod
   frontend:
-    base-url: https://vacman.esdc-edsc.canada.ca/
+    base-url: https://vacman.esdc-edsc.canada.ca
