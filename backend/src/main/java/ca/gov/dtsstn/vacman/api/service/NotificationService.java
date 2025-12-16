@@ -226,7 +226,15 @@ public class NotificationService {
 					)
 				));
 			case VMS_NOT_REQUIRED, HR_REVIEW ->
-				recordToMap(new EmailTemplateModel.RequestAssigned(formatRequestNumber(requestId)));
+				recordToMap(new EmailTemplateModel.RequestAssigned(
+					formatRequestNumber(requestId),
+					"%s/%s/%s/%d".formatted(
+						applicationProperties.frontend().baseUrl(),
+						language.toLowerCase(),
+						"fr".equalsIgnoreCase(language) ? "conseiller-rh/demande" : "hr-advisor/request",
+						requestId
+					)
+				));
 			case PSC_REQUIRED ->
 				recordToMap(new EmailTemplateModel.PscClearanceRequired(formatRequestNumber(requestId)));
 			case FEEDBACK_PENDING ->
