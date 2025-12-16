@@ -39,6 +39,13 @@ VALUES
 --changeset system:add-cd-city-nov-2025-off dbms:mssql
 SET IDENTITY_INSERT CD_CITY OFF;
 
+--changeset system:selection-process-type-h2-forgot-nov-2025 dbms:h2
+ALTER TABLE [CD_SELECTION_PROCESS_TYPE] ALTER COLUMN [ID] RESTART WITH 12;
+
+
+--changeset system:cd-selection-process-type-h2-forgets-id-nov-2025 dbms:h2
+ALTER TABLE CD_SELECTION_PROCESS_TYPE ALTER COLUMN ID RESTART WITH (SELECT (MAX(ID)+1) FROM CD_SELECTION_PROCESS_TYPE);
+
 --changeset system:update-cd-selection-process-type-nov-2025 dbms:mssql,h2
 UPDATE CD_SELECTION_PROCESS_TYPE
 SET CODE='IAPI', NAME_EN='Initiate an Internal Advertised Process', NAME_FR='Initiation d''un processus interne anoncé', USER_UPDATED='system', DATE_UPDATED=CURRENT_TIMESTAMP
