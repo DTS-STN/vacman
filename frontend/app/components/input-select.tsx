@@ -114,6 +114,16 @@ export function InputSelect(props: InputSelectProps) {
         data-testid={inputIds.test}
         id={id}
         required={required}
+        onKeyDown={(e) => {
+          // Firefox accessibility fix: Enter key should open dropdown
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            // showPicker() not supported in all browsers (e.g., older Safari)
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            e.currentTarget.showPicker?.();
+          }
+          restInputProps.onKeyDown?.(e);
+        }}
         {...restInputProps}
       >
         {sortedOptions.map((optionProps) => {
