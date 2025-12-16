@@ -1,5 +1,5 @@
 import type { ComponentType, HTMLAttributes, JSX, ReactElement } from 'react';
-import { Children, isValidElement, startTransition, useMemo, useRef, useState } from 'react';
+import { Children, isValidElement, startTransition, useCallback, useMemo, useRef, useState } from 'react';
 
 import type { SetURLSearchParams } from 'react-router';
 
@@ -38,6 +38,51 @@ import {
 } from '~/utils/pagination-utils';
 import { parseCSVString } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
+
+//#region Utility Hook
+
+/**
+ * Hook to handle URL parameter updates with pagination reset
+ * @param searchParams Current URL search parameters
+ * @param setSearchParams Function to update URL search parameters
+ * @param pageParam Name of the page parameter to reset
+ * @returns Function that takes an updater callback to modify URL params
+ */
+function useURLParamUpdater(searchParams: URLSearchParams, setSearchParams: SetURLSearchParams, pageParam: string) {
+  return useCallback(
+    (updater: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(pageParam);
+      updater(params);
+      startTransition(() => setSearchParams(params, { preventScrollReset: true }));
+    },
+    [searchParams, setSearchParams, pageParam],
+  );
+}
+
+/**
+ * Parses and validates sort parameters from URL search params
+ * @param params Array of sort parameter strings from URL
+ * @param columns Array of column definitions to validate against
+ * @returns Array of validated SortingState objects
+ */
+function parseSortParams<TData>(params: string[], columns: (InternalColumnProps<TData, unknown> | undefined)[]): SortingState {
+  try {
+    return params
+      .map(parseCSVString)
+      .filter((param) => {
+        if (param.length !== 2) return false;
+        if (!['asc', 'desc'].includes(param[1] ?? '')) return false;
+        return columns.some((column) => (column?.accessorKey ?? column?.id) === param[0]);
+      })
+      .map(([id, desc]) => ({ id: id ?? '', desc: desc === 'desc' }));
+  } catch (error) {
+    console.warn('Invalid sort parameters:', error);
+    return [];
+  }
+}
+
+//#endregion
 
 //#region Server Table
 
@@ -94,20 +139,7 @@ export function ServerTable<TData>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { page: pageParam = 'page', sort: sortParam = 'sort' } = urlParams;
   const columns = Children.map(baseColumns, (column) => (column ? column.props : undefined)) ?? [];
-  const [sorting, setSorting] = useState<SortingState>(
-    searchParams
-      .getAll(sortParam)
-      .map(parseCSVString)
-      .filter((param) => param.length === 2)
-      .filter((param) => param[1] === 'desc' || param[1] === 'asc')
-      .filter((param) => columns.some((column) => (column.accessorKey ?? column.id) === param[0]))
-      .map((param) => {
-        return {
-          id: param[0] ?? '',
-          desc: param[1] === 'desc',
-        };
-      }),
-  );
+  const [sorting, setSorting] = useState<SortingState>(() => parseSortParams(searchParams.getAll(sortParam), columns));
   const totalPages = page.totalPages;
   const currentPage = getCurrentPage(searchParams, pageParam, totalPages);
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
@@ -353,7 +385,7 @@ export const ColumnOptions = (_: ColumnOptionsProps) => <></>; /** @see Internal
 ColumnOptions.displayName = 'ColumnOptions';
 
 type InternalColumnOptionsProps<TData, TValue> = InternalHeaderProps<TData, TValue> & ColumnOptionsProps;
-export function InternalColumnOptions<TData, TValue>({
+function InternalColumnOptions<TData, TValue>({
   title,
   options: baseOptions,
   searchParams,
@@ -392,30 +424,36 @@ export function InternalColumnOptions<TData, TValue>({
             value: name.replace('-', ' '),
           };
         });
-  const [selected, setSelected] = useState(
-    filter === 'id'
-      ? options.filter((option) =>
-          option.id.some((id) =>
-            searchParams
-              .getAll(filterParam)
-              .flatMap((id) => parseCSVString(id))
-              .includes(id.toString()),
-          ),
-        )
-      : options.filter((option) => searchParams.getAll(filterParam).includes(option[filter])),
-  );
+  const [selected, setSelected] = useState(() => {
+    try {
+      return filter === 'id'
+        ? options.filter((option) =>
+            option.id.some((id) =>
+              searchParams
+                .getAll(filterParam)
+                .flatMap((id) => parseCSVString(id))
+                .includes(id.toString()),
+            ),
+          )
+        : options.filter((option) => searchParams.getAll(filterParam).includes(option[filter]));
+    } catch (error) {
+      console.warn('Invalid filter parameters:', error);
+      return [];
+    }
+  });
 
-  const updateURLParams = () => {
+  const updateURLParams = useURLParamUpdater(searchParams, setSearchParams, urlParams.page);
+
+  const applyFilters = () => {
     if (!hasChanged.current) return;
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete(urlParams.page);
-    params.delete(filterParam);
-    selected
-      .sort((a, b) => (a.id[0] ?? 0) - (b.id[0] ?? 0))
-      .forEach((option) =>
-        filter === 'id' ? params.append(filterParam, option.id.join(',')) : params.append(filterParam, option[filter]),
-      );
-    startTransition(() => setSearchParams(params, { preventScrollReset: true }));
+    updateURLParams((params) => {
+      params.delete(filterParam);
+      selected
+        .sort((a, b) => (a.id[0] ?? 0) - (b.id[0] ?? 0))
+        .forEach((option) =>
+          filter === 'id' ? params.append(filterParam, option.id.join(',')) : params.append(filterParam, option[filter]),
+        );
+    });
   };
 
   const toggleOption = (option: FilterOption) => {
@@ -460,14 +498,14 @@ export function InternalColumnOptions<TData, TValue>({
                   (isLoading ? (
                     <span
                       aria-hidden="true"
-                      className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
+                      className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-blue-700"
                     >
                       &#40;
                       <FontAwesomeIcon icon={faSpinner} spin={true} />
                       &#41;
                     </span>
                   ) : (
-                    <span aria-hidden="true" className="ml-1 text-xs font-semibold text-[#0535D2]">
+                    <span aria-hidden="true" className="ml-1 text-xs font-semibold text-blue-700">
                       ({selectedCount})
                     </span>
                   ))}
@@ -484,8 +522,9 @@ export function InternalColumnOptions<TData, TValue>({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           onCloseAutoFocus={() => {
-            updateURLParams();
+            applyFilters();
           }}
+          onEscapeKeyDown={() => setOpen(false)}
           align="start"
           className="max-h-60 w-full overflow-y-auto p-2"
           role="menu"
@@ -500,7 +539,12 @@ export function InternalColumnOptions<TData, TValue>({
                   e.preventDefault();
                   toggleOption(option);
                 }}
-                onKeyDown={() => {}}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleOption(option);
+                  }
+                }}
                 tabIndex={0}
               >
                 <input
@@ -582,14 +626,15 @@ function InternalColumnSearch<TData, TValue>({
   const prevSearchValue = searchParams.get(filterParam) ?? '';
   const search = useRef(prevSearchValue);
 
-  const updateURLParam = () => {
+  const updateURLParams = useURLParamUpdater(searchParams, setSearchParams, urlParams.page);
+
+  const applySearch = () => {
     if (search.current === prevSearchValue) return;
     onSearchChange?.(search.current);
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete(urlParams.page);
-    params.delete(filterParam);
-    if (search.current !== '') params.append(filterParam, search.current);
-    startTransition(() => setSearchParams(params, { preventScrollReset: true }));
+    updateURLParams((params) => {
+      params.delete(filterParam);
+      if (search.current !== '') params.append(filterParam, search.current);
+    });
   };
 
   return (
@@ -616,7 +661,7 @@ function InternalColumnSearch<TData, TValue>({
                 {prevSearchValue && (
                   <span
                     aria-hidden="true"
-                    className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
+                    className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-blue-700"
                   >
                     &#40;
                     <FontAwesomeIcon icon={faEllipsis} />
@@ -636,8 +681,12 @@ function InternalColumnSearch<TData, TValue>({
         </PopoverTrigger>
         <PopoverContent
           onCloseAutoFocus={() => {
-            updateURLParam();
+            applySearch();
           }}
+          onOpenAutoFocus={() => {
+            inputRef.current?.focus();
+          }}
+          onEscapeKeyDown={() => setOpen(false)}
           align="start"
           className="flex w-full justify-center overflow-y-auto p-4"
           role="searchbox"
@@ -717,7 +766,7 @@ function InternalColumnSort<TData, TValue>({
       return value;
     }
     return null;
-  }, [sortParams]);
+  }, [sortParams, filterParam]);
 
   // Create accessible label that describes the current state and action
   const getAriaLabel = () => {
@@ -729,28 +778,29 @@ function InternalColumnSort<TData, TValue>({
     return t('gcweb:data-table.sorting.not-sorted', { column: title });
   };
 
+  const updateURLParams = useURLParamUpdater(searchParams, setSearchParams, urlParams.page);
+
   const toggleSorting = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    const sorts = params.getAll(urlParams.sort);
-    params.delete(urlParams.page);
-    params.delete(urlParams.sort);
-    sorts.forEach((sort) => {
-      const [key] = sort.split(',');
-      if (key !== filterParam) {
-        params.append(urlParams.sort, sort);
+    updateURLParams((params) => {
+      const sorts = params.getAll(urlParams.sort);
+      params.delete(urlParams.sort);
+      sorts.forEach((sort) => {
+        const [key] = sort.split(',');
+        if (key !== filterParam) {
+          params.append(urlParams.sort, sort);
+        }
+      });
+      switch (sortDirection) {
+        default:
+          params.set(urlParams.sort, `${filterParam},asc`);
+          break;
+        case 'asc':
+          params.set(urlParams.sort, `${filterParam},desc`);
+          break;
+        case 'desc':
+          break;
       }
     });
-    switch (sortDirection) {
-      default:
-        params.set(urlParams.sort, `${filterParam},asc`);
-        break;
-      case 'asc':
-        params.set(urlParams.sort, `${filterParam},desc`);
-        break;
-      case 'desc':
-        break;
-    }
-    startTransition(() => setSearchParams(params, { preventScrollReset: true }));
   };
 
   return (
@@ -820,7 +870,7 @@ function InternalColumnHeader<TData, TValue>({
       const props: BaseHeaderComponent = child.props ?? {};
       return <InternalComponent key={key} {...internalProps} {...props} withTitle={withTitle} />;
     });
-  }, [baseChildren]);
+  }, [baseChildren, internalProps]);
   return (
     <div id={id} className={cn('flex items-center space-x-0.5', className)}>
       {!renderedTitle.current && title}
