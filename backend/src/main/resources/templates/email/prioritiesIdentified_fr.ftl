@@ -8,7 +8,7 @@ Suite à votre demande dans le Système de gestion des postes vacants (SGPV) afi
 
 Tous les employés identifiés ont été informés de cette occasion d'emploi et ont été priés de vous faire part de leur intérêt. Ils ont 2 jours ouvrables pour communiquer avec vous.
 
-Accédez à votre tableau de bord du SGPV pour consulter la liste des employés.
+Veuillez accéder au lien suivant pour consulter votre demande : ${requestMatchesUrl}
 
 Vous pourriez souhaiter utiliser la fonction d'exportation vers Excel pour consigner toute information pertinente relative à cette demande d'autorisation en matière de priorité (par exemple, les réponses des employés, les résultats d'évaluation, etc.).
 
