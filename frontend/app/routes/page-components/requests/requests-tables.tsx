@@ -11,7 +11,7 @@ import { InputLabel } from '~/components/input-label';
 import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { LoadingLink } from '~/components/loading-link';
-import { Column, ColumnHeader, ColumnOptions, ColumnSearch, ServerTable } from '~/components/server-table';
+import { Column, ColumnOptions, ColumnSearch, ColumnSort, ServerTable } from '~/components/server-table';
 import { RequestStatusTag } from '~/components/status-tag';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -220,7 +220,7 @@ function RequestsColumns({
 }: RequestColumnsProps) {
   const { currentLanguage } = useLanguage();
   const { t } = useTranslation('app');
-  const urlParam = {
+  const urlParams = {
     page: `${keyPrefix}Page`,
     sort: `${keyPrefix}Sort`,
   };
@@ -248,24 +248,21 @@ function RequestsColumns({
 
   return (
     <ServerTable
-      title={title}
       page={page}
       data={requests}
       searchParams={searchParams}
       setSearchParams={setSearchParams}
-      urlParam={urlParam}
+      urlParams={urlParams}
+      resultsTitle={title}
     >
       <Column
         accessorKey={`${keyPrefix}Id`}
         accessorFn={(row: RequestReadModel) => row.id}
-        header={({ column }) => (
-          <ColumnSearch
-            column={column}
-            title={t('requests-tables.requestId')}
-            page={urlParam.page}
-            searchParams={searchParams}
-            setSearchParams={setSearchParams}
-          />
+        header={({ ColumnHeader }) => (
+          <ColumnHeader title={t('requests-tables.requestId')}>
+            <ColumnSearch />
+            <ColumnSort filterParam="Id" />
+          </ColumnHeader>
         )}
         cell={(info) => {
           return <span>{formatWithMask(info.row.original.id, '####-####-##')}</span>;
@@ -279,14 +276,10 @@ function RequestsColumns({
       <Column
         accessorKey={`${keyPrefix}Group`}
         accessorFn={(row: RequestReadModel) => row.classification?.code ?? ''}
-        header={({ column }) => (
-          <ColumnSearch
-            column={column}
-            title={t('requests-tables.classification')}
-            page={urlParam.page}
-            searchParams={searchParams}
-            setSearchParams={setSearchParams}
-          />
+        header={({ ColumnHeader }) => (
+          <ColumnHeader title={t('requests-tables.classification')}>
+            <ColumnSearch />
+          </ColumnHeader>
         )}
         cell={(info) => <span>{info.row.original.classification?.code}</span>}
       />
@@ -298,16 +291,10 @@ function RequestsColumns({
             const branch = row.workUnit?.parent ?? row.workUnit;
             return currentLanguage === 'en' ? branch?.nameEn : branch?.nameFr;
           }}
-          header={({ column }) => (
-            <ColumnOptions
-              column={column}
-              title={t('requests-tables.work-unit')}
-              options={workUnits}
-              page={urlParam.page}
-              searchParams={searchParams}
-              setSearchParams={setSearchParams}
-              showClearAll
-            />
+          header={({ ColumnHeader }) => (
+            <ColumnHeader title={t('requests-tables.work-unit')}>
+              <ColumnOptions options={workUnits} showClearAll />
+            </ColumnHeader>
           )}
           cell={(info) => {
             // Branch is the parent if work unit has one, otherwise the work unit itself
@@ -319,7 +306,11 @@ function RequestsColumns({
       <Column
         accessorKey="hrAdvisor"
         accessorFn={(row: RequestReadModel) => getHrAdvisorName(row.hrAdvisor)}
-        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.hr-advisor')} />}
+        header={({ ColumnHeader }) => (
+          <ColumnHeader title={t('requests-tables.hr-advisor')}>
+            <ColumnSort />
+          </ColumnHeader>
+        )}
         cell={(info) => {
           if (view !== 'hr-advisor') {
             const hrAdvisorName = getHrAdvisorName(info.row.original.hrAdvisor) || t('requests-tables.not-assigned');
@@ -356,7 +347,11 @@ function RequestsColumns({
       <Column
         accessorKey="lastModifiedDate"
         accessorFn={(row: RequestReadModel) => row.lastModifiedDate ?? ''}
-        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.updated')} />}
+        header={({ ColumnHeader }) => (
+          <ColumnHeader title={t('requests-tables.updated')}>
+            <ColumnSort />
+          </ColumnHeader>
+        )}
         cell={(info) => {
           const lastModifiedDate = info.row.original.lastModifiedDate;
           const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
@@ -367,16 +362,10 @@ function RequestsColumns({
       <Column
         accessorKey={`${keyPrefix}Status`}
         accessorFn={(row: RequestReadModel) => (currentLanguage === 'en' ? row.status?.nameEn : row.status?.nameFr) ?? '-'}
-        header={({ column }) => (
-          <ColumnOptions
-            column={column}
-            title={t('requests-tables.status')}
-            options={requestStatuses}
-            page={urlParam.page}
-            searchParams={searchParams}
-            setSearchParams={setSearchParams}
-            showClearAll
-          />
+        header={({ ColumnHeader }) => (
+          <ColumnHeader title={t('requests-tables.status')}>
+            <ColumnOptions options={requestStatuses} showClearAll />
+          </ColumnHeader>
         )}
         cell={(info) => {
           const status = info.row.original.status;
