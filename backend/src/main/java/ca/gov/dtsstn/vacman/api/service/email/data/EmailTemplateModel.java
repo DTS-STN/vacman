@@ -44,7 +44,8 @@ public final class EmailTemplateModel {
 	) {}
 
 	public record PrioritiesIdentified(
-		String requestNumber
+		String requestNumber,
+		String requestUrl
 	) {}
 
 	public record RequestCancelled(

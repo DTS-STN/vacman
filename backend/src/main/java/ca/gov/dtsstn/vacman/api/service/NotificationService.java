@@ -219,7 +219,16 @@ public class NotificationService {
 			case PSC_REQUIRED ->
 				recordToMap(new EmailTemplateModel.PscClearanceRequired(formatRequestNumber(requestId)));
 			case FEEDBACK_PENDING ->
-				recordToMap(new EmailTemplateModel.PrioritiesIdentified(formatRequestNumber(requestId)));
+				recordToMap(new EmailTemplateModel.PrioritiesIdentified(
+					formatRequestNumber(requestId),
+					"%s/%s/%s/%d/%s".formatted(
+						applicationProperties.frontend().baseUrl(),
+						language.toLowerCase(),
+						"fr".equalsIgnoreCase(language) ? "gestionnaire-embauche/demande" : "hiring-manager/request",
+						requestId,
+						"fr".equalsIgnoreCase(language) ? "correspondances" : "matches"
+					)
+				));
 			case FEEDBACK_COMPLETED ->
 				recordToMap(new EmailTemplateModel.PendingFeedbackApprovalHR(formatRequestNumber(requestId)));
 			case PSC_NOT_REQUIRED ->
