@@ -218,7 +218,12 @@ public class NotificationService {
 			case SUBMITTED ->
 				recordToMap(new EmailTemplateModel.RequestSubmitted(
 					formatRequestNumber(requestId),
-					"%s/%s/hr-advisor/request/%d".formatted(applicationProperties.frontend().baseUrl(), language.toLowerCase(), requestId)
+					"%s/%s/%s/%d".formatted(
+						applicationProperties.frontend().baseUrl(),
+						language.toLowerCase(),
+						"fr".equalsIgnoreCase(language) ? "conseiller-rh/demande" : "hr-advisor/request",
+						requestId
+					)
 				));
 			case VMS_NOT_REQUIRED, HR_REVIEW ->
 				recordToMap(new EmailTemplateModel.RequestAssigned(formatRequestNumber(requestId)));
