@@ -8,7 +8,7 @@ Further to your request to obtain priority clearance in the Vacancy Management S
 
 All identified employees have received notification of this job opportunity and have been requested to respond to you within 2 working days to advise you of their interest.
 
-Access the following link to view your request employee list: ${requestUrl}
+Access the following link to view your request employee list: ${requesMatchesUrl}
 
 You may wish to use the export to Excel function to log any relevant information related to this priority clearance request (for example, employee responses, assessment results, etc.).
 
