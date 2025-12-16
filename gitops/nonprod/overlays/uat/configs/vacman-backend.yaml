@@ -34,3 +34,5 @@ application:
     pims-sle-team-email: EDSC.Priorites.2-2.Priorities.ESDC@hrsdc-rhdcc.gc.ca
   metrics:
     environment-name: uat
+  frontend:
+    base-url: https://vacman-uat.dev-dp-internal.dts-stn.com/
