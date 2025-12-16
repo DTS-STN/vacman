@@ -7,6 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: vacman-backend
 spec:
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: vacman-backend
@@ -24,23 +25,30 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
-            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: http
-            initialDelaySeconds: 30
-            periodSeconds: 5
-            failureThreshold: 120
+            periodSeconds: 10
+            failureThreshold: 5
           resources:
             requests:
-              cpu: 200m
-              memory: 256Mi
+              cpu: 100m
+              memory: 512Mi
             limits:
+              cpu: 200m
               memory: 1024Mi
           securityContext:
             allowPrivilegeEscalation: false
@@ -64,6 +72,7 @@ metadata:
   labels:
     app.kubernetes.io/name: vacman-frontend
 spec:
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: vacman-frontend
@@ -98,11 +107,11 @@ spec:
               port: http
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 200m
+              cpu: 50m
               memory: 256Mi
+            limits:
+              cpu: 100m
+              memory: 512Mi
           securityContext:
             allowPrivilegeEscalation: false
   strategy:
