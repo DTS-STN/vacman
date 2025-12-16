@@ -1,12 +1,14 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import java.lang.reflect.RecordComponent;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import javax.swing.text.MaskFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +49,6 @@ public class NotificationService {
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
-	private static final String REQUEST_NUMBER_PREFIX = "0000-0000-";
-
 	private final ApplicationProperties applicationProperties;
 
 	private final RestTemplate restTemplate;
@@ -86,7 +86,14 @@ public class NotificationService {
 	 */
 	public String formatRequestNumber(Long requestId) {
 		Assert.notNull(requestId, "requestId must not be null");
-		return REQUEST_NUMBER_PREFIX + requestId;
+		try {
+			MaskFormatter formatter = new MaskFormatter("####-####-##");
+			formatter.setValueContainsLiteralCharacters(false);
+			return formatter.valueToString(String.format("%010d", requestId));
+		}
+		catch (final ParseException exception) {
+			return requestId.toString();
+		}
 	}
 
 	/**
