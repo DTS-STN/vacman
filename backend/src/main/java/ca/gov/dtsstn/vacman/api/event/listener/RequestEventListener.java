@@ -304,18 +304,6 @@ public class RequestEventListener {
 			),
 			() -> log.warn("No HR advisor email found for request ID: [{}]", request.id())
 		);
-
-		final var hrEmail = applicationProperties.gcnotify().hrGdInboxEmail();
-
-		log.info("Sending feedback completed notification to generic HR inbox for request ID: [{}]", request.id());
-
-		notificationService.sendRequestNotification(
-			hrEmail,
-			request.id(),
-			request.nameEn(),
-			RequestEvent.FEEDBACK_COMPLETED,
-			language
-		);
 	}
 
 	/**
