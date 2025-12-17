@@ -113,3 +113,5 @@ export function getPageItemsRange(rows: number, page: PageMetadata): { start: nu
     end: base + rows,
   };
 }
+
+export const MAX_PAGE_SIZE = 200;

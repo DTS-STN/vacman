@@ -1,5 +1,6 @@
 import type { Profile, ProfilePutModel, User, UserQueryParams } from '~/.server/domain/models';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { MAX_PAGE_SIZE } from '~/utils/pagination-utils';
 
 /**
  * Counts the number of "completed" items in a given data object.
@@ -119,6 +120,7 @@ export function pickObjectProperties<T extends object, K extends keyof T>(
 }
 
 const userParams: UserQueryParams = {
+  size: MAX_PAGE_SIZE,
   userType: 'hr-advisor',
 };
 

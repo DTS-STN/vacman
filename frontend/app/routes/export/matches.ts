@@ -25,7 +25,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const requestMatchesResult = await getRequestService().getRequestMatchesDownload(
     parseInt(params.requestId),
     {
-      page: 0,
       sort: sortParam.length > 0 ? sortParam : undefined,
       profile: {
         employeeName: searchParams.get('employeeName') ?? undefined,
