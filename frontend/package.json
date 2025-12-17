@@ -94,12 +94,12 @@
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.18.2",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^25.0.2",
+    "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/parser": "^8.50.0",
     "@vitejs/plugin-react": "^5.1.2",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.16",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
@@ -119,7 +119,7 @@
     "vite": "^7.3.0",
     "vite-plugin-static-copy": "^3.1.4",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.15",
+    "vitest": "^4.0.16",
     "vitest-mock-extended": "^3.1.0"
   }
 }
