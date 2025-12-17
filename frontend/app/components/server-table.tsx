@@ -365,6 +365,13 @@ interface ColumnOptionsProps extends BaseHeaderComponent {
 }
 
 /**
+ * @see InternalColumnOptions for implementation
+ * @see ColumnOptions for export
+ */
+const ColumnOptionsFC = (_: ColumnOptionsProps) => <></>;
+ColumnOptionsFC.displayName = 'ColumnOptions';
+
+/**
  * Component for providing filter options to `<Column/>`
  * @see InternalColumnOptions for implementation
  * @see HEADER_COMPONENTS_MAP for `ColumnOptions` -> `InternalColumnOptions`
@@ -381,8 +388,7 @@ interface ColumnOptionsProps extends BaseHeaderComponent {
  * />
  * ```
  */
-export const ColumnOptions = (_: ColumnOptionsProps) => <></>; /** @see InternalColumnOptions */
-ColumnOptions.displayName = 'ColumnOptions';
+export const ColumnOptions = ColumnOptionsFC as FunctionTypeOf<typeof ColumnOptionsFC>;
 
 type InternalColumnOptionsProps<TData, TValue> = InternalHeaderProps<TData, TValue> & ColumnOptionsProps;
 function InternalColumnOptions<TData, TValue>({
@@ -589,6 +595,14 @@ function InternalColumnOptions<TData, TValue>({
 interface ColumnSearchProps extends BaseHeaderComponent {
   onSearchChange?: (search: string) => void;
 }
+
+/**
+ * @see InternalColumnSearch for implementation
+ * @see ColumnSearch for export
+ */
+const ColumnSearchFC = (_: ColumnSearchProps) => <></>;
+ColumnSearchFC.displayName = 'ColumnSearch';
+
 /**
  * Component for providing a search filter to `<Column/>`
  * @see InternalColumnSearch for implementation
@@ -606,8 +620,7 @@ interface ColumnSearchProps extends BaseHeaderComponent {
  * />
  * ```
  */
-export const ColumnSearch = (_: ColumnSearchProps) => <></>; /** @see InternalColumnSearch */
-ColumnSearch.displayName = 'ColumnSearch';
+export const ColumnSearch = ColumnSearchFC as FunctionTypeOf<typeof ColumnSearchFC>;
 
 type InternalColumnSearchProps<TData, TValue> = InternalHeaderProps<TData, TValue> & ColumnSearchProps;
 function InternalColumnSearch<TData, TValue>({
@@ -721,6 +734,14 @@ function InternalColumnSearch<TData, TValue>({
 //#region Column Sort
 
 interface ColumnSortProps extends BaseHeaderComponent {}
+
+/**
+ * @see InternalColumnSort for implementation
+ * @see ColumnSort for export
+ */
+const ColumnSortFC = (_: ColumnSortProps) => <></>;
+ColumnSortFC.displayName = 'ColumnSort';
+
 /**
  * Component for providing a header and sort direction to `<Column/>`
  * @see InternalColumnSort for implementation
@@ -738,9 +759,7 @@ interface ColumnSortProps extends BaseHeaderComponent {}
  * />
  * ```
  */
-
-export const ColumnSort = (_: ColumnSortProps) => <></>; /** @see InternalColumnSort */
-ColumnSort.displayName = 'ColumnSort';
+export const ColumnSort = ColumnSortFC as FunctionTypeOf<typeof ColumnSortFC>;
 
 type InternalColumnSortProps<TData, TValue> = InternalHeaderProps<TData, TValue> & ColumnSortProps;
 function InternalColumnSort<TData, TValue>({
@@ -958,6 +977,9 @@ type BaseHeaderComponent = HTMLAttributes<HTMLElement> & {
 type InternalHeaderComponentType<TData, TValue, TProps = object> = ComponentType<InternalHeaderProps<TData, TValue> & TProps>;
 type UnknownInternalHeaderComponentType<TProps> = InternalHeaderComponentType<unknown, unknown, TProps>;
 
+// Type for extracting the function signature from a function component type
+type FunctionTypeOf<T> = T extends (props: infer P) => infer R ? (props: P) => R : never;
+
 //#endregion
 
 /**
@@ -971,7 +993,7 @@ const HEADER_COMPONENTS_MAP = new Map<
   | UnknownInternalHeaderComponentType<ColumnSortProps>
   | UnknownInternalHeaderComponentType<ColumnOptionsProps>
 >([
-  [ColumnSearch.displayName, InternalColumnSearch],
-  [ColumnSort.displayName, InternalColumnSort],
-  [ColumnOptions.displayName, InternalColumnOptions],
+  [ColumnSearchFC.displayName, InternalColumnSearch],
+  [ColumnSortFC.displayName, InternalColumnSort],
+  [ColumnOptionsFC.displayName, InternalColumnOptions],
 ]);
