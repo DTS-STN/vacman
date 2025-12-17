@@ -10,7 +10,7 @@ object BuildTestPublishAndDeployReleaseBranches : BuildType({
 
 	params {
 		select("DEBUG", "false", label = "Debug", options = listOf("false", "true"))
-		param("env.NODE_CONTAINER_IMAGE", "docker.io/library/node:22")
+		param("env.NODE_CONTAINER_IMAGE", "docker.io/library/node:24")
 		param("env.BUILD_DATE", "1970-01-01T00:00:00.000Z")
 		param("env.BUILD_VERSION", "0.0.0")
 		param("env.BUILD_IMAGE_NAME", "vacman/vacman-frontend")

@@ -48,7 +48,7 @@ The utility performs the following steps:
 
 ### Prerequisites
 
-* Node.js (version 22.x or higher)
+* Node.js (version 24.x or higher)
 * pnpm (version 10.x or higher)
 * A Microsoft Entra ID application registration with the following API
   permissions:
