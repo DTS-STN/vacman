@@ -34,9 +34,9 @@ export default defineConfig({
     ssr: true,
 
     // Specifies the Node.js version compatibility for the generated output.
-    // Setting `target: 'node22'` ensures compatibility with Node.js 22, enabling
+    // Setting `target: 'node24'` ensures compatibility with Node.js 24, enabling
     // features like ES modules, top-level await, and modern JavaScript syntax.
-    target: 'node22',
+    target: 'node24',
   },
   plugins: [
     preserveImportMetaUrl(),

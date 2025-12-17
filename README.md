@@ -69,7 +69,7 @@ Utility tools and scripts for maintaining the VacMan ecosystem.
 ### Prerequisites
 
 - **Java 21** (for backend)
-- **Node.js 22+** and **pnpm 10+** (for frontend and support)
+- **Node.js 24+** and **pnpm 10+** (for frontend and support)
 - **Azure CLI 2.60+** (for infrastructure)
 - **Terraform 1.10+** and **Terragrunt 0.65+** (for infrastructure)
 - **Docker/Podman** (for containerized deployments)

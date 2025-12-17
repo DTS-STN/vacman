@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.0",
+    "node": ">=24.0",
     "pnpm": ">=10.0"
   },
   "packageManager": "pnpm@10.15.0",
@@ -94,7 +94,7 @@
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.18.2",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^25.0.3",
+    "@types/node": "^24.10.4",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/parser": "^8.50.0",
