@@ -64,3 +64,13 @@ WHERE CODE='DIE' AND NAME_EN='Deployment - Indeterminate (refer to exceptions)' 
 
 --changeset system:remove-cd-language-requirement-various dbms:h2,mssql
 DELETE FROM CD_LANGUAGE_REQUIREMENT WHERE CODE = 'VAR' AND EXPIRY_DATE IS NULL;
+
+
+--changeset system:fix-cd-selection-process-type-dec-2025-typo dbms:mssql,h2
+UPDATE CD_SELECTION_PROCESS_TYPE
+SET CODE='IAPI', NAME_EN='Initiate an Internal Advertised Process', NAME_FR='Initiation d''un processus interne annoncé', USER_UPDATED='system', DATE_UPDATED=CURRENT_TIMESTAMP
+WHERE CODE='IAPI' AND NAME_EN='Initiate an Internal Advertised Process' AND NAME_FR='Initiation d''un processus interne anoncé' AND EXPIRY_DATE IS NULL;
+
+UPDATE CD_SELECTION_PROCESS_TYPE
+SET CODE='IAPE', NAME_EN='Initiate an External Advertised Process', NAME_FR='Initiation d''un processus externe annoncé', USER_UPDATED='system', DATE_UPDATED=CURRENT_TIMESTAMP
+WHERE CODE='IAPE' AND NAME_EN='Initiate an External Advertised Process' AND NAME_FR='Initiation d''un processus externe anoncé' AND EXPIRY_DATE IS NULL;
