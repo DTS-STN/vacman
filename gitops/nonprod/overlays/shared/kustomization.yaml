@@ -20,6 +20,7 @@ labels:
 resources:
   - github.com/stn-dts/kustomize-manifests/components/reloader?ref=reloader-1.4.10.000
   - ../../base/redis/
+  - ./db-tunnel.yaml
   - ./external-secrets.yaml
 patches:
   - path: ./patches/stateful-sets.yaml

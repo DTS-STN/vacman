@@ -1,0 +1,76 @@
+#
+# HAProxy configuration and deployment for DB tunneling
+# This file sets up an HAProxy instance to tunnel database connections securely.
+#
+# How to use this deployment:
+#
+# 1. add esdcvacmansqlsrv.database.windows.net to your /etc/hosts with the IP 127.0.0.1
+# 2. port forward from your local machine to the db-tunnel pod in the cluster:
+#    kubectl port-forward deployment/db-tunnel-shared mssql --namespace vacancy-management
+# 3. connect to the database using your preferred SQL client, using esdcvacmansqlsrv.database.windows.net as the server address.
+#
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-tunnel-config
+data:
+  haproxy.cfg: |
+    global
+      log stdout format raw local0
+
+    defaults
+      log global
+      mode tcp
+      option tcplog
+      timeout connect 5s
+      timeout client 30m
+      timeout server 30m
+
+    frontend esdcvacmansqlsrv
+      bind *:1433
+      default_backend esdcvacmansqlsrv
+
+    backend esdcvacmansqlsrv
+      server esdcvacmansqlsrv esdcvacmansqlsrv.database.windows.net:1433 check
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-tunnel
+  labels:
+    app: db-tunnel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-tunnel
+  template:
+    metadata:
+      labels:
+        app: db-tunnel
+    spec:
+      hostAliases:
+        - ip: 10.72.61.197
+          hostnames:
+            - esdcvacmansqlsrv.database.windows.net
+      containers:
+        - name: haproxy
+          image: docker.io/library/haproxy:3.3.0-alpine
+          ports:
+            - name: mssql
+              containerPort: 1433
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+          volumeMounts:
+            - name: config
+              mountPath: /usr/local/etc/haproxy/haproxy.cfg
+              subPath: haproxy.cfg
+      volumes:
+        - name: config
+          configMap:
+            name: db-tunnel-config
