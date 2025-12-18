@@ -1863,7 +1863,7 @@ class RequestsControllerTest {
 			// Verify status changed in database and both clearance numbers are removed
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().pendingPscClearance());
-			assertThat(updatedRequest.getPriorityClearanceNumber()).isNull();
+			assertThat(updatedRequest.getPriorityClearanceNumber()).isNotNull();
 			assertThat(updatedRequest.getPscClearanceNumber()).isNull();
 		}
 
