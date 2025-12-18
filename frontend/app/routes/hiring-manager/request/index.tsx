@@ -12,6 +12,7 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
@@ -75,41 +76,142 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.index.action', async (span) => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const formData = await request.formData();
-  const formAction = formData.get('action');
+    const formData = await request.formData();
+    const formAction = formData.get('action');
 
-  if (formAction === 'save') {
-    return i18nRedirect('routes/hiring-manager/requests.tsx', request, {
-      search: new URLSearchParams({ success: 'save-request' }),
-    });
-  }
+    if (typeof formAction === 'string') {
+      span.setAttribute('app.request.action', formAction);
+    }
 
-  if (formAction === 'delete') {
-    const { t } = await getTranslation(request, handle.i18nNamespace);
+    if (formAction === 'save') {
+      return i18nRedirect('routes/hiring-manager/requests.tsx', request, {
+        search: new URLSearchParams({ success: 'save-request' }),
+      });
+    }
 
-    if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
+    if (formAction === 'delete') {
+      const { t } = await getTranslation(request, handle.i18nNamespace);
+
+      if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
+        return {
+          status: 'error',
+          errorMessage: t('app:hiring-manager-referral-requests.delete-request.not-allowed'),
+          errorCode: 'REQUEST_DELETE_NOT_ALLOWED',
+        };
+      }
+
+      const deleteRequest = await getRequestService().deleteRequestById(
+        Number(params.requestId),
+        session.authState.accessToken,
+      );
+
+      if (deleteRequest.isErr()) {
+        const error = deleteRequest.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      return i18nRedirect('routes/hiring-manager/requests.tsx', request, {
+        search: new URLSearchParams({ success: 'delete-request' }),
+      });
+    }
+
+    // For process information from Request Model
+    const requiredProcessFields = {
+      workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+      priorityEntitlement: requestData.priorityEntitlement,
+      workSchedule: requestData.workSchedule,
+      ...(requestData.priorityEntitlement
+        ? {
+            priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+          }
+        : {}),
+      ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+      requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
+        ? {
+            appointmentNonAdvertised: requestData.appointmentNonAdvertised,
+          }
+        : {}),
+      ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
+        ? {
+            projectedStartDate: requestData.projectedStartDate,
+            projectedEndDate: requestData.projectedEndDate,
+          }
+        : {}),
+      ...(requestData.equityNeeded === true
+        ? {
+            employmentEquities: requestData.employmentEquities,
+          }
+        : {}),
+    };
+
+    // For position information from Request Model
+    const requiredPositionFields = {
+      positionNumber: requestData.positionNumber,
+      classification: requestData.classification,
+      englishTitle: requestData.englishTitle,
+      frenchTitle: requestData.frenchTitle,
+      cities: requestData.cities,
+      languageRequirements: requestData.languageRequirements,
+      securityClearance: requestData.securityClearance,
+    };
+
+    // For Statement of Merit Criteria and Conditions of Employment from Request Model
+    const requiredStatementOfMeritCriteriaFields = {
+      englishStatementOfMerit: requestData.englishStatementOfMerit,
+      frenchStatementOfMerit: requestData.frenchStatementOfMerit,
+    };
+
+    // For Submission details from Request Model
+    const submissionFields = {
+      submitter: requestData.submitter,
+      hiringManager: requestData.hiringManager,
+      subDelegatedManager: requestData.subDelegatedManager,
+      workUnit: requestData.workUnit,
+      languageOfCorrespondence: requestData.languageOfCorrespondence,
+    };
+
+    // Check if all sections are complete
+    const processInfoComplete = countCompletedItems(requiredProcessFields) === Object.keys(requiredProcessFields).length;
+    const positionInfoComplete = countCompletedItems(requiredPositionFields) === Object.keys(requiredPositionFields).length;
+    const statementOfMeritCriteriaInfoComplete =
+      countCompletedItems(requiredStatementOfMeritCriteriaFields) ===
+      Object.keys(requiredStatementOfMeritCriteriaFields).length;
+    const submissionInfoComplete = countCompletedItems(submissionFields) === Object.keys(submissionFields).length;
+
+    // If any section is incomplete, return incomplete state
+    if (!processInfoComplete || !positionInfoComplete || !statementOfMeritCriteriaInfoComplete || !submissionInfoComplete) {
       return {
-        status: 'error',
-        errorMessage: t('app:hiring-manager-referral-requests.delete-request.not-allowed'),
-        errorCode: 'REQUEST_DELETE_NOT_ALLOWED',
+        processInfoComplete,
+        positionInfoComplete,
+        statementOfMeritCriteriaInfoComplete,
+        submissionInfoComplete,
       };
     }
 
-    const deleteRequest = await getRequestService().deleteRequestById(Number(params.requestId), session.authState.accessToken);
+    const submitResult = await getRequestService().updateRequestStatus(
+      Number(params.requestId),
+      { eventType: REQUEST_EVENT_TYPE.submitted },
+      session.authState.accessToken,
+    );
 
-    if (deleteRequest.isErr()) {
-      const error = deleteRequest.unwrapErr();
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
       return {
         status: 'error',
         errorMessage: error.message,
@@ -117,297 +219,208 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       };
     }
 
-    return i18nRedirect('routes/hiring-manager/requests.tsx', request, {
-      search: new URLSearchParams({ success: 'delete-request' }),
-    });
-  }
+    const updatedRequest = submitResult.unwrap();
 
-  // For process information from Request Model
-  const requiredProcessFields = {
-    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: requestData.priorityEntitlement,
-    workSchedule: requestData.workSchedule,
-    ...(requestData.priorityEntitlement
-      ? {
-          priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-        }
-      : {}),
-    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
-    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
-      ? {
-          appointmentNonAdvertised: requestData.appointmentNonAdvertised,
-        }
-      : {}),
-    ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
-      ? {
-          projectedStartDate: requestData.projectedStartDate,
-          projectedEndDate: requestData.projectedEndDate,
-        }
-      : {}),
-    ...(requestData.equityNeeded === true
-      ? {
-          employmentEquities: requestData.employmentEquities,
-        }
-      : {}),
-  };
-
-  // For position information from Request Model
-  const requiredPositionFields = {
-    positionNumber: requestData.positionNumber,
-    classification: requestData.classification,
-    englishTitle: requestData.englishTitle,
-    frenchTitle: requestData.frenchTitle,
-    cities: requestData.cities,
-    languageRequirements: requestData.languageRequirements,
-    securityClearance: requestData.securityClearance,
-  };
-
-  // For Statement of Merit Criteria and Conditions of Employment from Request Model
-  const requiredStatementOfMeritCriteriaFields = {
-    englishStatementOfMerit: requestData.englishStatementOfMerit,
-    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
-  };
-
-  // For Submission details from Request Model
-  const submissionFields = {
-    submitter: requestData.submitter,
-    hiringManager: requestData.hiringManager,
-    subDelegatedManager: requestData.subDelegatedManager,
-    workUnit: requestData.workUnit,
-    languageOfCorrespondence: requestData.languageOfCorrespondence,
-  };
-
-  // Check if all sections are complete
-  const processInfoComplete = countCompletedItems(requiredProcessFields) === Object.keys(requiredProcessFields).length;
-  const positionInfoComplete = countCompletedItems(requiredPositionFields) === Object.keys(requiredPositionFields).length;
-  const statementOfMeritCriteriaInfoComplete =
-    countCompletedItems(requiredStatementOfMeritCriteriaFields) === Object.keys(requiredStatementOfMeritCriteriaFields).length;
-  const submissionInfoComplete = countCompletedItems(submissionFields) === Object.keys(submissionFields).length;
-
-  // If any section is incomplete, return incomplete state
-  if (!processInfoComplete || !positionInfoComplete || !statementOfMeritCriteriaInfoComplete || !submissionInfoComplete) {
     return {
-      processInfoComplete,
-      positionInfoComplete,
-      statementOfMeritCriteriaInfoComplete,
-      submissionInfoComplete,
+      status: 'submitted',
+      requestStatus: updatedRequest.status,
+      isRequestComplete: true,
     };
-  }
-
-  const submitResult = await getRequestService().updateRequestStatus(
-    Number(params.requestId),
-    { eventType: REQUEST_EVENT_TYPE.submitted },
-    session.authState.accessToken,
-  );
-
-  if (submitResult.isErr()) {
-    const error = submitResult.unwrapErr();
-    return {
-      status: 'error',
-      errorMessage: error.message,
-      errorCode: error.errorCode,
-    };
-  }
-
-  const updatedRequest = submitResult.unwrap();
-
-  return {
-    status: 'submitted',
-    requestStatus: updatedRequest.status,
-    isRequestComplete: true,
-  };
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.index.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const allLocalizedCities = await getCityService().listAllLocalized(lang);
+    const allLocalizedCities = await getCityService().listAllLocalized(lang);
 
-  // Process information from Request type
-  const requiredProcessInformation = {
-    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: requestData.priorityEntitlement,
-    workSchedule: requestData.workSchedule,
-    ...(requestData.priorityEntitlement
-      ? {
-          priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-        }
-      : {}),
-    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
-    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
-      ? {
-          appointmentNonAdvertised: requestData.appointmentNonAdvertised,
-        }
-      : {}),
-    ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
-      ? {
-          projectedStartDate: requestData.projectedStartDate,
-          projectedEndDate: requestData.projectedEndDate,
-        }
-      : {}),
-    ...(requestData.equityNeeded === true
-      ? {
-          employmentEquities: requestData.employmentEquities,
-        }
-      : {}),
-  };
-  const processInformationCompleted = countCompletedItems(requiredProcessInformation);
-  const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
+    // Process information from Request type
+    const requiredProcessInformation = {
+      workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+      priorityEntitlement: requestData.priorityEntitlement,
+      workSchedule: requestData.workSchedule,
+      ...(requestData.priorityEntitlement
+        ? {
+            priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+          }
+        : {}),
+      ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+      requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
+        ? {
+            appointmentNonAdvertised: requestData.appointmentNonAdvertised,
+          }
+        : {}),
+      ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
+        ? {
+            projectedStartDate: requestData.projectedStartDate,
+            projectedEndDate: requestData.projectedEndDate,
+          }
+        : {}),
+      ...(requestData.equityNeeded === true
+        ? {
+            employmentEquities: requestData.employmentEquities,
+          }
+        : {}),
+    };
+    const processInformationCompleted = countCompletedItems(requiredProcessInformation);
+    const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
 
-  // Position information from Request type
-  const requiredPositionInformation = {
-    positionNumber: requestData.positionNumber,
-    classification: requestData.classification,
-    englishTitle: requestData.englishTitle,
-    frenchTitle: requestData.frenchTitle,
-    cities: requestData.cities,
-    languageRequirements: requestData.languageRequirements,
-    securityClearance: requestData.securityClearance,
-  };
-  const positionInformationCompleted = countCompletedItems(requiredPositionInformation);
-  const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
+    // Position information from Request type
+    const requiredPositionInformation = {
+      positionNumber: requestData.positionNumber,
+      classification: requestData.classification,
+      englishTitle: requestData.englishTitle,
+      frenchTitle: requestData.frenchTitle,
+      cities: requestData.cities,
+      languageRequirements: requestData.languageRequirements,
+      securityClearance: requestData.securityClearance,
+    };
+    const positionInformationCompleted = countCompletedItems(requiredPositionInformation);
+    const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
 
-  // Statement of Merit and Conditions Information from Request type
-  const requiredStatementOfMeritCriteriaInformation = {
-    englishStatementOfMerit: requestData.englishStatementOfMerit,
-    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
-  };
+    // Statement of Merit and Conditions Information from Request type
+    const requiredStatementOfMeritCriteriaInformation = {
+      englishStatementOfMerit: requestData.englishStatementOfMerit,
+      frenchStatementOfMerit: requestData.frenchStatementOfMerit,
+    };
 
-  const statementOfMeritCriteriaInformationCompleted = countCompletedItems(requiredStatementOfMeritCriteriaInformation);
-  const statementOfMeritCriteriaInformationTotalFields = Object.keys(requiredStatementOfMeritCriteriaInformation).length;
+    const statementOfMeritCriteriaInformationCompleted = countCompletedItems(requiredStatementOfMeritCriteriaInformation);
+    const statementOfMeritCriteriaInformationTotalFields = Object.keys(requiredStatementOfMeritCriteriaInformation).length;
 
-  // Submission Information from Request type
-  const requiredSubmissionInformation = {
-    submitter: requestData.submitter,
-    hiringManager: requestData.hiringManager,
-    subDelegatedManager: requestData.subDelegatedManager,
-    workUnit: requestData.workUnit,
-    languageOfCorrespondence: requestData.languageOfCorrespondence,
-  };
+    // Submission Information from Request type
+    const requiredSubmissionInformation = {
+      submitter: requestData.submitter,
+      hiringManager: requestData.hiringManager,
+      subDelegatedManager: requestData.subDelegatedManager,
+      workUnit: requestData.workUnit,
+      languageOfCorrespondence: requestData.languageOfCorrespondence,
+    };
 
-  const submissionInformationCompleted = countCompletedItems(requiredSubmissionInformation);
-  const submissionInformationTotalFields = Object.keys(requiredSubmissionInformation).length;
+    const submissionInformationCompleted = countCompletedItems(requiredSubmissionInformation);
+    const submissionInformationTotalFields = Object.keys(requiredSubmissionInformation).length;
 
-  // Determine completeness
-  const isCompleteProcessInformation = processInformationCompleted === processInformationTotalFields;
-  const isCompletePositionInformation = positionInformationCompleted === positionInformationTotalFields;
-  const isCompleteStatementOfMeritCriteriaInformaion =
-    statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;
-  const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
+    // Determine completeness
+    const isCompleteProcessInformation = processInformationCompleted === processInformationTotalFields;
+    const isCompletePositionInformation = positionInformationCompleted === positionInformationTotalFields;
+    const isCompleteStatementOfMeritCriteriaInformaion =
+      statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;
+    const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
 
-  const requestCompleted =
-    processInformationCompleted +
-    positionInformationCompleted +
-    statementOfMeritCriteriaInformationCompleted +
-    submissionInformationCompleted;
-  const requestTotalFields =
-    processInformationTotalFields +
-    positionInformationTotalFields +
-    statementOfMeritCriteriaInformationTotalFields +
-    submissionInformationTotalFields;
-  const amountCompleted = (requestCompleted / requestTotalFields) * 100;
-  const employmentEquityNames = requestData.employmentEquities
-    ?.map((eq) => (lang === 'en' ? eq.nameEn : eq.nameFr))
-    .filter(Boolean) // Remove any null or undefined names
-    .join(', ');
+    const requestCompleted =
+      processInformationCompleted +
+      positionInformationCompleted +
+      statementOfMeritCriteriaInformationCompleted +
+      submissionInformationCompleted;
+    const requestTotalFields =
+      processInformationTotalFields +
+      positionInformationTotalFields +
+      statementOfMeritCriteriaInformationTotalFields +
+      submissionInformationTotalFields;
+    const amountCompleted = (requestCompleted / requestTotalFields) * 100;
+    const employmentEquityNames = requestData.employmentEquities
+      ?.map((eq) => (lang === 'en' ? eq.nameEn : eq.nameFr))
+      .filter(Boolean) // Remove any null or undefined names
+      .join(', ');
 
-  // Display Canada wide or province wide or list of cities on referral preferences section
-  const preferredCityIds = new Set(requestData.cities?.map((city) => city.id) ?? []);
-  const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
-    preferredCityIds,
-    allLocalizedCities,
-  );
+    // Display Canada wide or province wide or list of cities on referral preferences section
+    const preferredCityIds = new Set(requestData.cities?.map((city) => city.id) ?? []);
+    const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
+      preferredCityIds,
+      allLocalizedCities,
+    );
 
-  return {
-    documentTitle:
-      requestData.status?.code === REQUEST_STATUS_CODE.DRAFT
-        ? t('app:hiring-manager-referral-requests.create-title')
-        : t('app:hiring-manager-referral-requests.page-title'),
-    amountCompleted: amountCompleted,
-    isRequestComplete:
-      isCompleteProcessInformation &&
-      isCompletePositionInformation &&
-      isCompleteStatementOfMeritCriteriaInformaion &&
+    return {
+      documentTitle:
+        requestData.status?.code === REQUEST_STATUS_CODE.DRAFT
+          ? t('app:hiring-manager-referral-requests.create-title')
+          : t('app:hiring-manager-referral-requests.page-title'),
+      amountCompleted: amountCompleted,
+      isRequestComplete:
+        isCompleteProcessInformation &&
+        isCompletePositionInformation &&
+        isCompleteStatementOfMeritCriteriaInformaion &&
+        isCompleteSubmissionInformation,
+      isCompleteProcessInformation,
+      isProcessNew: processInformationCompleted === 0,
+      selectionProcessNumber: requestData.selectionProcessNumber,
+      workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+      priorityEntitlement: requestData.priorityEntitlement,
+      priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+      selectionProcessType: lang === 'en' ? requestData.selectionProcessType?.nameEn : requestData.selectionProcessType?.nameEn,
+      selectionProcessTypeCode: requestData.selectionProcessType?.code,
+      hasPerformedSameDuties: requestData.hasPerformedSameDuties,
+      appointmentNonAdvertised:
+        lang === 'en' ? requestData.appointmentNonAdvertised?.nameEn : requestData.appointmentNonAdvertised?.nameFr,
+      employmentTenure: lang === 'en' ? requestData.employmentTenure?.nameEn : requestData.employmentTenure?.nameFr,
+      employmentTenureCode: requestData.employmentTenure?.code,
+      projectedStartDate: requestData.projectedStartDate,
+      projectedEndDate: requestData.projectedEndDate,
+      workSchedule: lang === 'en' ? requestData.workSchedule?.nameEn : requestData.workSchedule?.nameFr,
+      equityNeeded: requestData.equityNeeded,
+      employmentEquities: employmentEquityNames,
+      isCompletePositionInformation,
+      isPositionNew: positionInformationCompleted === 0,
+      positionNumber: requestData.positionNumber,
+      classification: requestData.classification,
+      englishTitle: requestData.englishTitle,
+      frenchTitle: requestData.frenchTitle,
+      preferredCities: partiallySelectedCities,
+      locationScope,
+      provinceNames,
+      languageRequirements: requestData.languageRequirements
+        ?.map((req) => (lang === 'en' ? req.nameEn : req.nameFr))
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b))
+        .join(', '),
+      isCompleteStatementOfMeritCriteriaInformaion,
+      isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
+      englishStatementOfMerit: requestData.englishStatementOfMerit,
+      frenchStatementOfMerit: requestData.frenchStatementOfMerit,
       isCompleteSubmissionInformation,
-    isCompleteProcessInformation,
-    isProcessNew: processInformationCompleted === 0,
-    selectionProcessNumber: requestData.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: requestData.priorityEntitlement,
-    priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-    selectionProcessType: lang === 'en' ? requestData.selectionProcessType?.nameEn : requestData.selectionProcessType?.nameEn,
-    selectionProcessTypeCode: requestData.selectionProcessType?.code,
-    hasPerformedSameDuties: requestData.hasPerformedSameDuties,
-    appointmentNonAdvertised:
-      lang === 'en' ? requestData.appointmentNonAdvertised?.nameEn : requestData.appointmentNonAdvertised?.nameFr,
-    employmentTenure: lang === 'en' ? requestData.employmentTenure?.nameEn : requestData.employmentTenure?.nameFr,
-    employmentTenureCode: requestData.employmentTenure?.code,
-    projectedStartDate: requestData.projectedStartDate,
-    projectedEndDate: requestData.projectedEndDate,
-    workSchedule: lang === 'en' ? requestData.workSchedule?.nameEn : requestData.workSchedule?.nameFr,
-    equityNeeded: requestData.equityNeeded,
-    employmentEquities: employmentEquityNames,
-    isCompletePositionInformation,
-    isPositionNew: positionInformationCompleted === 0,
-    positionNumber: requestData.positionNumber,
-    classification: requestData.classification,
-    englishTitle: requestData.englishTitle,
-    frenchTitle: requestData.frenchTitle,
-    preferredCities: partiallySelectedCities,
-    locationScope,
-    provinceNames,
-    languageRequirements: requestData.languageRequirements
-      ?.map((req) => (lang === 'en' ? req.nameEn : req.nameFr))
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b))
-      .join(', '),
-    isCompleteStatementOfMeritCriteriaInformaion,
-    isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
-    englishStatementOfMerit: requestData.englishStatementOfMerit,
-    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
-    isCompleteSubmissionInformation,
-    isSubmissionNew: submissionInformationCompleted === 0,
-    submitter: requestData.submitter,
-    hiringManager: requestData.hiringManager,
-    subDelegatedManager: requestData.subDelegatedManager,
-    additionalContact: requestData.additionalContact,
-    branchOrServiceCanadaRegion: requestData.workUnit?.parent
-      ? lang === 'en'
-        ? requestData.workUnit.parent.nameEn
-        : requestData.workUnit.parent.nameFr
-      : lang === 'en'
-        ? requestData.workUnit?.nameEn
-        : requestData.workUnit?.nameFr,
-    directorate: requestData.workUnit?.parent
-      ? lang === 'en'
-        ? requestData.workUnit.nameEn
-        : requestData.workUnit.nameFr
-      : undefined,
-    languageOfCorrespondence:
-      lang === 'en' ? requestData.languageOfCorrespondence?.nameEn : requestData.languageOfCorrespondence?.nameFr,
-    additionalComment: requestData.additionalComment,
-    status: requestData.status,
-    hrAdvisor: requestData.hrAdvisor,
-    priorityClearanceNumber: requestData.priorityClearanceNumber,
-    pscClearanceNumber: requestData.pscClearanceNumber,
-    requestId: formatWithMask(requestData.id, '####-####-##'),
-    requestDate: requestData.createdDate,
-    securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
-    hasMatches: requestData.hasMatches,
-    lang,
-    backLinkSearchParams: new URL(request.url).searchParams.toString(),
-  };
+      isSubmissionNew: submissionInformationCompleted === 0,
+      submitter: requestData.submitter,
+      hiringManager: requestData.hiringManager,
+      subDelegatedManager: requestData.subDelegatedManager,
+      additionalContact: requestData.additionalContact,
+      branchOrServiceCanadaRegion: requestData.workUnit?.parent
+        ? lang === 'en'
+          ? requestData.workUnit.parent.nameEn
+          : requestData.workUnit.parent.nameFr
+        : lang === 'en'
+          ? requestData.workUnit?.nameEn
+          : requestData.workUnit?.nameFr,
+      directorate: requestData.workUnit?.parent
+        ? lang === 'en'
+          ? requestData.workUnit.nameEn
+          : requestData.workUnit.nameFr
+        : undefined,
+      languageOfCorrespondence:
+        lang === 'en' ? requestData.languageOfCorrespondence?.nameEn : requestData.languageOfCorrespondence?.nameFr,
+      additionalComment: requestData.additionalComment,
+      status: requestData.status,
+      hrAdvisor: requestData.hrAdvisor,
+      priorityClearanceNumber: requestData.priorityClearanceNumber,
+      pscClearanceNumber: requestData.pscClearanceNumber,
+      requestId: formatWithMask(requestData.id, '####-####-##'),
+      requestDate: requestData.createdDate,
+      securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
+      hasMatches: requestData.hasMatches,
+      lang,
+      backLinkSearchParams: new URL(request.url).searchParams.toString(),
+    };
+  });
 }
 
 export default function EditRequest({ loaderData, params }: Route.ComponentProps) {

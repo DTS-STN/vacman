@@ -16,6 +16,7 @@ import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directora
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { resolveSubmissionDetailUserIds } from '~/.server/utils/submission-details-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUEST_STATUS_CODE, REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -35,151 +36,155 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  const { t } = await getTranslation(request, handle.i18nNamespace);
+  return withSpan('hiring-manager.request.submission-details.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    const { t } = await getTranslation(request, handle.i18nNamespace);
 
-  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
-  const currentUser = currentUserData.unwrap();
+    const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+    const currentUser = currentUserData.unwrap();
 
-  const formData = await request.formData();
-  const parseResult = v.safeParse(await createSubmissionDetailSchema('hiring-manager'), {
-    isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
-      ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
-      : undefined,
-    isSubmiterSubdelegate: formData.get('isSubmiterSubdelegate')
-      ? formData.get('isSubmiterSubdelegate') === REQUIRE_OPTIONS.yes
-      : undefined,
-    isHiringManagerASubDelegate: formData.get('isHiringManagerASubDelegate')
-      ? formData.get('isHiringManagerASubDelegate') === REQUIRE_OPTIONS.yes
-      : undefined,
-    hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
-    subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
-    branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
-    directorate: formString(formData.get('directorate')),
-    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
-    additionalComment: formString(formData.get('additionalComment')),
-    additionalContactBusinessEmailAddress: formString(formData.get('additionalContactBusinessEmailAddress')),
-  });
-
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<SubmissionDetailSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
-
-  const userService = getUserService();
-  const userNotFoundMessage = t('app:submission-details.errors.no-user-found-with-this-email');
-
-  const { errors, resolvedHiringManagerId, resolvedSubDelegatedManagerId, resolvedAdditionalContactId } =
-    await resolveSubmissionDetailUserIds({
-      userService,
-      accessToken: session.authState.accessToken,
-      hiringManagerEmailAddress: parseResult.output.hiringManagerEmailAddress,
-      subDelegatedManagerEmailAddress: parseResult.output.subDelegatedManagerEmailAddress,
-      additionalContactBusinessEmailAddress: parseResult.output.additionalContactBusinessEmailAddress,
-      userNotFoundMessage,
+    const formData = await request.formData();
+    const parseResult = v.safeParse(await createSubmissionDetailSchema('hiring-manager'), {
+      isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
+        ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
+        : undefined,
+      isSubmiterSubdelegate: formData.get('isSubmiterSubdelegate')
+        ? formData.get('isSubmiterSubdelegate') === REQUIRE_OPTIONS.yes
+        : undefined,
+      isHiringManagerASubDelegate: formData.get('isHiringManagerASubDelegate')
+        ? formData.get('isHiringManagerASubDelegate') === REQUIRE_OPTIONS.yes
+        : undefined,
+      hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
+      subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
+      branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
+      directorate: formString(formData.get('directorate')),
+      languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
+      additionalComment: formString(formData.get('additionalComment')),
+      additionalContactBusinessEmailAddress: formString(formData.get('additionalContactBusinessEmailAddress')),
     });
 
-  let hiringManagerId = resolvedHiringManagerId;
-  let subDelegatedManagerId = resolvedSubDelegatedManagerId;
-  const additionalContactId = resolvedAdditionalContactId;
-
-  // Check for errors again after checking subDelegatedManager
-  if (Object.keys(errors).length > 0) {
-    return data({ errors }, { status: HttpStatusCodes.BAD_REQUEST });
-  }
-
-  const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
-
-  if (requestResult.isErr()) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
-
-  const requestData: RequestReadModel = requestResult.unwrap();
-  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
-  }
-
-  const { isSubmiterHiringManager, isSubmiterSubdelegate, isHiringManagerASubDelegate } = parseResult.output;
-  if (isSubmiterHiringManager) {
-    hiringManagerId = requestData.submitter?.id;
-    if (isSubmiterSubdelegate) {
-      subDelegatedManagerId = requestData.submitter?.id;
+    if (!parseResult.success) {
+      return data(
+        { errors: v.flatten<SubmissionDetailSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
     }
-  } else if (isHiringManagerASubDelegate) {
-    subDelegatedManagerId = hiringManagerId;
-  }
 
-  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-    // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
-    submitterId: requestData.submitter?.id ?? currentUser.id,
-    hiringManagerId,
-    subDelegatedManagerId,
-    workUnitId: parseResult.output.directorate ? Number(parseResult.output.directorate) : undefined,
-    languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
-    additionalComment: parseResult.output.additionalComment,
-    additionalContactId,
-  });
+    const userService = getUserService();
+    const userNotFoundMessage = t('app:submission-details.errors.no-user-found-with-this-email');
 
-  const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
+    const { errors, resolvedHiringManagerId, resolvedSubDelegatedManagerId, resolvedAdditionalContactId } =
+      await resolveSubmissionDetailUserIds({
+        userService,
+        accessToken: session.authState.accessToken,
+        hiringManagerEmailAddress: parseResult.output.hiringManagerEmailAddress,
+        subDelegatedManagerEmailAddress: parseResult.output.subDelegatedManagerEmailAddress,
+        additionalContactBusinessEmailAddress: parseResult.output.additionalContactBusinessEmailAddress,
+        userNotFoundMessage,
+      });
 
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+    let hiringManagerId = resolvedHiringManagerId;
+    let subDelegatedManagerId = resolvedSubDelegatedManagerId;
+    const additionalContactId = resolvedAdditionalContactId;
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
-    params,
-    search: new URLSearchParams({ success: 'submission' }),
+    // Check for errors again after checking subDelegatedManager
+    if (Object.keys(errors).length > 0) {
+      return data({ errors }, { status: HttpStatusCodes.BAD_REQUEST });
+    }
+
+    const requestService = getRequestService();
+    const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
+
+    if (requestResult.isErr()) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
+
+    const requestData: RequestReadModel = requestResult.unwrap();
+    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+    }
+
+    const { isSubmiterHiringManager, isSubmiterSubdelegate, isHiringManagerASubDelegate } = parseResult.output;
+    if (isSubmiterHiringManager) {
+      hiringManagerId = requestData.submitter?.id;
+      if (isSubmiterSubdelegate) {
+        subDelegatedManagerId = requestData.submitter?.id;
+      }
+    } else if (isHiringManagerASubDelegate) {
+      subDelegatedManagerId = hiringManagerId;
+    }
+
+    const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+      // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
+      submitterId: requestData.submitter?.id ?? currentUser.id,
+      hiringManagerId,
+      subDelegatedManagerId,
+      workUnitId: parseResult.output.directorate ? Number(parseResult.output.directorate) : undefined,
+      languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
+      additionalComment: parseResult.output.additionalComment,
+      additionalContactId,
+    });
+
+    const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
+
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
+
+    return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+      params,
+      search: new URLSearchParams({ success: 'submission' }),
+    });
   });
 }
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
-  const currentUser = currentUserData.unwrap();
+  return withSpan('hiring-manager.request.submission-details.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+    const currentUser = currentUserData.unwrap();
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
-  const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
-  // Extract all unique branches (both standalone and those with directorates)
-  const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
-  const languagesOfCorrespondence = await getLanguageForCorrespondenceService().listAllLocalized(lang);
+    const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
+    const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
+    // Extract all unique branches (both standalone and those with directorates)
+    const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
+    const languagesOfCorrespondence = await getLanguageForCorrespondenceService().listAllLocalized(lang);
 
-  return {
-    documentTitle: t('app:submission-details.page-title'),
-    defaultValues: {
-      // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
-      submitter: requestData.submitter ?? currentUser,
-      hiringManager: requestData.hiringManager,
-      subDelegatedManager: requestData.subDelegatedManager,
-      hrAdvisor: requestData.hrAdvisor,
-      workUnit: requestData.workUnit,
-      languageOfCorrespondence: requestData.languageOfCorrespondence,
-      additionalComment: requestData.additionalComment,
-      additionalContact: requestData.additionalContact,
-      additionalContactBusinessEmailAddress: requestData.additionalContact?.businessEmailAddress,
-    },
-    branchOrServiceCanadaRegions,
-    directorates,
-    languagesOfCorrespondence,
-  };
+    return {
+      documentTitle: t('app:submission-details.page-title'),
+      defaultValues: {
+        // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
+        submitter: requestData.submitter ?? currentUser,
+        hiringManager: requestData.hiringManager,
+        subDelegatedManager: requestData.subDelegatedManager,
+        hrAdvisor: requestData.hrAdvisor,
+        workUnit: requestData.workUnit,
+        languageOfCorrespondence: requestData.languageOfCorrespondence,
+        additionalComment: requestData.additionalComment,
+        additionalContact: requestData.additionalContact,
+        additionalContactBusinessEmailAddress: requestData.additionalContact?.businessEmailAddress,
+      },
+      branchOrServiceCanadaRegions,
+      directorates,
+      languagesOfCorrespondence,
+    };
+  });
 }
 
 export default function HiringManagerRequestSubmissionDetails({ loaderData, actionData, params }: Route.ComponentProps) {
