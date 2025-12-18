@@ -50,13 +50,13 @@ export default {
     'page-title': "We couldn't find that web page",
     'page-subtitle': '(Error 404)',
     'page-message':
-      "We're sorry you ended up here. Sometimes a page gets moved or deleted, but hopefully we can help you find what you're looking for.",
+      "We're sorry, the page you're looking for doesn't exist. It may have been moved or deleted. Please try again later. If the problem continues, contact your administrator or HR advisor.",
   },
   'forbidden': {
     'page-title': 'You are not authorized to view this page',
     'page-subtitle': '(Error 403)',
     'page-message':
-      "You don't have permission to access this resource. If you believe you should have access, please contact your administrator or HR advisor.",
+      "You don't have permission to view this page. If you believe you should, please contact your administrator or HR advisor.",
   },
   'session-timeout': {
     'continue-session': 'Continue session',

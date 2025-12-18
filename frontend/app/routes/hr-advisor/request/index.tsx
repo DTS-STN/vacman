@@ -82,6 +82,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
+  if (currentRequest.status?.code === REQUEST_STATUS_CODE.DRAFT) {
+    throw new Response('Cannot access Draft request', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
   const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserData.unwrap();
 
