@@ -22,6 +22,7 @@ import {
   resolveClassificationSearch,
 } from '~/.server/utils/request-classification-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
@@ -42,202 +43,210 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  const formData = await request.formData();
-  const requestId = Number(formData.get('requestId'));
+  return withSpan('hr-advisor.requests.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    const formData = await request.formData();
+    const requestId = Number(formData.get('requestId'));
 
-  const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(requestId, session.authState.accessToken);
-  if (requestResult.isErr()) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    const requestService = getRequestService();
+    const requestResult = await requestService.getRequestById(requestId, session.authState.accessToken);
+    if (requestResult.isErr()) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const requestData: RequestReadModel = requestResult.unwrap();
-  const requestStatusCode = requestData.status?.code;
-  const hrAdvisorId = formData.get('hrAdvisorId');
+    const requestData: RequestReadModel = requestResult.unwrap();
+    const requestStatusCode = requestData.status?.code;
+    const hrAdvisorId = formData.get('hrAdvisorId');
 
-  // If status is SUBMIT, trigger the pickedUp event to send notifications
-  if (requestStatusCode === REQUEST_STATUS_CODE.SUBMIT) {
-    const submitResult = await getRequestService().updateRequestStatus(
-      requestData.id,
-      {
-        eventType: REQUEST_EVENT_TYPE.pickedUp,
-        hrAdvisorId: hrAdvisorId ? Number(hrAdvisorId) : undefined,
-      },
-      session.authState.accessToken,
-    );
+    // If status is SUBMIT, trigger the pickedUp event to send notifications
+    if (requestStatusCode === REQUEST_STATUS_CODE.SUBMIT) {
+      const submitResult = await getRequestService().updateRequestStatus(
+        requestData.id,
+        {
+          eventType: REQUEST_EVENT_TYPE.pickedUp,
+          hrAdvisorId: hrAdvisorId ? Number(hrAdvisorId) : undefined,
+        },
+        session.authState.accessToken,
+      );
 
-    if (submitResult.isErr()) {
-      const error = submitResult.unwrapErr();
+      if (submitResult.isErr()) {
+        const error = submitResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+      const updatedRequest = submitResult.unwrap();
+
       return {
-        status: 'error',
-        errorMessage: error.message,
-        errorCode: error.errorCode,
+        status: 'picked-up',
+        requestStatus: updatedRequest.status,
       };
     }
-    const updatedRequest = submitResult.unwrap();
 
-    return {
-      status: 'picked-up',
-      requestStatus: updatedRequest.status,
-    };
-  }
+    // Update the HR advisor assignment
+    const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+      hrAdvisorId: hrAdvisorId ? Number(hrAdvisorId) : undefined,
+    });
 
-  // Update the HR advisor assignment
-  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-    hrAdvisorId: hrAdvisorId ? Number(hrAdvisorId) : undefined,
+    const updatedRequestResult = await requestService.updateRequestById(
+      requestId,
+      requestPayload,
+      session.authState.accessToken,
+    );
+    if (updatedRequestResult.isErr()) {
+      throw new Response('Failed updating hr-advisor', { status: HttpStatusCodes.NOT_FOUND });
+    }
+
+    return data({ success: true });
   });
-
-  const updatedRequestResult = await requestService.updateRequestById(requestId, requestPayload, session.authState.accessToken);
-  if (updatedRequestResult.isErr()) {
-    throw new Response('Failed updating hr-advisor', { status: HttpStatusCodes.NOT_FOUND });
-  }
-
-  return data({ success: true });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.requests.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const { t, lang } = await getTranslation(request, handle.i18nNamespace);
+    const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-  const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
-  const currentUser = currentUserResult.unwrap();
+    const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
+    const currentUser = currentUserResult.unwrap();
 
-  const hrAdvisors = (
-    await getUserService().getUsers(
-      {
-        size: MAX_PAGE_SIZE,
-        userType: 'hr-advisor',
-      },
-      session.authState.accessToken,
-    )
-  ).unwrap().content;
+    const hrAdvisors = (
+      await getUserService().getUsers(
+        {
+          size: MAX_PAGE_SIZE,
+          userType: 'hr-advisor',
+        },
+        session.authState.accessToken,
+      )
+    ).unwrap().content;
 
-  const classifications = await getClassificationService().listAllLocalized(lang);
-  const directorates = await getWorkUnitService().listAllLocalized(lang);
-  const searchParams = new URL(request.url).searchParams;
-  const requestService = getRequestService();
+    const classifications = await getClassificationService().listAllLocalized(lang);
+    const directorates = await getWorkUnitService().listAllLocalized(lang);
+    const searchParams = new URL(request.url).searchParams;
+    const requestService = getRequestService();
 
-  // Active requests query, either 'me' or 'all' requests
-  const activeSortParam = searchParams.getAll('activeSort');
-  const activeStatusIds = searchParams.getAll('activeStatus');
-  const activeClassificationFilter = resolveClassificationSearch(searchParams.getAll('activeGroup'), classifications);
-  const inactiveClassificationFilter = resolveClassificationSearch(searchParams.getAll('inactiveGroup'), classifications);
+    // Active requests query, either 'me' or 'all' requests
+    const activeSortParam = searchParams.getAll('activeSort');
+    const activeStatusIds = searchParams.getAll('activeStatus');
+    const activeClassificationFilter = resolveClassificationSearch(searchParams.getAll('activeGroup'), classifications);
+    const inactiveClassificationFilter = resolveClassificationSearch(searchParams.getAll('inactiveGroup'), classifications);
 
-  const activeRequestsQuery: RequestQueryParams = {
-    page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
-    statusId:
-      activeStatusIds.length > 0
-        ? activeStatusIds.filter((id) =>
-            REQUEST_STATUSES.filter(
+    const activeRequestsQuery: RequestQueryParams = {
+      page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
+      statusId:
+        activeStatusIds.length > 0
+          ? activeStatusIds.filter((id) =>
+              REQUEST_STATUSES.filter(
+                (req) => req.category === REQUEST_CATEGORY.active && req.code !== REQUEST_STATUS_CODE.DRAFT,
+              ).find((req) => req.id.toString() === id),
+            )
+          : REQUEST_STATUSES.filter(
               (req) => req.category === REQUEST_CATEGORY.active && req.code !== REQUEST_STATUS_CODE.DRAFT,
-            ).find((req) => req.id.toString() === id),
-          )
-        : REQUEST_STATUSES.filter(
-            (req) => req.category === REQUEST_CATEGORY.active && req.code !== REQUEST_STATUS_CODE.DRAFT,
-          ).map((req) => req.id.toString()),
-    workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
-    hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
-    classificationId: activeClassificationFilter.classificationIds,
-    requestId: removeNumberMask(searchParams.get('activeId') ?? undefined)?.toString(),
-    sort: activeSortParam.length > 0 ? activeSortParam : undefined,
-    size: 10,
-  };
+            ).map((req) => req.id.toString()),
+      workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
+      hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
+      classificationId: activeClassificationFilter.classificationIds,
+      requestId: removeNumberMask(searchParams.get('activeId') ?? undefined)?.toString(),
+      sort: activeSortParam.length > 0 ? activeSortParam : undefined,
+      size: 10,
+    };
 
-  // Inactive requests query
-  const inactiveSortParam = searchParams.getAll('inactiveSort');
-  const inactiveStatusIds = searchParams.getAll('inactiveStatus');
-  const inactiveRequestsQuery: RequestQueryParams = {
-    page: Math.max(1, Number.parseInt(searchParams.get('inactivePage') ?? '1', 10) || 1),
-    statusId:
-      inactiveStatusIds.length > 0
-        ? inactiveStatusIds.filter((id) =>
-            REQUEST_STATUSES.filter(
+    // Inactive requests query
+    const inactiveSortParam = searchParams.getAll('inactiveSort');
+    const inactiveStatusIds = searchParams.getAll('inactiveStatus');
+    const inactiveRequestsQuery: RequestQueryParams = {
+      page: Math.max(1, Number.parseInt(searchParams.get('inactivePage') ?? '1', 10) || 1),
+      statusId:
+        inactiveStatusIds.length > 0
+          ? inactiveStatusIds.filter((id) =>
+              REQUEST_STATUSES.filter(
+                (req) => req.category === REQUEST_CATEGORY.inactive && req.code !== REQUEST_STATUS_CODE.DRAFT,
+              ).find((req) => req.id.toString() === id),
+            )
+          : REQUEST_STATUSES.filter(
               (req) => req.category === REQUEST_CATEGORY.inactive && req.code !== REQUEST_STATUS_CODE.DRAFT,
-            ).find((req) => req.id.toString() === id),
-          )
-        : REQUEST_STATUSES.filter(
-            (req) => req.category === REQUEST_CATEGORY.inactive && req.code !== REQUEST_STATUS_CODE.DRAFT,
-          ).map((req) => req.id.toString()),
-    workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
-    hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
-    classificationId: inactiveClassificationFilter.classificationIds,
-    requestId: removeNumberMask(searchParams.get('inactiveId'))?.toString(),
-    sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
-    size: 10,
-  };
+            ).map((req) => req.id.toString()),
+      workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
+      hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
+      classificationId: inactiveClassificationFilter.classificationIds,
+      requestId: removeNumberMask(searchParams.get('inactiveId'))?.toString(),
+      sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
+      size: 10,
+    };
 
-  const activeRequestsData = await fetchRequestsWithClassificationFallback({
-    filter: activeClassificationFilter,
-    query: activeRequestsQuery,
-    fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
-  });
+    const activeRequestsData = await fetchRequestsWithClassificationFallback({
+      filter: activeClassificationFilter,
+      query: activeRequestsQuery,
+      fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
+    });
 
-  const inactiveRequestsData = await fetchRequestsWithClassificationFallback({
-    filter: inactiveClassificationFilter,
-    query: inactiveRequestsQuery,
-    fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
-  });
+    const inactiveRequestsData = await fetchRequestsWithClassificationFallback({
+      filter: inactiveClassificationFilter,
+      query: inactiveRequestsQuery,
+      fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
+    });
 
-  const requestStatuses = (await getRequestStatusService().listAllLocalized(lang))
-    .filter((s) => s.code !== REQUEST_STATUS_CODE.DRAFT)
-    .map((status) =>
-      status.code === REQUEST_STATUS_CODE.SUBMIT
+    const requestStatuses = (await getRequestStatusService().listAllLocalized(lang))
+      .filter((s) => s.code !== REQUEST_STATUS_CODE.DRAFT)
+      .map((status) =>
+        status.code === REQUEST_STATUS_CODE.SUBMIT
+          ? {
+              ...status,
+              name: t('app:hr-advisor-referral-requests.status.request-pending-approval'),
+            }
+          : status,
+      )
+      .toSorted((a, b) => a.name.localeCompare(b.name, lang));
+    const workUnits = extractUniqueBranchesFromDirectorates(directorates);
+
+    const { content: activeBaseRequests, page: activeRequestsPage } = activeRequestsData;
+    const activeRequests = activeBaseRequests.map((req) =>
+      //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
+      req.status?.code === REQUEST_STATUS_CODE.SUBMIT
         ? {
-            ...status,
-            name: t('app:hr-advisor-referral-requests.status.request-pending-approval'),
+            ...req,
+            status: {
+              ...req.status,
+              nameEn: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'en' }),
+              nameFr: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'fr' }),
+            },
           }
-        : status,
-    )
-    .toSorted((a, b) => a.name.localeCompare(b.name, lang));
-  const workUnits = extractUniqueBranchesFromDirectorates(directorates);
+        : req,
+    );
 
-  const { content: activeBaseRequests, page: activeRequestsPage } = activeRequestsData;
-  const activeRequests = activeBaseRequests.map((req) =>
-    //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
-    req.status?.code === REQUEST_STATUS_CODE.SUBMIT
-      ? {
-          ...req,
-          status: {
-            ...req.status,
-            nameEn: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'en' }),
-            nameFr: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'fr' }),
-          },
-        }
-      : req,
-  );
+    const { content: inactiveBaseRequests, page: inactiveRequestsPage } = inactiveRequestsData;
+    const inactiveRequests = inactiveBaseRequests.map((req) =>
+      //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
+      req.status?.code === REQUEST_STATUS_CODE.SUBMIT
+        ? {
+            ...req,
+            status: {
+              ...req.status,
+              nameEn: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'en' }),
+              nameFr: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'fr' }),
+            },
+          }
+        : req,
+    );
 
-  const { content: inactiveBaseRequests, page: inactiveRequestsPage } = inactiveRequestsData;
-  const inactiveRequests = inactiveBaseRequests.map((req) =>
-    //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
-    req.status?.code === REQUEST_STATUS_CODE.SUBMIT
-      ? {
-          ...req,
-          status: {
-            ...req.status,
-            nameEn: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'en' }),
-            nameFr: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'fr' }),
-          },
-        }
-      : req,
-  );
-
-  return {
-    documentTitle: t('app:hr-advisor-requests.page-title'),
-    activeRequests,
-    activeRequestsPage,
-    inactiveRequests,
-    inactiveRequestsPage,
-    requestStatuses,
-    classifications,
-    workUnits,
-    hrAdvisors,
-    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
-    userId: currentUser.id,
-  };
+    return {
+      documentTitle: t('app:hr-advisor-requests.page-title'),
+      activeRequests,
+      activeRequestsPage,
+      inactiveRequests,
+      inactiveRequestsPage,
+      requestStatuses,
+      classifications,
+      workUnits,
+      hrAdvisors,
+      baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+      userId: currentUser.id,
+    };
+  });
 }
 
 export default function HrAdvisorRequests({ loaderData, params }: Route.ComponentProps) {

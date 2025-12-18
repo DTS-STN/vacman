@@ -15,6 +15,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import {
@@ -57,25 +58,61 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  const { t } = await getTranslation(request, handle.i18nNamespace);
-  const formData = await request.formData();
+  return withSpan('hr-advisor.employees.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    const { t } = await getTranslation(request, handle.i18nNamespace);
+    const formData = await request.formData();
 
-  const action = formString(formData.get('action'));
+    const action = formString(formData.get('action'));
 
-  if (action === 'archive') {
-    // Handle archive action
+    if (action === 'archive') {
+      // Handle archive action
+      const parseResult = v.safeParse(
+        v.object({
+          profileId: v.pipe(
+            v.string(),
+            v.transform((val) => parseInt(val, 10)),
+            v.number('Profile ID must be a number'),
+          ),
+        }),
+        {
+          profileId: formString(formData.get('profileId')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const { profileId } = parseResult.output;
+
+      // Call profile service to update status to ARCHIVED
+      const updateResult = await getProfileService().updateProfileStatus(
+        profileId,
+        PROFILE_STATUS.ARCHIVED,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      return data({ success: true });
+    }
+
+    // Handle create profile action
     const parseResult = v.safeParse(
       v.object({
-        profileId: v.pipe(
-          v.string(),
-          v.transform((val) => parseInt(val, 10)),
-          v.number('Profile ID must be a number'),
+        email: v.pipe(
+          v.string('app:hr-advisor-employees-table.errors.email-required'),
+          v.trim(),
+          v.nonEmpty('app:hr-advisor-employees-table.errors.email-required'),
+          v.email('app:hr-advisor-employees-table.errors.email-invalid'),
         ),
       }),
       {
-        profileId: formString(formData.get('profileId')),
+        email: formString(formData.get('email')),
       },
     );
 
@@ -83,159 +120,127 @@ export async function action({ context, request }: Route.ActionArgs) {
       return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
     }
 
-    const { profileId } = parseResult.output;
+    const user = (await getUserService().getUsers({ email: parseResult.output.email }, session.authState.accessToken)).into()
+      ?.content[0];
 
-    // Call profile service to update status to ARCHIVED
-    const updateResult = await getProfileService().updateProfileStatus(
-      profileId,
-      PROFILE_STATUS.ARCHIVED,
+    if (!user) {
+      return {
+        errors: {
+          email: t('app:hr-advisor-employees-table.errors.no-user-found-with-this-email'),
+        },
+      };
+    }
+
+    const profile = (await getUserService().createProfileForUser(user.id, session.authState.accessToken)).into();
+    if (!profile) {
+      return {
+        errors: {
+          email: t('app:hr-advisor-employees-table.errors.profile-already-exists'),
+        },
+      };
+    }
+
+    // Profile created by an HR advisor default to PENDING status
+    const submitResult = await getProfileService().updateProfileStatus(
+      profile.id,
+      PROFILE_STATUS.PENDING,
       session.authState.accessToken,
     );
 
-    if (updateResult.isErr()) {
-      throw updateResult.unwrapErr();
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
     }
 
-    return data({ success: true });
-  }
-
-  // Handle create profile action
-  const parseResult = v.safeParse(
-    v.object({
-      email: v.pipe(
-        v.string('app:hr-advisor-employees-table.errors.email-required'),
-        v.trim(),
-        v.nonEmpty('app:hr-advisor-employees-table.errors.email-required'),
-        v.email('app:hr-advisor-employees-table.errors.email-invalid'),
-      ),
-    }),
-    {
-      email: formString(formData.get('email')),
-    },
-  );
-
-  if (!parseResult.success) {
-    return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
-  }
-
-  const user = (await getUserService().getUsers({ email: parseResult.output.email }, session.authState.accessToken)).into()
-    ?.content[0];
-
-  if (!user) {
-    return {
-      errors: {
-        email: t('app:hr-advisor-employees-table.errors.no-user-found-with-this-email'),
-      },
-    };
-  }
-
-  const profile = (await getUserService().createProfileForUser(user.id, session.authState.accessToken)).into();
-  if (!profile) {
-    return {
-      errors: {
-        email: t('app:hr-advisor-employees-table.errors.profile-already-exists'),
-      },
-    };
-  }
-
-  // Profile created by an HR advisor default to PENDING status
-  const submitResult = await getProfileService().updateProfileStatus(
-    profile.id,
-    PROFILE_STATUS.PENDING,
-    session.authState.accessToken,
-  );
-
-  if (submitResult.isErr()) {
-    const error = submitResult.unwrapErr();
-    return {
-      status: 'error',
-      errorMessage: error.message,
-      errorCode: error.errorCode,
-    };
-  }
-
-  return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: profile.id.toString() },
+    return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
+      params: { profileId: profile.id.toString() },
+    });
   });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.employees.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
-  const url = new URL(request.url);
-  const filter = url.searchParams.get('filter');
-  // Server-side pagination params with sensible defaults
-  const pageParam = url.searchParams.get('page');
-  const sizeParam = url.searchParams.get('size');
-  // statusIds as repeated params: ?statusIds=1&statusIds=2
-  const statusIdsParams = url.searchParams.getAll('statusIds');
-  // sort as a single param: sort=property,(asc|desc)
-  const sortParam = url.searchParams.get('sort');
-  const employeeNameParam = url.searchParams.get('employeeName');
-  const employeeNameFilter = employeeNameParam?.trim() ?? '';
-  // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
-  const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
-  // Keep page size modest for wire efficiency, cap to prevent abuse
-  const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
+    // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
+    const url = new URL(request.url);
+    const filter = url.searchParams.get('filter');
+    // Server-side pagination params with sensible defaults
+    const pageParam = url.searchParams.get('page');
+    const sizeParam = url.searchParams.get('size');
+    // statusIds as repeated params: ?statusIds=1&statusIds=2
+    const statusIdsParams = url.searchParams.getAll('statusIds');
+    // sort as a single param: sort=property,(asc|desc)
+    const sortParam = url.searchParams.get('sort');
+    const employeeNameParam = url.searchParams.get('employeeName');
+    const employeeNameFilter = employeeNameParam?.trim() ?? '';
+    // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
+    const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
+    // Keep page size modest for wire efficiency, cap to prevent abuse
+    const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
 
-  // Compute desired statusIds, defaulting to Approved + Pending Approval
-  const defaultStatusIds = [...DEFAULT_STATUS_IDS];
-  const rawStatusValues = statusIdsParams;
-  const statusIdsFromQuery = rawStatusValues.map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n));
+    // Compute desired statusIds, defaulting to Approved + Pending Approval
+    const defaultStatusIds = [...DEFAULT_STATUS_IDS];
+    const rawStatusValues = statusIdsParams;
+    const statusIdsFromQuery = rawStatusValues.map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n));
 
-  // Filter out INCOMPLETE status (id: 2) - profiles with INCOMPLETE status should never be displayed
-  const validStatusIdsFromQuery = statusIdsFromQuery.filter((id) => id !== PROFILE_STATUS.INCOMPLETE.id);
+    // Filter out INCOMPLETE status (id: 2) - profiles with INCOMPLETE status should never be displayed
+    const validStatusIdsFromQuery = statusIdsFromQuery.filter((id) => id !== PROFILE_STATUS.INCOMPLETE.id);
 
-  const desiredStatusIds = validStatusIdsFromQuery.length
-    ? Array.from(new Set(validStatusIdsFromQuery)).sort((a, b) => a - b)
-    : defaultStatusIds;
+    const desiredStatusIds = validStatusIdsFromQuery.length
+      ? Array.from(new Set(validStatusIdsFromQuery)).sort((a, b) => a - b)
+      : defaultStatusIds;
 
-  // If no statusIds in URL, redirect to include default statusIds so ColumnOptions shows them as selected
-  if (validStatusIdsFromQuery.length === 0) {
-    const redirectUrl = new URL(request.url);
-    defaultStatusIds.forEach((id) => redirectUrl.searchParams.append('statusIds', id.toString()));
-    throw new Response(null, {
-      status: 302,
-      headers: { Location: redirectUrl.toString() },
-    });
-  }
+    // If no statusIds in URL, redirect to include default statusIds so ColumnOptions shows them as selected
+    if (validStatusIdsFromQuery.length === 0) {
+      const redirectUrl = new URL(request.url);
+      defaultStatusIds.forEach((id) => redirectUrl.searchParams.append('statusIds', id.toString()));
+      throw new Response(null, {
+        status: 302,
+        headers: { Location: redirectUrl.toString() },
+      });
+    }
 
-  const profileParams: ProfileQueryParams = {
-    hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
-    statusIds: desiredStatusIds,
-    // Backend expects 1-based page index
-    page: pageOneBased,
-    size: size,
-    sort: sortParam ?? undefined,
-    employeeName: employeeNameFilter !== '' ? employeeNameFilter : undefined,
-  };
+    const profileParams: ProfileQueryParams = {
+      hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
+      statusIds: desiredStatusIds,
+      // Backend expects 1-based page index
+      page: pageOneBased,
+      size: size,
+      sort: sortParam ?? undefined,
+      employeeName: employeeNameFilter !== '' ? employeeNameFilter : undefined,
+    };
 
-  const [profilesResult, allStatuses] = await Promise.all([
-    getProfileService().getProfiles(profileParams, session.authState.accessToken),
-    getProfileStatusService().listAllLocalized(lang),
-  ]);
+    const [profilesResult, allStatuses] = await Promise.all([
+      getProfileService().getProfiles(profileParams, session.authState.accessToken),
+      getProfileStatusService().listAllLocalized(lang),
+    ]);
 
-  if (profilesResult.isErr()) {
-    throw profilesResult.unwrapErr();
-  }
+    if (profilesResult.isErr()) {
+      throw profilesResult.unwrapErr();
+    }
 
-  const profiles = profilesResult.unwrap();
+    const profiles = profilesResult.unwrap();
 
-  // Filter out INCOMPLETE status from dropdown options - profiles with INCOMPLETE status should never be displayed
-  const statuses = allStatuses.filter((status) => status.code !== 'INCOMPLETE');
+    // Filter out INCOMPLETE status from dropdown options - profiles with INCOMPLETE status should never be displayed
+    const statuses = allStatuses.filter((status) => status.code !== 'INCOMPLETE');
 
-  return {
-    documentTitle: t('app:index.employees'),
-    profiles: profiles.content,
-    page: profiles.page,
-    statuses,
-    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
-    lang,
-  };
+    return {
+      documentTitle: t('app:index.employees'),
+      profiles: profiles.content,
+      page: profiles.page,
+      statuses,
+      baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+      lang,
+    };
+  });
 }
 
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {

@@ -16,6 +16,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
@@ -71,185 +72,130 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.request.index.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const currentRequest = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const currentRequest = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!currentRequest) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!currentRequest) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  if (currentRequest.status?.code === REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot access Draft request', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (currentRequest.status?.code === REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot access Draft request', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
-  const currentUser = currentUserData.unwrap();
+    const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+    const currentUser = currentUserData.unwrap();
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const allLocalizedCities = await getCityService().listAllLocalized(lang);
+    const allLocalizedCities = await getCityService().listAllLocalized(lang);
 
-  const employmentEquityNames = currentRequest.employmentEquities
-    ?.map((eq) => (lang === 'en' ? eq.nameEn : eq.nameFr))
-    .filter(Boolean) // Remove any null or undefined names
-    .join(', ');
-
-  // Display Canada wide or province wide or list of cities on referral preferences section
-  const preferredCityIds = new Set(currentRequest.cities?.map((city) => city.id) ?? []);
-  const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
-    preferredCityIds,
-    allLocalizedCities,
-  );
-
-  return {
-    documentTitle: t('app:hr-advisor-referral-requests.page-title'),
-    requestId: formatWithMask(currentRequest.id, '####-####-##'),
-    requestDate: currentRequest.createdDate,
-    hiringManager: currentRequest.hiringManager,
-    hrAdvisor: currentRequest.hrAdvisor,
-    selectionProcessNumber: currentRequest.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
-    pscClearanceNumber: currentRequest.pscClearanceNumber,
-    priorityClearanceNumber: currentRequest.priorityClearanceNumber,
-    selectionProcessType:
-      lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameFr,
-    selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
-    hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
-    appointmentNonAdvertised:
-      lang === 'en' ? currentRequest.appointmentNonAdvertised?.nameEn : currentRequest.appointmentNonAdvertised?.nameFr,
-    employmentTenure: lang === 'en' ? currentRequest.employmentTenure?.nameEn : currentRequest.employmentTenure?.nameFr,
-    employmentTenureCode: currentRequest.employmentTenure?.code,
-    projectedStartDate: currentRequest.projectedStartDate,
-    projectedEndDate: currentRequest.projectedEndDate,
-    workSchedule: lang === 'en' ? currentRequest.workSchedule?.nameEn : currentRequest.workSchedule?.nameFr,
-    equityNeeded: currentRequest.equityNeeded,
-    employmentEquities: employmentEquityNames,
-    positionNumber: currentRequest.positionNumber,
-    classification: currentRequest.classification,
-    englishTitle: currentRequest.englishTitle,
-    frenchTitle: currentRequest.frenchTitle,
-    preferredCities: partiallySelectedCities,
-    locationScope,
-    provinceNames,
-    languageRequirements: currentRequest.languageRequirements
-      ?.map((req) => (lang === 'en' ? req.nameEn : req.nameFr))
+    const employmentEquityNames = currentRequest.employmentEquities
+      ?.map((eq) => (lang === 'en' ? eq.nameEn : eq.nameFr))
       .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b))
-      .join(', '),
-    securityClearance: currentRequest.securityClearance,
-    englishStatementOfMerit: currentRequest.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest.frenchStatementOfMerit,
-    submitter: currentRequest.submitter,
-    subDelegatedManager: currentRequest.subDelegatedManager,
-    additionalContact: currentRequest.additionalContact,
-    branchOrServiceCanadaRegion: currentRequest.workUnit?.parent
-      ? lang === 'en'
-        ? currentRequest.workUnit.parent.nameEn
-        : currentRequest.workUnit.parent.nameFr
-      : lang === 'en'
-        ? currentRequest.workUnit?.nameEn
-        : currentRequest.workUnit?.nameFr,
-    directorate: currentRequest.workUnit?.parent
-      ? lang === 'en'
-        ? currentRequest.workUnit.nameEn
-        : currentRequest.workUnit.nameFr
-      : undefined,
-    languageOfCorrespondence:
-      lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
-    additionalComment: currentRequest.additionalComment,
-    status: currentRequest.status,
-    hasMatches: currentRequest.hasMatches,
-    securityClearanceName: lang === 'en' ? currentRequest.securityClearance?.nameEn : currentRequest.securityClearance?.nameFr,
-    lang,
-    isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,
-    backLinkSearchParams: new URL(request.url).searchParams.toString(),
-  };
+      .join(', ');
+
+    // Display Canada wide or province wide or list of cities on referral preferences section
+    const preferredCityIds = new Set(currentRequest.cities?.map((city) => city.id) ?? []);
+    const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
+      preferredCityIds,
+      allLocalizedCities,
+    );
+
+    return {
+      documentTitle: t('app:hr-advisor-referral-requests.page-title'),
+      requestId: formatWithMask(currentRequest.id, '####-####-##'),
+      requestDate: currentRequest.createdDate,
+      hiringManager: currentRequest.hiringManager,
+      hrAdvisor: currentRequest.hrAdvisor,
+      selectionProcessNumber: currentRequest.selectionProcessNumber,
+      workforceMgmtApprovalRecvd: currentRequest.workforceMgmtApprovalRecvd,
+      priorityEntitlement: currentRequest.priorityEntitlement,
+      priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
+      pscClearanceNumber: currentRequest.pscClearanceNumber,
+      priorityClearanceNumber: currentRequest.priorityClearanceNumber,
+      selectionProcessType:
+        lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameFr,
+      selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
+      hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
+      appointmentNonAdvertised:
+        lang === 'en' ? currentRequest.appointmentNonAdvertised?.nameEn : currentRequest.appointmentNonAdvertised?.nameFr,
+      employmentTenure: lang === 'en' ? currentRequest.employmentTenure?.nameEn : currentRequest.employmentTenure?.nameFr,
+      employmentTenureCode: currentRequest.employmentTenure?.code,
+      projectedStartDate: currentRequest.projectedStartDate,
+      projectedEndDate: currentRequest.projectedEndDate,
+      workSchedule: lang === 'en' ? currentRequest.workSchedule?.nameEn : currentRequest.workSchedule?.nameFr,
+      equityNeeded: currentRequest.equityNeeded,
+      employmentEquities: employmentEquityNames,
+      positionNumber: currentRequest.positionNumber,
+      classification: currentRequest.classification,
+      englishTitle: currentRequest.englishTitle,
+      frenchTitle: currentRequest.frenchTitle,
+      preferredCities: partiallySelectedCities,
+      locationScope,
+      provinceNames,
+      languageRequirements: currentRequest.languageRequirements
+        ?.map((req) => (lang === 'en' ? req.nameEn : req.nameFr))
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b))
+        .join(', '),
+      securityClearance: currentRequest.securityClearance,
+      englishStatementOfMerit: currentRequest.englishStatementOfMerit,
+      frenchStatementOfMerit: currentRequest.frenchStatementOfMerit,
+      submitter: currentRequest.submitter,
+      subDelegatedManager: currentRequest.subDelegatedManager,
+      additionalContact: currentRequest.additionalContact,
+      branchOrServiceCanadaRegion: currentRequest.workUnit?.parent
+        ? lang === 'en'
+          ? currentRequest.workUnit.parent.nameEn
+          : currentRequest.workUnit.parent.nameFr
+        : lang === 'en'
+          ? currentRequest.workUnit?.nameEn
+          : currentRequest.workUnit?.nameFr,
+      directorate: currentRequest.workUnit?.parent
+        ? lang === 'en'
+          ? currentRequest.workUnit.nameEn
+          : currentRequest.workUnit.nameFr
+        : undefined,
+      languageOfCorrespondence:
+        lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
+      additionalComment: currentRequest.additionalComment,
+      status: currentRequest.status,
+      hasMatches: currentRequest.hasMatches,
+      securityClearanceName:
+        lang === 'en' ? currentRequest.securityClearance?.nameEn : currentRequest.securityClearance?.nameFr,
+      lang,
+      isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,
+      backLinkSearchParams: new URL(request.url).searchParams.toString(),
+    };
+  });
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.request.index.action', async (span) => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
-
-  // Helper function to update request status with common error handling
-  async function updateRequestStatus(eventType: string, requestId: number, accessToken: string) {
-    const submitResult = await getRequestService().updateRequestStatus(
-      requestId,
-      { eventType: eventType as RequestEventType },
-      accessToken,
-    );
-
-    if (submitResult.isErr()) {
-      const error = submitResult.unwrapErr();
-      return {
-        status: 'error',
-        errorMessage: error.message,
-        errorCode: error.errorCode,
-      };
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
     }
 
-    const updatedRequest = submitResult.unwrap();
-
-    return {
-      status: 'submitted',
-      requestStatus: updatedRequest.status,
-    };
-  }
-
-  const formData = await request.formData();
-
-  switch (formData.get('action')) {
-    case 'save': {
-      return i18nRedirect('routes/hr-advisor/requests.tsx', request, {
-        search: new URLSearchParams({ success: 'save-request' }),
-      });
-    }
-
-    case 'cancel-request': {
-      const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
-
-      if (cancelRequest.isErr()) {
-        const error = cancelRequest.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-      break;
-    }
-
-    case 'pickup-request': {
-      return await updateRequestStatus(REQUEST_EVENT_TYPE.pickedUp, requestData.id, session.authState.accessToken);
-    }
-
-    case 'vms-not-required': {
-      return await updateRequestStatus(REQUEST_EVENT_TYPE.vmsNotRequired, requestData.id, session.authState.accessToken);
-    }
-
-    case 'psc-clearance-required': {
-      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscRequired, requestData.id, session.authState.accessToken);
-    }
-
-    case 'psc-clearance-not-required': {
-      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscNotRequired, requestData.id, session.authState.accessToken);
-    }
-
-    case 'run-matches': {
-      const submitResult = await getRequestService().runMatches(requestData.id, session.authState.accessToken);
+    // Helper function to update request status with common error handling
+    async function updateRequestStatus(eventType: string, requestId: number, accessToken: string) {
+      const submitResult = await getRequestService().updateRequestStatus(
+        requestId,
+        { eventType: eventType as RequestEventType },
+        accessToken,
+      );
 
       if (submitResult.isErr()) {
         const error = submitResult.unwrapErr();
@@ -268,85 +214,150 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       };
     }
 
-    case 'psc-clearance-received': {
-      const parseResult = v.safeParse(
-        v.object({
-          pscClearanceNumber: v.pipe(
-            v.string('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
-            v.trim(),
-            v.nonEmpty('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
-            v.length(11, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
-            v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
-          ),
-        }),
-        {
-          pscClearanceNumber: formString(formData.get('pscClearanceNumber')),
-        },
-      );
+    const formData = await request.formData();
+    const action = formData.get('action');
 
-      if (!parseResult.success) {
-        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
-      }
-
-      const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-        pscClearanceNumber: parseResult.output.pscClearanceNumber,
-      });
-
-      const updateResult = await getRequestService().updateRequestById(
-        requestData.id,
-        requestPayload,
-        session.authState.accessToken,
-      );
-
-      if (updateResult.isErr()) {
-        throw updateResult.unwrapErr();
-      }
-
-      return await updateRequestStatus(REQUEST_EVENT_TYPE.complete, requestData.id, session.authState.accessToken);
+    if (typeof action === 'string') {
+      span.setAttribute('app.request.action', action);
     }
 
-    case 're-assign-request': {
-      const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
-      const currentUser = currentUserData.unwrap();
-      const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-        hrAdvisorId: currentUser.id,
-      });
-
-      const updateResult = await getRequestService().updateRequestById(
-        requestData.id,
-        requestPayload,
-        session.authState.accessToken,
-      );
-
-      if (updateResult.isErr()) {
-        throw updateResult.unwrapErr();
+    switch (action) {
+      case 'save': {
+        return i18nRedirect('routes/hr-advisor/requests.tsx', request, {
+          search: new URLSearchParams({ success: 'save-request' }),
+        });
       }
 
-      const updatedRequest = updateResult.unwrap();
+      case 'cancel-request': {
+        const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
 
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
-    }
+        if (cancelRequest.isErr()) {
+          const error = cancelRequest.unwrapErr();
+          return {
+            status: 'error',
+            errorMessage: error.message,
+            errorCode: error.errorCode,
+          };
+        }
+        break;
+      }
 
-    case 'return-to-previous': {
-      const undoResult = await getRequestService().undoRequestStatus(requestData.id, session.authState.accessToken);
+      case 'pickup-request': {
+        return await updateRequestStatus(REQUEST_EVENT_TYPE.pickedUp, requestData.id, session.authState.accessToken);
+      }
 
-      if (undoResult.isErr()) {
-        const error = undoResult.unwrapErr();
+      case 'vms-not-required': {
+        return await updateRequestStatus(REQUEST_EVENT_TYPE.vmsNotRequired, requestData.id, session.authState.accessToken);
+      }
+
+      case 'psc-clearance-required': {
+        return await updateRequestStatus(REQUEST_EVENT_TYPE.pscRequired, requestData.id, session.authState.accessToken);
+      }
+
+      case 'psc-clearance-not-required': {
+        return await updateRequestStatus(REQUEST_EVENT_TYPE.pscNotRequired, requestData.id, session.authState.accessToken);
+      }
+
+      case 'run-matches': {
+        const submitResult = await getRequestService().runMatches(requestData.id, session.authState.accessToken);
+
+        if (submitResult.isErr()) {
+          const error = submitResult.unwrapErr();
+          return {
+            status: 'error',
+            errorMessage: error.message,
+            errorCode: error.errorCode,
+          };
+        }
+
+        const updatedRequest = submitResult.unwrap();
+
         return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
+          status: 'submitted',
+          requestStatus: updatedRequest.status,
         };
       }
 
-      return data({ successMsg: 'app:referral-requests.previous-status.success-msg' }, { status: HttpStatusCodes.OK });
-    }
-  }
+      case 'psc-clearance-received': {
+        const parseResult = v.safeParse(
+          v.object({
+            pscClearanceNumber: v.pipe(
+              v.string('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
+              v.trim(),
+              v.nonEmpty('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
+              v.length(11, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
+              v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
+            ),
+          }),
+          {
+            pscClearanceNumber: formString(formData.get('pscClearanceNumber')),
+          },
+        );
 
-  return undefined;
+        if (!parseResult.success) {
+          return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+        }
+
+        const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+          pscClearanceNumber: parseResult.output.pscClearanceNumber,
+        });
+
+        const updateResult = await getRequestService().updateRequestById(
+          requestData.id,
+          requestPayload,
+          session.authState.accessToken,
+        );
+
+        if (updateResult.isErr()) {
+          throw updateResult.unwrapErr();
+        }
+
+        return await updateRequestStatus(REQUEST_EVENT_TYPE.complete, requestData.id, session.authState.accessToken);
+      }
+
+      case 're-assign-request': {
+        const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+        const currentUser = currentUserData.unwrap();
+        const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+          hrAdvisorId: currentUser.id,
+        });
+
+        const updateResult = await getRequestService().updateRequestById(
+          requestData.id,
+          requestPayload,
+          session.authState.accessToken,
+        );
+
+        if (updateResult.isErr()) {
+          throw updateResult.unwrapErr();
+        }
+
+        const updatedRequest = updateResult.unwrap();
+
+        return {
+          status: 'submitted',
+          requestStatus: updatedRequest.status,
+        };
+      }
+
+      case 'return-to-previous': {
+        const undoResult = await getRequestService().undoRequestStatus(requestData.id, session.authState.accessToken);
+
+        if (undoResult.isErr()) {
+          const error = undoResult.unwrapErr();
+          return {
+            status: 'error',
+            errorMessage: error.message,
+            errorCode: error.errorCode,
+          };
+        }
+
+        return data({ successMsg: 'app:referral-requests.previous-status.success-msg' }, { status: HttpStatusCodes.OK });
+      }
+    }
+
+    return undefined;
+  });
 }
 
 export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {
