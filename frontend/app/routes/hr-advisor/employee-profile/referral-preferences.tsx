@@ -15,6 +15,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -34,98 +35,102 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.employee-profile.referral-preferences.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const profileService = getProfileService();
-  const profileResult = await profileService.getProfileById(Number(params.profileId), session.authState.accessToken);
+    const profileService = getProfileService();
+    const profileResult = await profileService.getProfileById(Number(params.profileId), session.authState.accessToken);
 
-  if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (profileResult.isErr()) {
+      throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const profile = profileResult.unwrap();
+    const profile = profileResult.unwrap();
 
-  const formData = await request.formData();
-  const parseResult = v.safeParse(await createReferralPreferencesSchema(), {
-    preferredLanguages: formData.getAll('preferredLanguages'),
-    preferredClassifications: formData.getAll('preferredClassifications'),
-    preferredProvince: formString(formData.get('preferredProvince')),
-    preferredCities: formData.getAll('preferredCities'),
-    isAvailableForReferral: formData.get('isAvailableForReferral')
-      ? formData.get('isAvailableForReferral') === REQUIRE_OPTIONS.yes
-      : undefined,
-    isInterestedInAlternation: formData.get('isInterestedInAlternation')
-      ? formData.get('isInterestedInAlternation') === REQUIRE_OPTIONS.yes
-      : undefined,
-  });
+    const formData = await request.formData();
+    const parseResult = v.safeParse(await createReferralPreferencesSchema(), {
+      preferredLanguages: formData.getAll('preferredLanguages'),
+      preferredClassifications: formData.getAll('preferredClassifications'),
+      preferredProvince: formString(formData.get('preferredProvince')),
+      preferredCities: formData.getAll('preferredCities'),
+      isAvailableForReferral: formData.get('isAvailableForReferral')
+        ? formData.get('isAvailableForReferral') === REQUIRE_OPTIONS.yes
+        : undefined,
+      isInterestedInAlternation: formData.get('isInterestedInAlternation')
+        ? formData.get('isInterestedInAlternation') === REQUIRE_OPTIONS.yes
+        : undefined,
+    });
 
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<ReferralPreferencesSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
+    if (!parseResult.success) {
+      return data(
+        { errors: v.flatten<ReferralPreferencesSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
+    }
 
-  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
-    preferredLanguages: parseResult.output.preferredLanguages,
-    preferredClassification: parseResult.output.preferredClassifications,
-    preferredCities: parseResult.output.preferredCities,
-    isAvailableForReferral: parseResult.output.isAvailableForReferral,
-    isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
-    preferredEmploymentOpportunities: [], //TODO: remove when the ProfileUpdateModel is updated in backend
-  });
+    const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
+      preferredLanguages: parseResult.output.preferredLanguages,
+      preferredClassification: parseResult.output.preferredClassifications,
+      preferredCities: parseResult.output.preferredCities,
+      isAvailableForReferral: parseResult.output.isAvailableForReferral,
+      isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
+      preferredEmploymentOpportunities: [], //TODO: remove when the ProfileUpdateModel is updated in backend
+    });
 
-  const updateResult = await profileService.updateProfileById(profile.id, profilePayload, session.authState.accessToken);
+    const updateResult = await profileService.updateProfileById(profile.id, profilePayload, session.authState.accessToken);
 
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
 
-  return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: profileResult.unwrap().id.toString() },
-    search: new URLSearchParams({ success: 'referral' }),
+    return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
+      params: { profileId: profileResult.unwrap().id.toString() },
+      search: new URLSearchParams({ success: 'referral' }),
+    });
   });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.employee-profile.referral-preferences.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
+    const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
 
-  if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (profileResult.isErr()) {
+      throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
-  const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-  const localizedProvinces = await getProvinceService().listAllLocalized(lang);
-  const localizedCities = await getCityService().listAllLocalized(lang);
-  const profileData: Profile = profileResult.unwrap();
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
+    const localizedClassifications = await getClassificationService().listAllLocalized(lang);
+    const localizedProvinces = await getProvinceService().listAllLocalized(lang);
+    const localizedCities = await getCityService().listAllLocalized(lang);
+    const profileData: Profile = profileResult.unwrap();
 
-  const cityResult =
-    profileData.preferredCities?.[0] !== undefined
-      ? await getCityService().findLocalizedById(profileData.preferredCities[0].id, lang)
-      : undefined; //get the province from first city only to avoid validation error on province
-  const city = cityResult?.into();
+    const cityResult =
+      profileData.preferredCities?.[0] !== undefined
+        ? await getCityService().findLocalizedById(profileData.preferredCities[0].id, lang)
+        : undefined; //get the province from first city only to avoid validation error on province
+    const city = cityResult?.into();
 
-  return {
-    documentTitle: t('app:referral-preferences.page-title'),
-    defaultValues: {
-      preferredLanguages: profileData.preferredLanguages,
-      preferredClassifications: profileData.preferredClassifications,
-      preferredProvince: city?.provinceTerritory.id,
-      preferredCities: profileData.preferredCities,
-      isAvailableForReferral: profileData.isAvailableForReferral,
-      isInterestedInAlternation: profileData.isInterestedInAlternation,
-    },
-    languageReferralTypes: localizedLanguageReferralTypesResult,
-    classifications: localizedClassifications,
-    provinces: localizedProvinces,
-    cities: localizedCities,
-  };
+    return {
+      documentTitle: t('app:referral-preferences.page-title'),
+      defaultValues: {
+        preferredLanguages: profileData.preferredLanguages,
+        preferredClassifications: profileData.preferredClassifications,
+        preferredProvince: city?.provinceTerritory.id,
+        preferredCities: profileData.preferredCities,
+        isAvailableForReferral: profileData.isAvailableForReferral,
+        isInterestedInAlternation: profileData.isInterestedInAlternation,
+      },
+      languageReferralTypes: localizedLanguageReferralTypesResult,
+      classifications: localizedClassifications,
+      provinces: localizedProvinces,
+      cities: localizedCities,
+    };
+  });
 }
 
 export default function PersonalDetails({ loaderData, actionData, params }: Route.ComponentProps) {

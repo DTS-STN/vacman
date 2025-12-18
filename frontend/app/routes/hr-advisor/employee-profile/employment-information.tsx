@@ -17,6 +17,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { getHrAdvisors, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
@@ -34,96 +35,100 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.employee-profile.employment-information.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const profileService = getProfileService();
-  const profileResult = await profileService.getProfileById(Number(params.profileId), session.authState.accessToken);
+    const profileService = getProfileService();
+    const profileResult = await profileService.getProfileById(Number(params.profileId), session.authState.accessToken);
 
-  if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (profileResult.isErr()) {
+      throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const profile = profileResult.unwrap();
+    const profile = profileResult.unwrap();
 
-  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
-  const formData = await request.formData();
-  const { parseResult, formValues } = await parseEmploymentInformation(formData, hrAdvisors);
-  if (!parseResult.success) {
-    return data(
-      { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
+    const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
+    const formData = await request.formData();
+    const { parseResult, formValues } = await parseEmploymentInformation(formData, hrAdvisors);
+    if (!parseResult.success) {
+      return data(
+        { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
+    }
 
-  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
-    classificationId: parseResult.output.substantiveClassification,
-    workUnitId: parseResult.output.directorate
-      ? Number(parseResult.output.directorate)
-      : parseResult.output.branchOrServiceCanadaRegion
-        ? Number(parseResult.output.branchOrServiceCanadaRegion)
-        : undefined,
-    cityId: parseResult.output.cityId,
-    wfaStatusId: parseResult.output.wfaStatusId,
-    wfaStartDate: parseResult.output.wfaStartDate,
-    wfaEndDate: parseResult.output.wfaEndDate,
-    hrAdvisorId: parseResult.output.hrAdvisorId,
-  });
+    const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
+      classificationId: parseResult.output.substantiveClassification,
+      workUnitId: parseResult.output.directorate
+        ? Number(parseResult.output.directorate)
+        : parseResult.output.branchOrServiceCanadaRegion
+          ? Number(parseResult.output.branchOrServiceCanadaRegion)
+          : undefined,
+      cityId: parseResult.output.cityId,
+      wfaStatusId: parseResult.output.wfaStatusId,
+      wfaStartDate: parseResult.output.wfaStartDate,
+      wfaEndDate: parseResult.output.wfaEndDate,
+      hrAdvisorId: parseResult.output.hrAdvisorId,
+    });
 
-  const updateResult = await profileService.updateProfileById(profile.id, profilePayload, session.authState.accessToken);
+    const updateResult = await profileService.updateProfileById(profile.id, profilePayload, session.authState.accessToken);
 
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
 
-  return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: profileResult.unwrap().id.toString() },
-    search: new URLSearchParams({ success: 'employment' }),
+    return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
+      params: { profileId: profileResult.unwrap().id.toString() },
+      search: new URLSearchParams({ success: 'employment' }),
+    });
   });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.employee-profile.employment-information.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
+    const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
 
-  if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (profileResult.isErr()) {
+      throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  const substantivePositions = await getClassificationService().listAllLocalized(lang);
-  const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
-  const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
-  // Extract all unique branches (both standalone and those with directorates)
-  const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
-  const provinces = await getProvinceService().listAllLocalized(lang);
-  const cities = await getCityService().listAllLocalized(lang);
-  const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const substantivePositions = await getClassificationService().listAllLocalized(lang);
+    const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
+    const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
+    // Extract all unique branches (both standalone and those with directorates)
+    const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
+    const provinces = await getProvinceService().listAllLocalized(lang);
+    const cities = await getCityService().listAllLocalized(lang);
+    const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
 
-  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
-  const profileData: Profile = profileResult.unwrap();
+    const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
+    const profileData: Profile = profileResult.unwrap();
 
-  return {
-    documentTitle: t('app:employment-information.page-title'),
-    defaultValues: {
-      substantiveClassification: profileData.substantiveClassification,
-      substantiveWorkUnit: profileData.substantiveWorkUnit,
-      substantiveCity: profileData.substantiveCity,
-      wfaStatus: profileData.wfaStatus,
-      wfaStartDate: profileData.wfaStartDate,
-      wfaEndDate: profileData.wfaEndDate,
-      hrAdvisorId: profileData.hrAdvisorId,
-    },
-    substantivePositions,
-    branchOrServiceCanadaRegions,
-    directorates,
-    provinces,
-    cities,
-    wfaStatuses,
-    hrAdvisors,
-  };
+    return {
+      documentTitle: t('app:employment-information.page-title'),
+      defaultValues: {
+        substantiveClassification: profileData.substantiveClassification,
+        substantiveWorkUnit: profileData.substantiveWorkUnit,
+        substantiveCity: profileData.substantiveCity,
+        wfaStatus: profileData.wfaStatus,
+        wfaStartDate: profileData.wfaStartDate,
+        wfaEndDate: profileData.wfaEndDate,
+        hrAdvisorId: profileData.hrAdvisorId,
+      },
+      substantivePositions,
+      branchOrServiceCanadaRegions,
+      directorates,
+      provinces,
+      cities,
+      wfaStatuses,
+      hrAdvisors,
+    };
+  });
 }
 
 export default function EmploymentInformation({ loaderData, actionData, params }: Route.ComponentProps) {

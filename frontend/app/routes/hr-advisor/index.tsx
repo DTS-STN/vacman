@@ -9,6 +9,7 @@ import type { Route } from './+types/index';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { DashboardCard } from '~/components/dashboard-card';
 import { PageTitle } from '~/components/page-title';
 import { LANGUAGE_ID } from '~/domain/constants';
@@ -26,16 +27,18 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
-  if (currentUser.isNone()) {
-    const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
-    await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, session.authState.accessToken);
-  }
+  return withSpan('hr-advisor.index.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
+    if (currentUser.isNone()) {
+      const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
+      await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, session.authState.accessToken);
+    }
 
-  const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:hr-advisor-dashboard.page-title') };
+    const { t } = await getTranslation(request, handle.i18nNamespace);
+    return { documentTitle: t('app:hr-advisor-dashboard.page-title') };
+  });
 }
 
 export default function EmployeeDashboard() {

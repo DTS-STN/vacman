@@ -24,6 +24,7 @@ import { wfaStatusService } from '~/.server/domain/services/wfa-status-service-d
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapMatchToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
@@ -52,292 +53,301 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request, params }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.request.matches.action', async (span) => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const allFeedbacks = await getMatchFeedbackService().listAll();
+    const allFeedbacks = await getMatchFeedbackService().listAll();
 
-  // Get request id from params.
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    // Get request id from params.
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const requestId = requestData.id;
+    const requestId = requestData.id;
 
-  const formData = await request.formData();
+    const formData = await request.formData();
+    const action = formData.get('action');
 
-  switch (formData.get('action')) {
-    case 'feedback': {
-      const parseResult = v.safeParse(
-        v.object({
-          matchId: v.pipe(
-            v.string(),
-            v.transform((val) => parseInt(val, 10)),
-            v.number('app:matches.errors.match-id'),
-          ),
-          feedback: v.pipe(
-            stringToIntegerSchema('app:matches.errors.feedback-required'),
-            v.picklist(
-              allFeedbacks.map(({ id }) => id),
-              'app:matches.errors.feedback-required',
+    if (typeof action === 'string') {
+      span.setAttribute('app.request.action', action);
+    }
+
+    switch (action) {
+      case 'feedback': {
+        const parseResult = v.safeParse(
+          v.object({
+            matchId: v.pipe(
+              v.string(),
+              v.transform((val) => parseInt(val, 10)),
+              v.number('app:matches.errors.match-id'),
             ),
-          ),
-        }),
-        {
-          matchId: formString(formData.get('matchId')),
-          feedback: formString(formData.get('feedback')),
-        },
-      );
-
-      if (!parseResult.success) {
-        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
-      }
-
-      const { matchId } = parseResult.output;
-      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
-
-      if (matchResult.isErr()) {
-        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
-      }
-
-      const matchData: MatchReadModel = matchResult.unwrap();
-
-      // call PUT /api/v1/requests/{id}/matches/{matchId} to update feedback
-      const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
-        matchFeedbackId: parseResult.output.feedback,
-      });
-      const updateResult = await getRequestService().updateRequestMatchById(
-        requestId,
-        matchData.id,
-        matchPayload,
-        session.authState.accessToken,
-      );
-
-      if (updateResult.isErr()) {
-        throw updateResult.unwrapErr();
-      }
-
-      return data({ success: true });
-    }
-    case 'comment': {
-      const parseResult = v.safeParse(
-        v.object({
-          matchId: v.pipe(
-            v.string(),
-            v.transform((val) => parseInt(val, 10)),
-            v.number('app:matches.errors.match-id'),
-          ),
-          comment: v.optional(
-            v.pipe(
-              v.string('app:matches.errors.comment-required'),
-              v.trim(),
-              v.maxLength(100, 'app:matches.errors.comment-max-length'),
+            feedback: v.pipe(
+              stringToIntegerSchema('app:matches.errors.feedback-required'),
+              v.picklist(
+                allFeedbacks.map(({ id }) => id),
+                'app:matches.errors.feedback-required',
+              ),
             ),
-          ),
-        }),
-        {
-          matchId: formString(formData.get('matchId')),
-          comment: formString(formData.get('comment')),
-        },
-      );
+          }),
+          {
+            matchId: formString(formData.get('matchId')),
+            feedback: formString(formData.get('feedback')),
+          },
+        );
 
-      if (!parseResult.success) {
-        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+        if (!parseResult.success) {
+          return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+        }
+
+        const { matchId } = parseResult.output;
+        const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+        if (matchResult.isErr()) {
+          throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+        }
+
+        const matchData: MatchReadModel = matchResult.unwrap();
+
+        // call PUT /api/v1/requests/{id}/matches/{matchId} to update feedback
+        const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
+          matchFeedbackId: parseResult.output.feedback,
+        });
+        const updateResult = await getRequestService().updateRequestMatchById(
+          requestId,
+          matchData.id,
+          matchPayload,
+          session.authState.accessToken,
+        );
+
+        if (updateResult.isErr()) {
+          throw updateResult.unwrapErr();
+        }
+
+        return data({ success: true });
+      }
+      case 'comment': {
+        const parseResult = v.safeParse(
+          v.object({
+            matchId: v.pipe(
+              v.string(),
+              v.transform((val) => parseInt(val, 10)),
+              v.number('app:matches.errors.match-id'),
+            ),
+            comment: v.optional(
+              v.pipe(
+                v.string('app:matches.errors.comment-required'),
+                v.trim(),
+                v.maxLength(100, 'app:matches.errors.comment-max-length'),
+              ),
+            ),
+          }),
+          {
+            matchId: formString(formData.get('matchId')),
+            comment: formString(formData.get('comment')),
+          },
+        );
+
+        if (!parseResult.success) {
+          return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+        }
+
+        const { matchId } = parseResult.output;
+        const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+        if (matchResult.isErr()) {
+          throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+        }
+
+        const matchData: MatchReadModel = matchResult.unwrap();
+
+        // call PUT /api/v1/requests/{id}/matches/{matchId} to update HR advisor comment
+        const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
+          hrAdvisorComment: parseResult.output.comment,
+        });
+        const updateResult = await getRequestService().updateRequestMatchById(
+          requestId,
+          matchData.id,
+          matchPayload,
+          session.authState.accessToken,
+        );
+
+        if (updateResult.isErr()) {
+          throw updateResult.unwrapErr();
+        }
+
+        return data({ success: true });
+      }
+      case 'approve': {
+        const parseResult = v.safeParse(
+          v.object({
+            matchId: v.pipe(
+              v.string(),
+              v.transform((val) => parseInt(val, 10)),
+              v.number('app:matches.errors.match-id'),
+            ),
+          }),
+          {
+            matchId: formString(formData.get('matchId')),
+          },
+        );
+
+        if (!parseResult.success) {
+          return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+        }
+        const { matchId } = parseResult.output;
+
+        const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+        if (matchResult.isErr()) {
+          throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+        }
+
+        const matchData: MatchReadModel = matchResult.unwrap();
+
+        const approveRequestResult = await getRequestService().approveRequestMatch(
+          requestId,
+          matchId,
+          session.authState.accessToken,
+        );
+
+        if (approveRequestResult.isErr()) {
+          throw approveRequestResult.unwrapErr();
+        }
+
+        const employeeName = matchData.profile?.profileUser
+          ? `${matchData.profile.profileUser.firstName ?? ''} ${matchData.profile.profileUser.lastName ?? ''}`.trim()
+          : 'Unknown User';
+        return data({ success: true, action: 'approve', employeeName });
       }
 
-      const { matchId } = parseResult.output;
-      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+      case 'revert-approval': {
+        const parseResult = v.safeParse(
+          v.object({
+            matchId: v.pipe(
+              v.string(),
+              v.transform((val) => parseInt(val, 10)),
+              v.number('app:matches.errors.match-id'),
+            ),
+          }),
+          {
+            matchId: formString(formData.get('matchId')),
+          },
+        );
 
-      if (matchResult.isErr()) {
-        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+        if (!parseResult.success) {
+          return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+        }
+        const { matchId } = parseResult.output;
+
+        const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+        if (matchResult.isErr()) {
+          throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+        }
+
+        const matchData: MatchReadModel = matchResult.unwrap();
+
+        const revertApproveRequestResult = await getRequestService().revertApproveRequestMatch(
+          requestId,
+          matchId,
+          session.authState.accessToken,
+        );
+
+        if (revertApproveRequestResult.isErr()) {
+          throw revertApproveRequestResult.unwrapErr();
+        }
+
+        const employeeName = matchData.profile?.profileUser
+          ? `${matchData.profile.profileUser.firstName ?? ''} ${matchData.profile.profileUser.lastName ?? ''}`.trim()
+          : 'Unknown User';
+        return data({ success: true, action: 'revert-approval', employeeName });
       }
-
-      const matchData: MatchReadModel = matchResult.unwrap();
-
-      // call PUT /api/v1/requests/{id}/matches/{matchId} to update HR advisor comment
-      const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
-        hrAdvisorComment: parseResult.output.comment,
-      });
-      const updateResult = await getRequestService().updateRequestMatchById(
-        requestId,
-        matchData.id,
-        matchPayload,
-        session.authState.accessToken,
-      );
-
-      if (updateResult.isErr()) {
-        throw updateResult.unwrapErr();
-      }
-
-      return data({ success: true });
     }
-    case 'approve': {
-      const parseResult = v.safeParse(
-        v.object({
-          matchId: v.pipe(
-            v.string(),
-            v.transform((val) => parseInt(val, 10)),
-            v.number('app:matches.errors.match-id'),
-          ),
-        }),
-        {
-          matchId: formString(formData.get('matchId')),
-        },
-      );
 
-      if (!parseResult.success) {
-        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
-      }
-      const { matchId } = parseResult.output;
-
-      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
-
-      if (matchResult.isErr()) {
-        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
-      }
-
-      const matchData: MatchReadModel = matchResult.unwrap();
-
-      const approveRequestResult = await getRequestService().approveRequestMatch(
-        requestId,
-        matchId,
-        session.authState.accessToken,
-      );
-
-      if (approveRequestResult.isErr()) {
-        throw approveRequestResult.unwrapErr();
-      }
-
-      const employeeName = matchData.profile?.profileUser
-        ? `${matchData.profile.profileUser.firstName ?? ''} ${matchData.profile.profileUser.lastName ?? ''}`.trim()
-        : 'Unknown User';
-      return data({ success: true, action: 'approve', employeeName });
-    }
-
-    case 'revert-approval': {
-      const parseResult = v.safeParse(
-        v.object({
-          matchId: v.pipe(
-            v.string(),
-            v.transform((val) => parseInt(val, 10)),
-            v.number('app:matches.errors.match-id'),
-          ),
-        }),
-        {
-          matchId: formString(formData.get('matchId')),
-        },
-      );
-
-      if (!parseResult.success) {
-        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
-      }
-      const { matchId } = parseResult.output;
-
-      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
-
-      if (matchResult.isErr()) {
-        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
-      }
-
-      const matchData: MatchReadModel = matchResult.unwrap();
-
-      const revertApproveRequestResult = await getRequestService().revertApproveRequestMatch(
-        requestId,
-        matchId,
-        session.authState.accessToken,
-      );
-
-      if (revertApproveRequestResult.isErr()) {
-        throw revertApproveRequestResult.unwrapErr();
-      }
-
-      const employeeName = matchData.profile?.profileUser
-        ? `${matchData.profile.profileUser.firstName ?? ''} ${matchData.profile.profileUser.lastName ?? ''}`.trim()
-        : 'Unknown User';
-      return data({ success: true, action: 'revert-approval', employeeName });
-    }
-  }
-
-  return undefined;
+    return undefined;
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.request.matches.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const { t, lang } = await getTranslation(request, handle.i18nNamespace);
+    const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const searchParams = new URL(request.url).searchParams;
-  const sortParam = searchParams.getAll('sort');
-  const requestMatchesResult = await getRequestService().getRequestMatches(
-    parseInt(params.requestId),
-    {
-      page: Math.max(1, Number.parseInt(searchParams.get('page') ?? '1', 10) || 1),
-      sort: sortParam.length > 0 ? sortParam : undefined,
-      profile: {
-        employeeName: searchParams.get('employeeName') ?? undefined,
-        wfaStatusId: searchParams.getAll('wfaStatusId').map((id) => parseInt(id)),
+    const searchParams = new URL(request.url).searchParams;
+    const sortParam = searchParams.getAll('sort');
+    const requestMatchesResult = await getRequestService().getRequestMatches(
+      parseInt(params.requestId),
+      {
+        page: Math.max(1, Number.parseInt(searchParams.get('page') ?? '1', 10) || 1),
+        sort: sortParam.length > 0 ? sortParam : undefined,
+        profile: {
+          employeeName: searchParams.get('employeeName') ?? undefined,
+          wfaStatusId: searchParams.getAll('wfaStatusId').map((id) => parseInt(id)),
+        },
+        matchFeedbackId: searchParams.getAll('matchFeedbackId').map((id) => parseInt(id)),
       },
-      matchFeedbackId: searchParams.getAll('matchFeedbackId').map((id) => parseInt(id)),
-    },
-    session.authState.accessToken,
-  );
-  if (requestMatchesResult.isErr()) {
-    throw requestMatchesResult.unwrapErr();
-  }
+      session.authState.accessToken,
+    );
+    if (requestMatchesResult.isErr()) {
+      throw requestMatchesResult.unwrapErr();
+    }
 
-  const wfaStatuses = await wfaStatusService.listAll();
+    const wfaStatuses = await wfaStatusService.listAll();
 
-  const { content: requestMatches, page } = requestMatchesResult.unwrap();
+    const { content: requestMatches, page } = requestMatchesResult.unwrap();
 
-  const matchFeedbacks = await getMatchFeedbackService().listAllLocalized(lang);
+    const matchFeedbacks = await getMatchFeedbackService().listAllLocalized(lang);
 
-  function getApprovalProgress(requestMatches: MatchSummaryReadModel[]): number {
-    if (requestMatches.length === 0) return 0;
-    const count = requestMatches.filter((match) => match.matchStatus?.code === MATCH_STATUS.APPROVED.code).length;
-    return (count / requestMatches.length) * 100;
-  }
+    function getApprovalProgress(requestMatches: MatchSummaryReadModel[]): number {
+      if (requestMatches.length === 0) return 0;
+      const count = requestMatches.filter((match) => match.matchStatus?.code === MATCH_STATUS.APPROVED.code).length;
+      return (count / requestMatches.length) * 100;
+    }
 
-  return {
-    documentTitle: t('app:matches.page-title'),
-    lang,
-    matchFeedbacks,
-    requestMatches,
-    wfaStatuses,
-    requestId: requestData.id,
-    requestIdFormatted: formatWithMask(requestData.id, '####-####-##'),
-    requestStatus: requestData.status,
-    branch: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
-    requestDate: requestData.createdDate,
-    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
-    hiringManager: {
-      firstName: requestData.hiringManager?.firstName,
-      lastName: requestData.hiringManager?.lastName,
-      email: requestData.hiringManager?.businessEmailAddress,
-    },
-    hrAdvisor: {
-      firstName: requestData.hrAdvisor?.firstName,
-      lastName: requestData.hrAdvisor?.lastName,
-      email: requestData.hrAdvisor?.businessEmailAddress,
-    },
-    feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
-    feedbackPending: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PENDING,
-    approvalProgress: getApprovalProgress(requestMatches),
-    search: searchParams.toString(),
-    page,
-  };
+    return {
+      documentTitle: t('app:matches.page-title'),
+      lang,
+      matchFeedbacks,
+      requestMatches,
+      wfaStatuses,
+      requestId: requestData.id,
+      requestIdFormatted: formatWithMask(requestData.id, '####-####-##'),
+      requestStatus: requestData.status,
+      branch: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
+      requestDate: requestData.createdDate,
+      baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+      hiringManager: {
+        firstName: requestData.hiringManager?.firstName,
+        lastName: requestData.hiringManager?.lastName,
+        email: requestData.hiringManager?.businessEmailAddress,
+      },
+      hrAdvisor: {
+        firstName: requestData.hrAdvisor?.firstName,
+        lastName: requestData.hrAdvisor?.lastName,
+        email: requestData.hrAdvisor?.businessEmailAddress,
+      },
+      feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
+      feedbackPending: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PENDING,
+      approvalProgress: getApprovalProgress(requestMatches),
+      search: searchParams.toString(),
+      page,
+    };
+  });
 }
 
 export default function HrAdvisorMatches({ loaderData, params }: Route.ComponentProps) {

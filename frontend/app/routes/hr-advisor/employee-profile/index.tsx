@@ -14,6 +14,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems, countReferralPreferencesCompleted, getHrAdvisors } from '~/.server/utils/profile-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { LoadingButton } from '~/components/loading-button';
@@ -50,173 +51,179 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request, params }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.employee-profile.index.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
+    const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
 
-  if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (profileResult.isErr()) {
+      throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const profileData: Profile = profileResult.unwrap();
+    const profileData: Profile = profileResult.unwrap();
 
-  // For personal information, check required fields directly on profile and profile user
-  const requiredPersonalFields = {
-    businessEmailAddress: profileData.profileUser.businessEmailAddress,
-    languageOfCorrespondence: profileData.languageOfCorrespondence,
-    personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
-    personalEmailAddress: profileData.personalEmailAddress,
-    personalPhoneNumber: profileData.personalPhoneNumber,
-  };
-
-  // For employment information, check required fields directly on profile
-  const requiredEmploymentFields = {
-    substantiveClassification: profileData.substantiveClassification,
-    substantiveWorkUnit: profileData.substantiveWorkUnit,
-    substantiveCity: profileData.substantiveCity,
-    wfaStatus: profileData.wfaStatus,
-    wfaStartDate: profileData.wfaStartDate,
-    hrAdvisorId: profileData.hrAdvisorId,
-  };
-
-  // For referral preferences, use the correct property names from Profile type
-  const referralPreferencesFields = {
-    preferredLanguages: profileData.preferredLanguages,
-    preferredClassifications: profileData.preferredClassifications,
-    preferredCities: profileData.preferredCities,
-    isAvailableForReferral: profileData.isAvailableForReferral,
-    isInterestedInAlternation: profileData.isInterestedInAlternation,
-  };
-
-  // Check if all sections are complete
-  const personalInfoComplete = countCompletedItems(requiredPersonalFields) === Object.keys(requiredPersonalFields).length;
-  const employmentInfoComplete = countCompletedItems(requiredEmploymentFields) === Object.keys(requiredEmploymentFields).length;
-  const referralComplete =
-    countReferralPreferencesCompleted(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
-
-  // If any section is incomplete, return incomplete state
-  if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
-    return {
-      personalInfoComplete,
-      employmentInfoComplete,
-      referralComplete,
+    // For personal information, check required fields directly on profile and profile user
+    const requiredPersonalFields = {
+      businessEmailAddress: profileData.profileUser.businessEmailAddress,
+      languageOfCorrespondence: profileData.languageOfCorrespondence,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+      personalEmailAddress: profileData.personalEmailAddress,
+      personalPhoneNumber: profileData.personalPhoneNumber,
     };
-  }
 
-  // approve the profile
-  const submitResult = await getProfileService().updateProfileStatus(
-    profileData.id,
-    PROFILE_STATUS.APPROVED,
-    session.authState.accessToken,
-  );
-  if (submitResult.isErr()) {
-    throw submitResult.unwrapErr();
-  }
+    // For employment information, check required fields directly on profile
+    const requiredEmploymentFields = {
+      substantiveClassification: profileData.substantiveClassification,
+      substantiveWorkUnit: profileData.substantiveWorkUnit,
+      substantiveCity: profileData.substantiveCity,
+      wfaStatus: profileData.wfaStatus,
+      wfaStartDate: profileData.wfaStartDate,
+      hrAdvisorId: profileData.hrAdvisorId,
+    };
 
-  return {
-    status: 'submitted',
-    profileStatus: submitResult.unwrap(),
-    isEmployeeProfileComplete: true,
-  };
+    // For referral preferences, use the correct property names from Profile type
+    const referralPreferencesFields = {
+      preferredLanguages: profileData.preferredLanguages,
+      preferredClassifications: profileData.preferredClassifications,
+      preferredCities: profileData.preferredCities,
+      isAvailableForReferral: profileData.isAvailableForReferral,
+      isInterestedInAlternation: profileData.isInterestedInAlternation,
+    };
+
+    // Check if all sections are complete
+    const personalInfoComplete = countCompletedItems(requiredPersonalFields) === Object.keys(requiredPersonalFields).length;
+    const employmentInfoComplete =
+      countCompletedItems(requiredEmploymentFields) === Object.keys(requiredEmploymentFields).length;
+    const referralComplete =
+      countReferralPreferencesCompleted(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
+
+    // If any section is incomplete, return incomplete state
+    if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
+      return {
+        personalInfoComplete,
+        employmentInfoComplete,
+        referralComplete,
+      };
+    }
+
+    // approve the profile
+    const submitResult = await getProfileService().updateProfileStatus(
+      profileData.id,
+      PROFILE_STATUS.APPROVED,
+      session.authState.accessToken,
+    );
+    if (submitResult.isErr()) {
+      throw submitResult.unwrapErr();
+    }
+
+    return {
+      status: 'submitted',
+      profileStatus: submitResult.unwrap(),
+      isEmployeeProfileComplete: true,
+    };
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hr-advisor.employee-profile.index.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  // Fetch both the profile user and the profile data
-  const [profileResult, allLocalizedCities] = await Promise.all([
-    getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken),
-    getCityService().listAllLocalized(lang),
-  ]);
+    // Fetch both the profile user and the profile data
+    const [profileResult, allLocalizedCities] = await Promise.all([
+      getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken),
+      getCityService().listAllLocalized(lang),
+    ]);
 
-  if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (profileResult.isErr()) {
+      throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const profileData: Profile = profileResult.unwrap();
+    const profileData: Profile = profileResult.unwrap();
 
-  // Fetch the profile user data to get current businessEmail and other user info
-  const profileUserResult = await getUserService().getUserById(profileData.profileUser.id, session.authState.accessToken);
-  const profileUser = profileUserResult.into();
+    // Fetch the profile user data to get current businessEmail and other user info
+    const profileUserResult = await getUserService().getUserById(profileData.profileUser.id, session.authState.accessToken);
+    const profileUser = profileUserResult.into();
 
-  const profileUpdatedByUserResult = profileData.profileUser.lastModifiedBy
-    ? await getUserService().getUserById(profileData.profileUser.id, session.authState.accessToken)
-    : undefined;
-  const profileUpdatedByUser = profileUpdatedByUserResult?.into();
-  const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
+    const profileUpdatedByUserResult = profileData.profileUser.lastModifiedBy
+      ? await getUserService().getUserById(profileData.profileUser.id, session.authState.accessToken)
+      : undefined;
+    const profileUpdatedByUser = profileUpdatedByUserResult?.into();
+    const profileUpdatedByUserName =
+      profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
 
-  // convert the IDs to display names
-  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
-  const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
+    // convert the IDs to display names
+    const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
+    const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
 
-  // Display Canada wide or province wide or list of cities on referral preferences section
-  const preferredCityIds = new Set(profileData.preferredCities?.map((city) => city.id) ?? []);
-  const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
-    preferredCityIds,
-    allLocalizedCities,
-  );
+    // Display Canada wide or province wide or list of cities on referral preferences section
+    const preferredCityIds = new Set(profileData.preferredCities?.map((city) => city.id) ?? []);
+    const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
+      preferredCityIds,
+      allLocalizedCities,
+    );
 
-  return {
-    documentTitle: t('app:employee-profile.page-title'),
-    name: `${profileData.profileUser.firstName} ${profileData.profileUser.lastName}`,
-    email: profileUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
-    profileStatus: profileData.profileStatus,
-    personalInformation: {
-      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier
-        ? formatWithMask(profileData.profileUser.personalRecordIdentifier, '### ### ###')
-        : undefined,
-      preferredLanguage:
-        lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
-      workEmail: profileUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
-      personalEmail: profileData.personalEmailAddress,
-      workPhone: profileUser?.businessPhoneNumber ?? profileData.profileUser.businessPhoneNumber,
-      personalPhone: profileData.personalPhoneNumber,
-    },
-    employmentInformation: {
-      substantivePosition:
-        lang === 'en' ? profileData.substantiveClassification?.nameEn : profileData.substantiveClassification?.nameFr,
-      branchOrServiceCanadaRegion: profileData.substantiveWorkUnit?.parent
-        ? lang === 'en'
-          ? profileData.substantiveWorkUnit.parent.nameEn
-          : profileData.substantiveWorkUnit.parent.nameFr
-        : lang === 'en'
-          ? profileData.substantiveWorkUnit?.nameEn
-          : profileData.substantiveWorkUnit?.nameFr,
-      directorate: profileData.substantiveWorkUnit?.parent
-        ? lang === 'en'
-          ? profileData.substantiveWorkUnit.nameEn
-          : profileData.substantiveWorkUnit.nameFr
-        : undefined,
-      province:
-        lang === 'en'
-          ? profileData.substantiveCity?.provinceTerritory.nameEn
-          : profileData.substantiveCity?.provinceTerritory.nameFr,
-      city: lang === 'en' ? profileData.substantiveCity?.nameEn : profileData.substantiveCity?.nameFr,
-      wfaStatus: lang === 'en' ? profileData.wfaStatus?.nameEn : profileData.wfaStatus?.nameFr,
-      wfaStatusCode: profileData.wfaStatus?.code,
-      wfaEffectiveDate: profileData.wfaStartDate,
-      wfaEndDate: profileData.wfaEndDate,
-      hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
-    },
-    referralPreferences: {
-      preferredLanguages: profileData.preferredLanguages?.map((l) => (lang === 'en' ? l.nameEn : l.nameFr)),
-      preferredClassifications: profileData.preferredClassifications?.map((c) => (lang === 'en' ? c.nameEn : c.nameFr)),
-      preferredCities: partiallySelectedCities,
-      locationScope,
-      provinceNames,
-      isAvailableForReferral: profileData.isAvailableForReferral,
-      isInterestedInAlternation: profileData.isInterestedInAlternation,
-    },
-    lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
-    lastModifiedDate: profileData.lastModifiedDate ?? undefined,
-    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
-    lang,
-    backLinkSearchParams: new URL(request.url).searchParams.toString(),
-  };
+    return {
+      documentTitle: t('app:employee-profile.page-title'),
+      name: `${profileData.profileUser.firstName} ${profileData.profileUser.lastName}`,
+      email: profileUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+      profileStatus: profileData.profileStatus,
+      personalInformation: {
+        personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier
+          ? formatWithMask(profileData.profileUser.personalRecordIdentifier, '### ### ###')
+          : undefined,
+        preferredLanguage:
+          lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
+        workEmail: profileUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+        personalEmail: profileData.personalEmailAddress,
+        workPhone: profileUser?.businessPhoneNumber ?? profileData.profileUser.businessPhoneNumber,
+        personalPhone: profileData.personalPhoneNumber,
+      },
+      employmentInformation: {
+        substantivePosition:
+          lang === 'en' ? profileData.substantiveClassification?.nameEn : profileData.substantiveClassification?.nameFr,
+        branchOrServiceCanadaRegion: profileData.substantiveWorkUnit?.parent
+          ? lang === 'en'
+            ? profileData.substantiveWorkUnit.parent.nameEn
+            : profileData.substantiveWorkUnit.parent.nameFr
+          : lang === 'en'
+            ? profileData.substantiveWorkUnit?.nameEn
+            : profileData.substantiveWorkUnit?.nameFr,
+        directorate: profileData.substantiveWorkUnit?.parent
+          ? lang === 'en'
+            ? profileData.substantiveWorkUnit.nameEn
+            : profileData.substantiveWorkUnit.nameFr
+          : undefined,
+        province:
+          lang === 'en'
+            ? profileData.substantiveCity?.provinceTerritory.nameEn
+            : profileData.substantiveCity?.provinceTerritory.nameFr,
+        city: lang === 'en' ? profileData.substantiveCity?.nameEn : profileData.substantiveCity?.nameFr,
+        wfaStatus: lang === 'en' ? profileData.wfaStatus?.nameEn : profileData.wfaStatus?.nameFr,
+        wfaStatusCode: profileData.wfaStatus?.code,
+        wfaEffectiveDate: profileData.wfaStartDate,
+        wfaEndDate: profileData.wfaEndDate,
+        hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
+      },
+      referralPreferences: {
+        preferredLanguages: profileData.preferredLanguages?.map((l) => (lang === 'en' ? l.nameEn : l.nameFr)),
+        preferredClassifications: profileData.preferredClassifications?.map((c) => (lang === 'en' ? c.nameEn : c.nameFr)),
+        preferredCities: partiallySelectedCities,
+        locationScope,
+        provinceNames,
+        isAvailableForReferral: profileData.isAvailableForReferral,
+        isInterestedInAlternation: profileData.isInterestedInAlternation,
+      },
+      lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
+      lastModifiedDate: profileData.lastModifiedDate ?? undefined,
+      baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+      lang,
+      backLinkSearchParams: new URL(request.url).searchParams.toString(),
+    };
+  });
 }
 
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
