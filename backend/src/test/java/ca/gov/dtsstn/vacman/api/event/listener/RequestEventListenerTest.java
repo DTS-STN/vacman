@@ -39,6 +39,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestHrAdvisorUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
@@ -78,6 +79,8 @@ class RequestEventListenerTest {
 	void beforeEach() {
 		lenient().when(applicationProperties.gcnotify()).thenReturn(gcNotifyProperties);
 		lenient().when(gcNotifyProperties.hrGdInboxEmail()).thenReturn("hr-inbox@example.com");
+		lenient().when(lookupCodes.languages().english()).thenReturn("en");
+		lenient().when(lookupCodes.languages().french()).thenReturn("fr");
 
 		this.requestEventListener = new RequestEventListener(eventRepository, lookupCodes, notificationService, applicationProperties, matchRepository, requestRepository);
 	}
@@ -262,6 +265,68 @@ class RequestEventListenerTest {
 			requestEventListener.handleRequestUpdated(new RequestUpdatedEvent(request));
 
 			verify(eventRepository).save(any(EventEntity.class));
+		}
+	}
+
+	@Nested
+	@DisplayName("handleRequestHrAdvisorUpdated()")
+	class HandleRequestHrAdvisorUpdated {
+
+		@Test
+		@DisplayName("Should notify HR inbox and advisor when assignment changes")
+		void shouldNotifyHrInboxAndAdvisor() {
+			final var request = RequestEventDtoBuilder.builder()
+				.id(321L)
+				.nameEn("Advisor Assigned")
+				.languageCode("en")
+				.hrAdvisorEmail("advisor@example.com")
+				.build();
+
+			requestEventListener.handleRequestHrAdvisorUpdated(new RequestHrAdvisorUpdatedEvent(request, 111L, 222L));
+
+			verify(notificationService).sendRequestNotification(
+				eq("hr-inbox@example.com"),
+				eq(321L),
+				eq("Advisor Assigned"),
+				eq(RequestEvent.HR_REVIEW),
+				eq("en")
+			);
+
+			verify(notificationService).sendRequestNotification(
+				eq("advisor@example.com"),
+				eq(321L),
+				eq("Advisor Assigned"),
+				eq(RequestEvent.HR_REVIEW),
+				eq("en")
+			);
+		}
+
+		@Test
+		@DisplayName("Should notify only HR inbox when advisor email missing")
+		void shouldNotifyOnlyHrInboxWhenAdvisorMissing() {
+			final var request = RequestEventDtoBuilder.builder()
+				.id(654L)
+				.nameEn("Advisor Removed")
+				.languageCode("en")
+				.build();
+
+			requestEventListener.handleRequestHrAdvisorUpdated(new RequestHrAdvisorUpdatedEvent(request, 333L, null));
+
+			verify(notificationService).sendRequestNotification(
+				eq("hr-inbox@example.com"),
+				eq(654L),
+				eq("Advisor Removed"),
+				eq(RequestEvent.HR_REVIEW),
+				eq("en")
+			);
+
+			verify(notificationService, times(1)).sendRequestNotification(
+				anyString(),
+				eq(654L),
+				eq("Advisor Removed"),
+				eq(RequestEvent.HR_REVIEW),
+				eq("en")
+			);
 		}
 	}
 
