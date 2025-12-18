@@ -60,7 +60,6 @@ RUN pnpm install --frozen-lockfile
 FROM base as runtime-deps
 
 WORKDIR /home/node
-COPY --from=deps --chown=node:node /home/node/node_modules/ ./node_modules/
 COPY --chown=node:node package.json pnpm-lock.yaml ./
 
 USER node
