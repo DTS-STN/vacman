@@ -337,13 +337,13 @@ public class RequestService {
 		return updateRequest(request, previousHrAdvisorId, true);
 	}
 
-	private RequestEntity updateRequest(RequestEntity request, Long previousHrAdvisorId, boolean notifyOnHrAdvisorChange) {
+	private RequestEntity updateRequest(RequestEntity request, Long previousHrAdvisorId, boolean checkForHrAdvisorChange) {
 		final var updatedRequest = requestRepository.save(request);
 		final var eventDto = requestEntityMapper.toEventDto(updatedRequest);
 
 		eventPublisher.publishEvent(new RequestUpdatedEvent(eventDto));
 
-		if (notifyOnHrAdvisorChange) {
+		if (checkForHrAdvisorChange) {
 			final var currentHrAdvisorId = Optional.ofNullable(updatedRequest.getHrAdvisor())
 				.map(UserEntity::getId)
 				.orElse(null);
