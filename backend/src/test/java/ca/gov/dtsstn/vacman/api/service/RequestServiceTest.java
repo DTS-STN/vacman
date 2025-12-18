@@ -124,6 +124,7 @@ class RequestServiceTest {
 		assertTrue(hrAdvisorEvent.isPresent(), "Expected HR advisor update event to be published");
 		assertThat(hrAdvisorEvent.get().previousHrAdvisorId()).isEqualTo(100L);
 		assertThat(hrAdvisorEvent.get().newHrAdvisorId()).isEqualTo(200L);
+		assertThat(hrAdvisorEvent.get().dto().hrAdvisorEmail()).isEqualTo("advisor@example.com");
 	}
 
 	@Test
