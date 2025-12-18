@@ -790,8 +790,7 @@ public class RequestService {
 			// PSC_GRANTED → PENDING_PSC (undo the "complete" action)
 			newStatus = requestStatuses.pendingPscClearance();
 
-			// Remove both VMS clearance number and PSC clearance number
-			request.setPriorityClearanceNumber(null);
+			// Remove the PSC clearance number
 			request.setPscClearanceNumber(null);
 		} else if (requestStatuses.pscClearanceGrantedNoVms().equals(currentStatus)) {
 			// PSC_GRANTED_NO_VMS → PENDING_PSC_NO_VMS (undo the "complete" action)
