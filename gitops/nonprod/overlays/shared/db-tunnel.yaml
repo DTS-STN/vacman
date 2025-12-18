@@ -6,7 +6,7 @@
 #
 # 1. add esdcvacmansqlsrv.database.windows.net to your /etc/hosts with the IP 127.0.0.1
 # 2. port forward from your local machine to the db-tunnel pod in the cluster:
-#    kubectl port-forward deployment/db-tunnel-shared mssql --namespace vacancy-management
+#    kubectl port-forward deployment/db-tunnel mssql --namespace vacancy-management
 # 3. connect to the database using your preferred SQL client, using esdcvacmansqlsrv.database.windows.net as the server address.
 #
 
