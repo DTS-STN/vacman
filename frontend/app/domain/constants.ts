@@ -121,22 +121,6 @@ export const USER_TYPE_HR_ADVISOR = {
   nameFr: 'Conseiller en R.H.',
 } as const;
 
-export const LANGUAGE_REQUIREMENT_CODES = {
-  bilingualImperative: 'BI',
-  bilingualNonImperative: 'BNI',
-  englishEssential: 'EE-AE',
-  frenchEssential: 'FE',
-  either: 'EF-AF',
-  various: 'VAR',
-} as const;
-
-export const LANGUAGE_LEVEL = [
-  { id: 1, value: 'A' },
-  { id: 2, value: 'B' },
-  { id: 3, value: 'C' },
-  { id: 4, value: 'P' },
-] as const;
-
 export const REQUEST_CATEGORY = {
   active: 'active',
   inactive: 'inactive',
@@ -217,71 +201,17 @@ export const EMPLOYMENT_TENURE = {
 } as const;
 
 export const SELECTION_PROCESS_TYPE = {
-  APPOINTMENT: {
-    id: 0,
-    code: 'AEP',
-    nameEn: 'Appointment - ESDC Priority',
-    nameFr: "Nomination - Priorité d'EDSC",
-  },
-  APPOINTMENT_OTHER_DEPT_PRIORITY: {
-    id: 1,
-    code: 'AODP',
-    nameEn: 'Appointment - Other Department Priority',
-    nameFr: 'Nomination - Priorité autre ministère',
-  },
-  EXTERNAL_ADVERTISE: {
-    id: 2,
-    code: 'AEA',
-    nameEn: 'Appointment - External Advertised (from outside the public service)',
-    nameFr: "Nomination - Externe annoncée (de l'extérieur de la fonction publique)",
-  },
   EXTERNAL_NON_ADVERTISED: {
     id: 3,
     code: 'AENA',
     nameEn: 'Appointment - External Non-Advertised (from outside the public service)',
     nameFr: "Nomination - Externe non-annoncée (de l'extérieur de la fonction publique)",
   },
-  APPOINTMENT_INTERNAL_ADVERTISED: {
-    id: 4,
-    code: 'AIA',
-    nameEn: 'Appointment - Internal Advertised (from inside the public service)',
-    nameFr: 'Nomination - Interne annoncée (au sein de la fonction publique)',
-  },
   APPOINTMENT_INTERNAL_NON_ADVERTISED: {
     id: 5,
     code: 'AINA',
     nameEn: 'Appointment - Internal Non-Advertised (from inside the public service)',
     nameFr: 'Nomination - Interne non-annoncée (au sein de la fonction publique)',
-  },
-  INITIATE_AN_ADVERTISED_PROCESS: {
-    id: 6,
-    code: 'IAP',
-    nameEn: 'Initiate an Avertised Process (Internal or External)',
-    nameFr: "Initiation d'un processus annoncée (Interne ou externe)",
-  },
-  DEPLOYMENT_ESDC_PRIORITY: {
-    id: 7,
-    code: 'DEP',
-    nameEn: 'Deployment - ESDC Priority',
-    nameFr: "Mutation - Priorité d'EDSC",
-  },
-  DEPLOYMENT_WITHIN_ESDC: {
-    id: 8,
-    code: 'DWE',
-    nameEn: 'Deployment - From within ESDC',
-    nameFr: 'Mutation - Au sein de EDSC',
-  },
-  DEPLOYMENT_FROM_OTHER_DEPT: {
-    id: 9,
-    code: 'DAD',
-    nameEn: 'Deployment - From another department/agency',
-    nameFr: "Mutation - D'un autre ministère",
-  },
-  DEPLOYMENT_INDETERMINATE: {
-    id: 10,
-    code: 'DIE',
-    nameEn: 'Deployment - Indeterminate (refer to exceptions)',
-    nameFr: 'Mutation - Durée indéterminée (veuillez consulter les exceptions)',
   },
 } as const;
 

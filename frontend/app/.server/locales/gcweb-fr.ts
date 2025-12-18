@@ -49,16 +49,16 @@ export default {
     close: 'Fermer',
   },
   'not-found': {
-    'page-title': 'Nous ne pouvons trouver cette page',
+    'page-title': "Nous n'avons pas pu trouver cette page web",
     'page-subtitle': '(Erreur 404)',
     'page-message':
-      "Nous sommes désolés que vous ayez abouti ici. Il arrive parfois qu'une page ait été déplacée ou supprimée. Heureusement, nous pouvons vous aider à trouver ce que vous cherchez.",
+      "Nous sommes désolés, la page que vous recherchez n'existe pas. Elle a peut-être été déplacée ou supprimée. Veuillez réessayer plus tard. Si le problème persiste, contactez votre administrateur ou votre conseiller RH.",
   },
   'forbidden': {
     'page-title': "Vous n'êtes pas autorisé à consulter cette page",
     'page-subtitle': '(Erreur 403)',
     'page-message':
-      "Vous n'avez pas la permission d'accéder à cette ressource. Si vous pensez que vous devriez avoir accès, veuillez contacter votre administrateur ou conseiller RH.",
+      "Vous n'avez pas la permission d'accéder à cette page. Si vous pensez que vous devriez y avoir accès, veuillez contacter votre administrateur ou votre conseiller RH.",
   },
   'session-timeout': {
     'continue-session': 'Continuer la session',

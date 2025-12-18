@@ -74,9 +74,9 @@
     },
     {
       "id": 6,
-      "code": "IAP",
-      "nameEn": "Initiate an Avertised Process (Internal or External)",
-      "nameFr": "Initiation d'un processus annoncé (Interne ou externe)",
+      "code": "IAPI",
+      "nameEn": "Initiate an Advertised Process",
+      "nameFr": "Initiation d'un processus annoncé",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
@@ -121,10 +121,10 @@
       "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
     },
     {
-      "id": 10,
-      "code": "DIE",
-      "nameEn": "Deployment - Indeterminate (refer to exceptions)",
-      "nameFr": "Mutation - Durée indéterminée (veuillez consulter les exceptions)",
+      "id": 11,
+      "code": "CRV",
+      "nameEn": "Employee referrals from VMS",
+      "nameFr": "Présentation d'employés du SGPV",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
@@ -133,10 +133,10 @@
       "lastModifiedDate": "2025-10-09T19:04:29.4666667Z"
     },
     {
-      "id": 11,
-      "code": "CRV",
-      "nameEn": "Candidate referrals from VMS",
-      "nameFr": "Présentation de candidats du SGPV",
+      "id": 12,
+      "code": "IAPE",
+      "nameEn": "Initiate an External Advertised Process",
+      "nameFr": "Initiation d'un processus externe annoncé",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
