@@ -58,13 +58,17 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  return withSpan('hr-advisor.employees.action', async () => {
+  return withSpan('hr-advisor.employees.action', async (span) => {
     const { session } = context.get(context.applicationContext);
     requireAuthentication(session, request);
     const { t } = await getTranslation(request, handle.i18nNamespace);
     const formData = await request.formData();
 
     const action = formString(formData.get('action'));
+
+    if (action) {
+      span.setAttribute('app.hr-advisor.employees.action', action);
+    }
 
     if (action === 'archive') {
       // Handle archive action
@@ -86,6 +90,8 @@ export async function action({ context, request }: Route.ActionArgs) {
       }
 
       const { profileId } = parseResult.output;
+
+      span.setAttribute('app.hr-advisor.employees.profileId', profileId);
 
       // Call profile service to update status to ARCHIVED
       const updateResult = await getProfileService().updateProfileStatus(
@@ -122,6 +128,8 @@ export async function action({ context, request }: Route.ActionArgs) {
 
     const user = (await getUserService().getUsers({ email: parseResult.output.email }, session.authState.accessToken)).into()
       ?.content[0];
+
+    span.setAttribute('app.hr-advisor.employees.email', parseResult.output.email);
 
     if (!user) {
       return {
