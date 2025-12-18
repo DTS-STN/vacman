@@ -61,3 +61,6 @@ WHERE CODE='CRV' AND NAME_EN='Candidate referrals from VMS' AND NAME_FR='Présen
 UPDATE CD_SELECTION_PROCESS_TYPE
 SET EXPIRY_DATE=CURRENT_TIMESTAMP, USER_UPDATED='system', DATE_UPDATED=CURRENT_TIMESTAMP
 WHERE CODE='DIE' AND NAME_EN='Deployment - Indeterminate (refer to exceptions)' AND NAME_FR='Mutation - Durée indéterminée (veuillez consulter les exceptions)' AND EXPIRY_DATE IS NULL;
+
+--changeset system:remove-cd-language-requirement-various dbms:h2,mssql
+DELETE FROM CD_LANGUAGE_REQUIREMENT WHERE CODE = 'VAR' AND EXPIRY_DATE IS NULL;
