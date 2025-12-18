@@ -34,6 +34,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestHrAdvisorUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
@@ -98,6 +99,21 @@ public class RequestEventListener {
 			.build());
 
 		log.info("Event: request updated - ID: {}", event.dto().id());
+	}
+
+	@Async
+	@EventListener({ RequestHrAdvisorUpdatedEvent.class })
+	public void handleRequestHrAdvisorUpdated(RequestHrAdvisorUpdatedEvent event) {
+		final var request = event.dto();
+
+		log.info(
+			"Event: HR advisor updated - request ID: {}, previous HR advisor ID: {}, new HR advisor ID: {}",
+			request.id(),
+			event.previousHrAdvisorId(),
+			event.newHrAdvisorId()
+		);
+
+		sendHrReviewNotification(request);
 	}
 
 	/**
