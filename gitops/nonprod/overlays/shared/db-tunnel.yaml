@@ -53,6 +53,9 @@ spec:
         app: db-tunnel
     spec:
       hostAliases:
+        # Note: 10.72.61.197 is the current non-prod/private IP for esdcvacmansqlsrv.database.windows.net.
+        # This hostAlias ensures the HAProxy pod can resolve the DB hostname even if cluster DNS
+        # is not configured for this entry. If the Azure SQL endpoint IP changes, update this value.
         - ip: 10.72.61.197
           hostnames:
             - esdcvacmansqlsrv.database.windows.net
