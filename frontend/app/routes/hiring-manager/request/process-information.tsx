@@ -16,6 +16,7 @@ import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -34,110 +35,114 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.process-information.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const formData = await request.formData();
-  const { parseResult } = await parseProcessInformation(formData);
+    const formData = await request.formData();
+    const { parseResult } = await parseProcessInformation(formData);
 
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<ProcessInformationSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
+    if (!parseResult.success) {
+      return data(
+        { errors: v.flatten<ProcessInformationSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
+    }
 
-  const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
+    const requestService = getRequestService();
+    const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
 
-  if (requestResult.isErr()) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (requestResult.isErr()) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const requestData: RequestReadModel = requestResult.unwrap();
-  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
-  }
+    const requestData: RequestReadModel = requestResult.unwrap();
+    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+    }
 
-  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-    selectionProcessNumber: parseResult.output.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: parseResult.output.approvalReceived,
-    priorityEntitlement: parseResult.output.priorityEntitlement,
-    priorityEntitlementRationale: parseResult.output.priorityEntitlementRationale,
-    selectionProcessTypeId: parseResult.output.selectionProcessType,
-    hasPerformedSameDuties: parseResult.output.performedDuties,
-    appointmentNonAdvertisedId: parseResult.output.nonAdvertisedAppointment,
-    employmentTenureId: parseResult.output.employmentTenure,
-    projectedStartDate: parseResult.output.projectedStartDate,
-    projectedEndDate: parseResult.output.projectedEndDate,
-    workScheduleId: Number(parseResult.output.workSchedule),
-    equityNeeded: parseResult.output.employmentEquityIdentified,
-    employmentEquityIds: parseResult.output.preferredEmploymentEquities?.map((id) => ({ value: id })),
-  });
+    const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+      selectionProcessNumber: parseResult.output.selectionProcessNumber,
+      workforceMgmtApprovalRecvd: parseResult.output.approvalReceived,
+      priorityEntitlement: parseResult.output.priorityEntitlement,
+      priorityEntitlementRationale: parseResult.output.priorityEntitlementRationale,
+      selectionProcessTypeId: parseResult.output.selectionProcessType,
+      hasPerformedSameDuties: parseResult.output.performedDuties,
+      appointmentNonAdvertisedId: parseResult.output.nonAdvertisedAppointment,
+      employmentTenureId: parseResult.output.employmentTenure,
+      projectedStartDate: parseResult.output.projectedStartDate,
+      projectedEndDate: parseResult.output.projectedEndDate,
+      workScheduleId: Number(parseResult.output.workSchedule),
+      equityNeeded: parseResult.output.employmentEquityIdentified,
+      employmentEquityIds: parseResult.output.preferredEmploymentEquities?.map((id) => ({ value: id })),
+    });
 
-  const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
+    const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
-    params,
-    search: new URLSearchParams({ success: 'process' }),
+    return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+      params,
+      search: new URLSearchParams({ success: 'process' }),
+    });
   });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.process-information.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const localizedSelectionProcessTypesResult = await getSelectionProcessTypeService().listAllLocalized(lang);
-  const localizedNonAdvertisedAppointmentsResult = await getNonAdvertisedAppointmentService().listAllLocalized(lang);
-  const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
-  const localizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
-  const localizedEmploymentEquities = await getEmploymentEquityService().listAllLocalized(lang);
+    const localizedSelectionProcessTypesResult = await getSelectionProcessTypeService().listAllLocalized(lang);
+    const localizedNonAdvertisedAppointmentsResult = await getNonAdvertisedAppointmentService().listAllLocalized(lang);
+    const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
+    const localizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
+    const localizedEmploymentEquities = await getEmploymentEquityService().listAllLocalized(lang);
 
-  const sortedSelectionProcessTypes = [...localizedSelectionProcessTypesResult].sort((a, b) => {
-    return a.name.localeCompare(b.name);
+    const sortedSelectionProcessTypes = [...localizedSelectionProcessTypesResult].sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+
+    return {
+      documentTitle: t('app:process-information.page-title'),
+      defaultValues: {
+        selectionProcessNumber: requestData.selectionProcessNumber,
+        approvalReceived: requestData.workforceMgmtApprovalRecvd,
+        priorityEntitlement: requestData.priorityEntitlement,
+        priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+        selectionProcessType: requestData.selectionProcessType,
+        performedDuties: requestData.hasPerformedSameDuties,
+        nonAdvertisedAppointment: requestData.appointmentNonAdvertised,
+        employmentTenure: requestData.employmentTenure,
+        projectedStartDate: requestData.projectedStartDate,
+        projectedEndDate: requestData.projectedEndDate,
+        workSchedule: requestData.workSchedule,
+        employmentEquityIdentified: requestData.equityNeeded,
+        preferredEmploymentEquities: requestData.employmentEquities,
+      },
+      localizedSelectionProcessTypesResult: sortedSelectionProcessTypes,
+      localizedNonAdvertisedAppointmentsResult,
+      localizedEmploymentTenures,
+      localizedWorkSchedules,
+      localizedEmploymentEquities,
+    };
   });
-
-  return {
-    documentTitle: t('app:process-information.page-title'),
-    defaultValues: {
-      selectionProcessNumber: requestData.selectionProcessNumber,
-      approvalReceived: requestData.workforceMgmtApprovalRecvd,
-      priorityEntitlement: requestData.priorityEntitlement,
-      priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-      selectionProcessType: requestData.selectionProcessType,
-      performedDuties: requestData.hasPerformedSameDuties,
-      nonAdvertisedAppointment: requestData.appointmentNonAdvertised,
-      employmentTenure: requestData.employmentTenure,
-      projectedStartDate: requestData.projectedStartDate,
-      projectedEndDate: requestData.projectedEndDate,
-      workSchedule: requestData.workSchedule,
-      employmentEquityIdentified: requestData.equityNeeded,
-      preferredEmploymentEquities: requestData.employmentEquities,
-    },
-    localizedSelectionProcessTypesResult: sortedSelectionProcessTypes,
-    localizedNonAdvertisedAppointmentsResult,
-    localizedEmploymentTenures,
-    localizedWorkSchedules,
-    localizedEmploymentEquities,
-  };
 }
 
 export default function HiringManagerRequestProcessInformation({ loaderData, actionData, params }: Route.ComponentProps) {

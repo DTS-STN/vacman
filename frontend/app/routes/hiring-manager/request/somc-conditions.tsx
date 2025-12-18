@@ -11,6 +11,7 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -29,77 +30,81 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.somc-conditions.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const formData = await request.formData();
-  const parseResult = v.safeParse(somcConditionsSchema, {
-    englishStatementOfMerit: formString(formData.get('englishStatementOfMerit')),
-    frenchStatementOfMerit: formString(formData.get('frenchStatementOfMerit')),
-  });
+    const formData = await request.formData();
+    const parseResult = v.safeParse(somcConditionsSchema, {
+      englishStatementOfMerit: formString(formData.get('englishStatementOfMerit')),
+      frenchStatementOfMerit: formString(formData.get('frenchStatementOfMerit')),
+    });
 
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<typeof somcConditionsSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
+    if (!parseResult.success) {
+      return data(
+        { errors: v.flatten<typeof somcConditionsSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
+    }
+
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
+
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
+
+    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+    }
+
+    const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+      englishStatementOfMerit: parseResult.output.englishStatementOfMerit,
+      frenchStatementOfMerit: parseResult.output.frenchStatementOfMerit,
+    });
+
+    const updateResult = await getRequestService().updateRequestById(
+      requestData.id,
+      requestPayload,
+      session.authState.accessToken,
     );
-  }
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
-
-  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
-  }
-
-  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-    englishStatementOfMerit: parseResult.output.englishStatementOfMerit,
-    frenchStatementOfMerit: parseResult.output.frenchStatementOfMerit,
-  });
-
-  const updateResult = await getRequestService().updateRequestById(
-    requestData.id,
-    requestPayload,
-    session.authState.accessToken,
-  );
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
-
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
-    params,
-    search: new URLSearchParams({ success: 'somc' }),
+    return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+      params,
+      search: new URLSearchParams({ success: 'somc' }),
+    });
   });
 }
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.somc-conditions.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const { t } = await getTranslation(request, handle.i18nNamespace);
+    const { t } = await getTranslation(request, handle.i18nNamespace);
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  return {
-    documentTitle: t('app:somc-conditions.page-title'),
-    defaultValues: {
-      englishStatementOfMerit: requestData.englishStatementOfMerit,
-      frenchStatementOfMerit: requestData.frenchStatementOfMerit,
-    },
-    canEdit: requestData.status?.code === REQUEST_STATUS_CODE.DRAFT,
-  };
+    return {
+      documentTitle: t('app:somc-conditions.page-title'),
+      defaultValues: {
+        englishStatementOfMerit: requestData.englishStatementOfMerit,
+        frenchStatementOfMerit: requestData.frenchStatementOfMerit,
+      },
+      canEdit: requestData.status?.code === REQUEST_STATUS_CODE.DRAFT,
+    };
+  });
 }
 
 export default function HiringManagerRequestSomcConditions({ loaderData, actionData, params }: Route.ComponentProps) {

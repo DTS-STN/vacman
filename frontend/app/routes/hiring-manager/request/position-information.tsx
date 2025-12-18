@@ -16,6 +16,7 @@ import { getSecurityClearanceService } from '~/.server/domain/services/security-
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -35,112 +36,116 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.position-information.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const formData = await request.formData();
-  const parseResult = v.safeParse(await createPositionInformationSchema(), {
-    positionNumber: formString(formData.get('positionNumber')),
-    groupAndLevel: formString(formData.get('groupAndLevel')),
-    titleEn: formString(formData.get('titleEn')),
-    titleFr: formString(formData.get('titleFr')),
-    province: formString(formData.get('province')),
-    cities: formData.getAll('cities'),
-    languageRequirements: formData.getAll('languageRequirements'),
-    readingEn: formString(formData.get('readingEn')),
-    readingFr: formString(formData.get('readingFr')),
-    writingEn: formString(formData.get('writingEn')),
-    writingFr: formString(formData.get('writingFr')),
-    oralEn: formString(formData.get('oralEn')),
-    oralFr: formString(formData.get('oralFr')),
-    securityRequirement: formString(formData.get('securityRequirement')),
-  });
+    const formData = await request.formData();
+    const parseResult = v.safeParse(await createPositionInformationSchema(), {
+      positionNumber: formString(formData.get('positionNumber')),
+      groupAndLevel: formString(formData.get('groupAndLevel')),
+      titleEn: formString(formData.get('titleEn')),
+      titleFr: formString(formData.get('titleFr')),
+      province: formString(formData.get('province')),
+      cities: formData.getAll('cities'),
+      languageRequirements: formData.getAll('languageRequirements'),
+      readingEn: formString(formData.get('readingEn')),
+      readingFr: formString(formData.get('readingFr')),
+      writingEn: formString(formData.get('writingEn')),
+      writingFr: formString(formData.get('writingFr')),
+      oralEn: formString(formData.get('oralEn')),
+      oralFr: formString(formData.get('oralFr')),
+      securityRequirement: formString(formData.get('securityRequirement')),
+    });
 
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<PositionInformationSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
+    if (!parseResult.success) {
+      return data(
+        { errors: v.flatten<PositionInformationSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
+    }
 
-  const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
+    const requestService = getRequestService();
+    const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
 
-  if (requestResult.isErr()) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (requestResult.isErr()) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const requestData: RequestReadModel = requestResult.unwrap();
-  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
-  }
+    const requestData: RequestReadModel = requestResult.unwrap();
+    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+    }
 
-  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-    positionNumbers: parseResult.output.positionNumber
-      .split(',')
-      .map((num) => num.trim())
-      .join(','),
-    classificationId: Number(parseResult.output.groupAndLevel),
-    englishTitle: parseResult.output.titleEn,
-    frenchTitle: parseResult.output.titleFr,
-    cityIds: parseResult.output.cities.map((id) => ({ value: id })),
-    languageRequirementIds: parseResult.output.languageRequirements.map((id) => ({ value: id })),
-    securityClearanceId: Number(parseResult.output.securityRequirement),
-  });
+    const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+      positionNumbers: parseResult.output.positionNumber
+        .split(',')
+        .map((num) => num.trim())
+        .join(','),
+      classificationId: Number(parseResult.output.groupAndLevel),
+      englishTitle: parseResult.output.titleEn,
+      frenchTitle: parseResult.output.titleFr,
+      cityIds: parseResult.output.cities.map((id) => ({ value: id })),
+      languageRequirementIds: parseResult.output.languageRequirements.map((id) => ({ value: id })),
+      securityClearanceId: Number(parseResult.output.securityRequirement),
+    });
 
-  const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
+    const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
-    params,
-    search: new URLSearchParams({ success: 'position' }),
+    return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+      params,
+      search: new URLSearchParams({ success: 'position' }),
+    });
   });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('hiring-manager.request.position-information.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
-  ).into();
+    const requestData = (
+      await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+    ).into();
 
-  if (!requestData) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData) {
+      throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
-  }
+    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+      throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
+    }
 
-  const { t, lang } = await getTranslation(request, handle.i18nNamespace);
+    const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-  const localizedLanguageRequirements = await getLanguageRequirementService().listAllLocalized(lang);
-  const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-  const localizedProvinces = await getProvinceService().listAllLocalized(lang);
-  const localizedCities = await getCityService().listAllLocalized(lang);
-  const localizedSecurityClearances = await getSecurityClearanceService().listAllLocalized(lang);
+    const localizedLanguageRequirements = await getLanguageRequirementService().listAllLocalized(lang);
+    const localizedClassifications = await getClassificationService().listAllLocalized(lang);
+    const localizedProvinces = await getProvinceService().listAllLocalized(lang);
+    const localizedCities = await getCityService().listAllLocalized(lang);
+    const localizedSecurityClearances = await getSecurityClearanceService().listAllLocalized(lang);
 
-  return {
-    documentTitle: t('app:position-information.page-title'),
-    defaultValues: {
-      positionNumber: requestData.positionNumber,
-      classification: requestData.classification,
-      englishTitle: requestData.englishTitle,
-      frenchTitle: requestData.frenchTitle,
-      languageRequirements: requestData.languageRequirements,
-      securityClearance: requestData.securityClearance,
-      cities: requestData.cities,
-    },
-    languageRequirements: localizedLanguageRequirements,
-    classifications: localizedClassifications,
-    provinces: localizedProvinces,
-    cities: localizedCities,
-    securityClearances: localizedSecurityClearances,
-  };
+    return {
+      documentTitle: t('app:position-information.page-title'),
+      defaultValues: {
+        positionNumber: requestData.positionNumber,
+        classification: requestData.classification,
+        englishTitle: requestData.englishTitle,
+        frenchTitle: requestData.frenchTitle,
+        languageRequirements: requestData.languageRequirements,
+        securityClearance: requestData.securityClearance,
+        cities: requestData.cities,
+      },
+      languageRequirements: localizedLanguageRequirements,
+      classifications: localizedClassifications,
+      provinces: localizedProvinces,
+      cities: localizedCities,
+      securityClearances: localizedSecurityClearances,
+    };
+  });
 }
 
 export default function HiringManagerRequestPositionInformation({ loaderData, actionData, params }: Route.ComponentProps) {
