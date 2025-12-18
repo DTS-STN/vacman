@@ -22,6 +22,7 @@ import static org.springframework.data.jpa.domain.Specification.anyOf;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -65,6 +66,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestHrAdvisorUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
@@ -326,8 +328,31 @@ public class RequestService {
 	@Transactional(readOnly = false)
 	@Counted("service.request.updateRequest.count")
 	public RequestEntity updateRequest(RequestEntity request) {
+		return updateRequest(request, null, false);
+	}
+
+	@Transactional(readOnly = false)
+	@Counted("service.request.updateRequest.count")
+	public RequestEntity updateRequest(RequestEntity request, Long previousHrAdvisorId) {
+		return updateRequest(request, previousHrAdvisorId, true);
+	}
+
+	private RequestEntity updateRequest(RequestEntity request, Long previousHrAdvisorId, boolean notifyOnHrAdvisorChange) {
 		final var updatedRequest = requestRepository.save(request);
-		eventPublisher.publishEvent(new RequestUpdatedEvent(requestEntityMapper.toEventDto(updatedRequest)));
+		final var eventDto = requestEntityMapper.toEventDto(updatedRequest);
+
+		eventPublisher.publishEvent(new RequestUpdatedEvent(eventDto));
+
+		if (notifyOnHrAdvisorChange) {
+			final var currentHrAdvisorId = Optional.ofNullable(updatedRequest.getHrAdvisor())
+				.map(UserEntity::getId)
+				.orElse(null);
+
+			if (!Objects.equals(previousHrAdvisorId, currentHrAdvisorId)) {
+				eventPublisher.publishEvent(new RequestHrAdvisorUpdatedEvent(eventDto, previousHrAdvisorId, currentHrAdvisorId));
+			}
+		}
+
 		return updatedRequest;
 	}
 

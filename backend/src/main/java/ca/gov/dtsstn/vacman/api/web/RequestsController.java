@@ -222,9 +222,13 @@ public class RequestsController {
 
 		log.trace("Found request: [{}]", request);
 
+		final var previousHrAdvisorId = Optional.ofNullable(request.getHrAdvisor())
+			.map(AbstractBaseEntity::getId)
+			.orElse(null);
+
 		final var preparedEntity = requestService.prepareRequestForUpdate(updateModel, request);
 
-		final var updatedEntity = requestService.updateRequest(preparedEntity);
+		final var updatedEntity = requestService.updateRequest(preparedEntity, previousHrAdvisorId);
 
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
