@@ -116,15 +116,23 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
     const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-    const localizedSelectionProcessTypesResult = await getSelectionProcessTypeService().listAllLocalized(lang);
+    const [
+      localizedSelectionProcessTypesResult,
+      localizedNonAdvertisedAppointmentsResult,
+      localizedEmploymentTenures,
+      localizedWorkSchedules,
+      localizedEmploymentEquities,
+    ] = await Promise.all([
+      getSelectionProcessTypeService().listAllLocalized(lang),
+      getNonAdvertisedAppointmentService().listAllLocalized(lang),
+      getEmploymentTenureService().listAllLocalized(lang),
+      getWorkScheduleService().listAllLocalized(lang),
+      getEmploymentEquityService().listAllLocalized(lang),
+    ]);
+
     const sortedSelectionProcessTypes = [...localizedSelectionProcessTypesResult].sort((a, b) => {
       return a.name.localeCompare(b.name);
     });
-
-    const localizedNonAdvertisedAppointmentsResult = await getNonAdvertisedAppointmentService().listAllLocalized(lang);
-    const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
-    const localizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
-    const localizedEmploymentEquities = await getEmploymentEquityService().listAllLocalized(lang);
 
     return {
       documentTitle: t('app:process-information.page-title'),
