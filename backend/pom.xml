@@ -288,8 +288,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<docker>
+						<bindHostToBuilder>true</bindHostToBuilder>
+					</docker>
 					<image>
-						<name>${image.name}</name>
+						<name>${image.name}:${revision}</name>
 					</image>
 				</configuration>
 			</plugin>
