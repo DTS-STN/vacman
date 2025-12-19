@@ -82,7 +82,7 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
         // Lookup data is generally static/infrequently changing
         // Cache aggressively to minimize API calls and improve performance
         staleTime: 1000 * 60 * 60, // 1 hour for lookup data
-        gcTime: 1000 * 60 * 120, // 2 hours gc time
+        gcTime: 1000 * 60 * 60 * 2, // 2 hours gc time
       });
       return Ok(data);
     } catch (error) {
