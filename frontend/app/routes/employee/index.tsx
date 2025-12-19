@@ -12,6 +12,7 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { DashboardCard } from '~/components/dashboard-card';
 import { PageTitle } from '~/components/page-title';
@@ -31,25 +32,27 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('employee.index.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
-  if (currentUser.isNone()) {
-    const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
-    await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, session.authState.accessToken);
-  }
-  // create a profile if and only if there are no active profiles found for the current user
-  const profileService = getProfileService();
-  const profileResult = await profileService.getCurrentUserProfiles({ active: true }, session.authState.accessToken);
-  if (profileResult.into()?.content.length === 0) {
-    await profileService.registerProfile(session.authState.accessToken);
-  }
+    const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
+    if (currentUser.isNone()) {
+      const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
+      await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, session.authState.accessToken);
+    }
+    // create a profile if and only if there are no active profiles found for the current user
+    const profileService = getProfileService();
+    const profileResult = await profileService.getCurrentUserProfiles({ active: true }, session.authState.accessToken);
+    if (profileResult.into()?.content.length === 0) {
+      await profileService.registerProfile(session.authState.accessToken);
+    }
 
-  const { t } = await getTranslation(request, handle.i18nNamespace);
-  return {
-    documentTitle: t('app:employee-dashboard.page-title'),
-  };
+    const { t } = await getTranslation(request, handle.i18nNamespace);
+    return {
+      documentTitle: t('app:employee-dashboard.page-title'),
+    };
+  });
 }
 
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
