@@ -13,6 +13,7 @@ import { LogFactory } from '~/.server/logging';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { HtmlAbbreviation } from '~/components/html-abbreviation';
@@ -33,48 +34,52 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('employee.profile.privacy-consent.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const profileService = getProfileService();
-  const profileParams = { active: true };
-  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, session.authState.accessToken);
+    const profileService = getProfileService();
+    const profileParams = { active: true };
+    const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, session.authState.accessToken);
 
-  if (profileResult.isErr()) {
-    log.debug(`Profile not found for the current user`);
-    return i18nRedirect('routes/index.tsx', request);
-  }
+    if (profileResult.isErr()) {
+      log.debug(`Profile not found for the current user`);
+      return i18nRedirect('routes/index.tsx', request);
+    }
 
-  const profiles = profileResult.unwrap().content;
-  if (profiles.length === 0) {
-    log.debug(`No profiles found for the current user`);
-    return i18nRedirect('routes/index.tsx', request);
-  }
+    const profiles = profileResult.unwrap().content;
+    if (profiles.length === 0) {
+      log.debug(`No profiles found for the current user`);
+      return i18nRedirect('routes/index.tsx', request);
+    }
 
-  // Get the first (most recent) profile
-  const profile = profiles[0];
-  if (!profile) {
-    log.debug(`No active profile found for the current user`);
-    return i18nRedirect('routes/index.tsx', request);
-  }
+    // Get the first (most recent) profile
+    const profile = profiles[0];
+    if (!profile) {
+      log.debug(`No active profile found for the current user`);
+      return i18nRedirect('routes/index.tsx', request);
+    }
 
-  // Create a complete ProfilePutModel with all existing values preserved
-  // and only update the privacy consent field
-  const updatePrivacyConsent: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
-    hasConsentedToPrivacyTerms: true,
+    // Create a complete ProfilePutModel with all existing values preserved
+    // and only update the privacy consent field
+    const updatePrivacyConsent: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
+      hasConsentedToPrivacyTerms: true,
+    });
+
+    await profileService.updateProfileById(profile.id, updatePrivacyConsent, session.authState.accessToken);
+
+    log.debug(`User ${profile.profileUser.id} has accepted privacy consent.`);
+    return i18nRedirect('routes/employee/profile/index.tsx', request);
   });
-
-  await profileService.updateProfileById(profile.id, updatePrivacyConsent, session.authState.accessToken);
-
-  log.debug(`User ${profile.profileUser.id} has accepted privacy consent.`);
-  return i18nRedirect('routes/employee/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:privacy-consent.privacy-notice-statement'), lang: lang };
+  return withSpan('employee.profile.privacy-consent.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    return { documentTitle: t('app:privacy-consent.privacy-notice-statement'), lang: lang };
+  });
 }
 
 export default function PrivacyConsent({ loaderData }: Route.ComponentProps) {

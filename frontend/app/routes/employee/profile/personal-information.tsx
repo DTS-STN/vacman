@@ -14,6 +14,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
@@ -33,117 +34,125 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('employee.profile.personal-information.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const formData = await request.formData();
-  const parseResult = v.safeParse(await createPersonalInformationSchema(), {
-    firstName: formString(formData.get('firstName')),
-    lastName: formString(formData.get('lastName')),
-    personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
-    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
-    businessEmailAddress: formString(formData.get('businessEmailAddress')),
-    personalEmailAddress: formString(formData.get('personalEmailAddress')),
-    businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
-    personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
-  });
+    const formData = await request.formData();
+    const parseResult = v.safeParse(await createPersonalInformationSchema(), {
+      firstName: formString(formData.get('firstName')),
+      lastName: formString(formData.get('lastName')),
+      personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
+      languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
+      businessEmailAddress: formString(formData.get('businessEmailAddress')),
+      personalEmailAddress: formString(formData.get('personalEmailAddress')),
+      businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
+      personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
+    });
 
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<PersonalInformationSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
+    if (!parseResult.success) {
+      return data(
+        { errors: v.flatten<PersonalInformationSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
+    }
 
-  const profileService = getProfileService();
-  const profileParams = { active: true };
+    const profileService = getProfileService();
+    const profileParams = { active: true };
 
-  const currentProfile: Profile = await profileService.findCurrentUserProfile(profileParams, session.authState.accessToken);
+    const currentProfile: Profile = await profileService.findCurrentUserProfile(profileParams, session.authState.accessToken);
 
-  // Get current user for complete user update
-  const userService = getUserService();
-  const currentUserOption = await userService.getCurrentUser(session.authState.accessToken);
-  const currentUser = currentUserOption.into();
+    // Get current user for complete user update
+    const userService = getUserService();
+    const currentUserOption = await userService.getCurrentUser(session.authState.accessToken);
+    const currentUser = currentUserOption.into();
 
-  // Extract fields for user update, remove it from profile data
-  const {
-    businessEmailAddress,
-    businessPhoneNumber,
-    firstName,
-    lastName,
-    personalRecordIdentifier,
-    ...personalInformationForProfile
-  } = parseResult.output;
+    // Extract fields for user update, remove it from profile data
+    const {
+      businessEmailAddress,
+      businessPhoneNumber,
+      firstName,
+      lastName,
+      personalRecordIdentifier,
+      ...personalInformationForProfile
+    } = parseResult.output;
 
-  if (currentUser) {
-    const userUpdateResult = await userService.updateUserById(
-      // Send complete user object with updates
-      currentUser.id,
-      {
-        ...currentUser,
-        businessEmail: businessEmailAddress,
-        businessPhone: businessPhoneNumber,
-        firstName: firstName,
-        lastName: lastName,
-        personalRecordIdentifier: personalRecordIdentifier,
-        languageId: currentUser.language.id,
-      },
+    if (currentUser) {
+      const userUpdateResult = await userService.updateUserById(
+        // Send complete user object with updates
+        currentUser.id,
+        {
+          ...currentUser,
+          businessEmail: businessEmailAddress,
+          businessPhone: businessPhoneNumber,
+          firstName: firstName,
+          lastName: lastName,
+          personalRecordIdentifier: personalRecordIdentifier,
+          languageId: currentUser.language.id,
+        },
+        session.authState.accessToken,
+      );
+
+      if (userUpdateResult.isErr()) {
+        throw userUpdateResult.unwrapErr();
+      }
+    }
+
+    // Update the profile (without fields for updating user)
+
+    const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
+      languageOfCorrespondenceId: personalInformationForProfile.languageOfCorrespondenceId,
+      personalEmailAddress: personalInformationForProfile.personalEmailAddress,
+      personalPhoneNumber: personalInformationForProfile.personalPhoneNumber,
+    });
+
+    const updateResult = await profileService.updateProfileById(
+      currentProfile.id,
+      profilePayload,
       session.authState.accessToken,
     );
 
-    if (userUpdateResult.isErr()) {
-      throw userUpdateResult.unwrapErr();
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
     }
-  }
 
-  // Update the profile (without fields for updating user)
-
-  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
-    languageOfCorrespondenceId: personalInformationForProfile.languageOfCorrespondenceId,
-    personalEmailAddress: personalInformationForProfile.personalEmailAddress,
-    personalPhoneNumber: personalInformationForProfile.personalPhoneNumber,
-  });
-
-  const updateResult = await profileService.updateProfileById(currentProfile.id, profilePayload, session.authState.accessToken);
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
-
-  return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentProfile.profileUser.id.toString() },
-    search: new URLSearchParams({ success: 'personal-info' }),
+    return i18nRedirect('routes/employee/profile/index.tsx', request, {
+      params: { id: currentProfile.profileUser.id.toString() },
+      search: new URLSearchParams({ success: 'personal-info' }),
+    });
   });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  await requirePrivacyConsentForOwnProfile(session, request);
+  return withSpan('employee.profile.personal-information.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    await requirePrivacyConsentForOwnProfile(session, request);
 
-  const accessToken = session.authState.accessToken;
-  const currentUserOption = await getUserService().getCurrentUser(accessToken);
-  const currentUser = currentUserOption.unwrap();
-  const profileParams = { active: true };
-  const profileData: Profile = await getProfileService().findCurrentUserProfile(profileParams, accessToken);
+    const accessToken = session.authState.accessToken;
+    const currentUserOption = await getUserService().getCurrentUser(accessToken);
+    const currentUser = currentUserOption.unwrap();
+    const profileParams = { active: true };
+    const profileData: Profile = await getProfileService().findCurrentUserProfile(profileParams, accessToken);
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
 
-  return {
-    documentTitle: t('app:personal-information.page-title'),
-    defaultValues: {
-      firstName: profileData.profileUser.firstName,
-      lastName: profileData.profileUser.lastName,
-      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
-      languageOfCorrespondence: profileData.languageOfCorrespondence,
-      businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
-      personalEmailAddress: profileData.personalEmailAddress,
-      businessPhoneNumber: toE164(currentUser.businessPhoneNumber),
-      personalPhoneNumber: toE164(profileData.personalPhoneNumber),
-    },
-    languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
-  };
+    return {
+      documentTitle: t('app:personal-information.page-title'),
+      defaultValues: {
+        firstName: profileData.profileUser.firstName,
+        lastName: profileData.profileUser.lastName,
+        personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+        languageOfCorrespondence: profileData.languageOfCorrespondence,
+        businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+        personalEmailAddress: profileData.personalEmailAddress,
+        businessPhoneNumber: toE164(currentUser.businessPhoneNumber),
+        personalPhoneNumber: toE164(profileData.personalPhoneNumber),
+      },
+      languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
+    };
+  });
 }
 
 export default function PersonalInformation({ loaderData, actionData, params }: Route.ComponentProps) {

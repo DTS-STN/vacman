@@ -18,6 +18,7 @@ import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directora
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { getHrAdvisors, hasEmploymentDataChanged, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { BackLink } from '~/components/back-link';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -36,99 +37,107 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('employee.profile.employment-information.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
-  const formData = await request.formData();
-  const { parseResult, formValues } = await parseEmploymentInformation(formData, hrAdvisors);
-  if (!parseResult.success) {
-    return data(
-      { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
+    const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
+    const formData = await request.formData();
+    const { parseResult, formValues } = await parseEmploymentInformation(formData, hrAdvisors);
+    if (!parseResult.success) {
+      return data(
+        { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
+        { status: HttpStatusCodes.BAD_REQUEST },
+      );
+    }
+    const profileService = getProfileService();
+    const profileParams = { active: true };
+    const currentProfile: Profile = await profileService.findCurrentUserProfile(profileParams, session.authState.accessToken);
+
+    const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
+      classificationId: parseResult.output.substantiveClassification,
+      workUnitId: parseResult.output.directorate
+        ? Number(parseResult.output.directorate)
+        : parseResult.output.branchOrServiceCanadaRegion
+          ? Number(parseResult.output.branchOrServiceCanadaRegion)
+          : undefined,
+      cityId: parseResult.output.cityId,
+      wfaStatusId: parseResult.output.wfaStatusId,
+      wfaStartDate: parseResult.output.wfaStartDate,
+      wfaEndDate: parseResult.output.wfaEndDate,
+      hrAdvisorId: parseResult.output.hrAdvisorId,
+    });
+
+    const updateResult = await profileService.updateProfileById(
+      currentProfile.id,
+      profilePayload,
+      session.authState.accessToken,
     );
-  }
-  const profileService = getProfileService();
-  const profileParams = { active: true };
-  const currentProfile: Profile = await profileService.findCurrentUserProfile(profileParams, session.authState.accessToken);
 
-  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
-    classificationId: parseResult.output.substantiveClassification,
-    workUnitId: parseResult.output.directorate
-      ? Number(parseResult.output.directorate)
-      : parseResult.output.branchOrServiceCanadaRegion
-        ? Number(parseResult.output.branchOrServiceCanadaRegion)
-        : undefined,
-    cityId: parseResult.output.cityId,
-    wfaStatusId: parseResult.output.wfaStatusId,
-    wfaStartDate: parseResult.output.wfaStartDate,
-    wfaEndDate: parseResult.output.wfaEndDate,
-    hrAdvisorId: parseResult.output.hrAdvisorId,
-  });
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
 
-  const updateResult = await profileService.updateProfileById(currentProfile.id, profilePayload, session.authState.accessToken);
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
-
-  if (
-    currentProfile.profileStatus?.code === PROFILE_STATUS.APPROVED.code &&
-    hasEmploymentDataChanged(currentProfile, parseResult.output)
-  ) {
-    // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.updateProfileStatus(currentProfile.id, PROFILE_STATUS.PENDING, session.authState.accessToken);
+    if (
+      currentProfile.profileStatus?.code === PROFILE_STATUS.APPROVED.code &&
+      hasEmploymentDataChanged(currentProfile, parseResult.output)
+    ) {
+      // profile needs to be re-approved if and only if the current profile status is 'approved'
+      await profileService.updateProfileStatus(currentProfile.id, PROFILE_STATUS.PENDING, session.authState.accessToken);
+      return i18nRedirect('routes/employee/profile/index.tsx', request, {
+        params: { id: currentProfile.profileUser.id.toString() },
+        search: new URLSearchParams({
+          editedEmp: 'true',
+        }),
+      });
+    }
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.profileUser.id.toString() },
-      search: new URLSearchParams({
-        editedEmp: 'true',
-      }),
+      search: new URLSearchParams({ success: 'employment' }),
     });
-  }
-  return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentProfile.profileUser.id.toString() },
-    search: new URLSearchParams({ success: 'employment' }),
   });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  await requirePrivacyConsentForOwnProfile(session, request);
+  return withSpan('employee.profile.employment-information.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    await requirePrivacyConsentForOwnProfile(session, request);
 
-  const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
+    const profileParams = { active: true };
+    const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
-  const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
-  const substantivePositions = await getClassificationService().listAllLocalized(lang);
-  // Extract all unique branches (both standalone and those with directorates)
-  const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
-  const provinces = await getProvinceService().listAllLocalized(lang);
-  const cities = await getCityService().listAllLocalized(lang);
-  const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
+    const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
+    const substantivePositions = await getClassificationService().listAllLocalized(lang);
+    // Extract all unique branches (both standalone and those with directorates)
+    const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
+    const provinces = await getProvinceService().listAllLocalized(lang);
+    const cities = await getCityService().listAllLocalized(lang);
+    const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
+    const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
 
-  return {
-    documentTitle: t('app:employment-information.page-title'),
-    defaultValues: {
-      substantiveClassification: profileData.substantiveClassification,
-      substantiveWorkUnit: profileData.substantiveWorkUnit,
-      substantiveCity: profileData.substantiveCity,
-      wfaStatus: profileData.wfaStatus,
-      wfaStartDate: profileData.wfaStartDate,
-      wfaEndDate: profileData.wfaEndDate,
-      hrAdvisorId: profileData.hrAdvisorId,
-    },
-    substantivePositions,
-    branchOrServiceCanadaRegions,
-    directorates,
-    provinces,
-    cities,
-    wfaStatuses,
-    hrAdvisors,
-  };
+    return {
+      documentTitle: t('app:employment-information.page-title'),
+      defaultValues: {
+        substantiveClassification: profileData.substantiveClassification,
+        substantiveWorkUnit: profileData.substantiveWorkUnit,
+        substantiveCity: profileData.substantiveCity,
+        wfaStatus: profileData.wfaStatus,
+        wfaStartDate: profileData.wfaStartDate,
+        wfaEndDate: profileData.wfaEndDate,
+        hrAdvisorId: profileData.hrAdvisorId,
+      },
+      substantivePositions,
+      branchOrServiceCanadaRegions,
+      directorates,
+      provinces,
+      cities,
+      wfaStatuses,
+      hrAdvisors,
+    };
+  });
 }
 
 export default function EmploymentInformation({ loaderData, actionData, params }: Route.ComponentProps) {

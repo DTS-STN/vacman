@@ -19,6 +19,7 @@ import {
   omitObjectProperties,
 } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { withSpan } from '~/.server/utils/telemetry-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
@@ -56,236 +57,242 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
+  return withSpan('employee.profile.index.action', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
 
-  const formData = await request.formData();
-  const formAction = formData.get('action');
+    const formData = await request.formData();
+    const formAction = formData.get('action');
 
-  if (formAction === 'save') {
-    return i18nRedirect('routes/employee/index.tsx', request, {
-      search: new URLSearchParams({ success: 'save-profile' }),
-    });
-  }
+    if (formAction === 'save') {
+      return i18nRedirect('routes/employee/index.tsx', request, {
+        search: new URLSearchParams({ success: 'save-profile' }),
+      });
+    }
 
-  const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
+    const profileParams = { active: true };
+    const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
-  const currentUser = profileData.profileUser;
+    const currentUser = profileData.profileUser;
 
-  // For personal information, check required fields directly on profile and profile user
-  const requiredPersonalFields = {
-    businessEmailAddress: currentUser.businessEmailAddress,
-    languageOfCorrespondence: profileData.languageOfCorrespondence,
-    personalRecordIdentifier: currentUser.personalRecordIdentifier,
-    personalEmailAddress: profileData.personalEmailAddress,
-    personalPhoneNumber: profileData.personalPhoneNumber,
-  };
-
-  // For employment information, check required fields directly on profile
-  const requiredEmploymentFields = {
-    substantiveClassification: profileData.substantiveClassification,
-    substantiveWorkUnit: profileData.substantiveWorkUnit,
-    substantiveCity: profileData.substantiveCity,
-    wfaStatus: profileData.wfaStatus,
-    wfaStartDate: profileData.wfaStartDate,
-    hrAdvisorId: profileData.hrAdvisorId,
-  };
-
-  // For referral preferences, use the correct property names from Profile type
-  const referralPreferencesFields = {
-    preferredLanguages: profileData.preferredLanguages,
-    preferredClassifications: profileData.preferredClassifications,
-    preferredCities: profileData.preferredCities,
-    isAvailableForReferral: profileData.isAvailableForReferral,
-    isInterestedInAlternation: profileData.isInterestedInAlternation,
-  };
-
-  // Check if all sections are complete
-  const personalInfoComplete = countCompletedItems(requiredPersonalFields) === Object.keys(requiredPersonalFields).length;
-  const employmentInfoComplete = countCompletedItems(requiredEmploymentFields) === Object.keys(requiredEmploymentFields).length;
-  const referralComplete =
-    countReferralPreferencesCompleted(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
-
-  // If any section is incomplete, return incomplete state
-  if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
-    return {
-      personalInfoComplete,
-      employmentInfoComplete,
-      referralComplete,
+    // For personal information, check required fields directly on profile and profile user
+    const requiredPersonalFields = {
+      businessEmailAddress: currentUser.businessEmailAddress,
+      languageOfCorrespondence: profileData.languageOfCorrespondence,
+      personalRecordIdentifier: currentUser.personalRecordIdentifier,
+      personalEmailAddress: profileData.personalEmailAddress,
+      personalPhoneNumber: profileData.personalPhoneNumber,
     };
-  }
 
-  // If all complete, submit for review
-  const submitResult = await getProfileService().updateProfileStatus(
-    profileData.id,
-    PROFILE_STATUS.PENDING,
-    session.authState.accessToken,
-  );
-  if (submitResult.isErr()) {
-    const error = submitResult.unwrapErr();
-    return {
-      status: 'error',
-      errorMessage: error.message,
-      errorCode: error.errorCode,
+    // For employment information, check required fields directly on profile
+    const requiredEmploymentFields = {
+      substantiveClassification: profileData.substantiveClassification,
+      substantiveWorkUnit: profileData.substantiveWorkUnit,
+      substantiveCity: profileData.substantiveCity,
+      wfaStatus: profileData.wfaStatus,
+      wfaStartDate: profileData.wfaStartDate,
+      hrAdvisorId: profileData.hrAdvisorId,
     };
-  }
 
-  return {
-    status: 'submitted',
-    profileStatus: submitResult.unwrap(),
-    isProfileComplete: true,
-  };
+    // For referral preferences, use the correct property names from Profile type
+    const referralPreferencesFields = {
+      preferredLanguages: profileData.preferredLanguages,
+      preferredClassifications: profileData.preferredClassifications,
+      preferredCities: profileData.preferredCities,
+      isAvailableForReferral: profileData.isAvailableForReferral,
+      isInterestedInAlternation: profileData.isInterestedInAlternation,
+    };
+
+    // Check if all sections are complete
+    const personalInfoComplete = countCompletedItems(requiredPersonalFields) === Object.keys(requiredPersonalFields).length;
+    const employmentInfoComplete =
+      countCompletedItems(requiredEmploymentFields) === Object.keys(requiredEmploymentFields).length;
+    const referralComplete =
+      countReferralPreferencesCompleted(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
+
+    // If any section is incomplete, return incomplete state
+    if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
+      return {
+        personalInfoComplete,
+        employmentInfoComplete,
+        referralComplete,
+      };
+    }
+
+    // If all complete, submit for review
+    const submitResult = await getProfileService().updateProfileStatus(
+      profileData.id,
+      PROFILE_STATUS.PENDING,
+      session.authState.accessToken,
+    );
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    return {
+      status: 'submitted',
+      profileStatus: submitResult.unwrap(),
+      isProfileComplete: true,
+    };
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
-  await requirePrivacyConsentForOwnProfile(session, request);
+  return withSpan('employee.profile.index.loader', async () => {
+    const { session } = context.get(context.applicationContext);
+    requireAuthentication(session, request);
+    await requirePrivacyConsentForOwnProfile(session, request);
 
-  const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
+    const profileParams = { active: true };
+    const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+    const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const url = new URL(request.url);
-  const hasEmploymentChanged: boolean = url.searchParams.get('editedEmp') === 'true';
-  const hasReferralPreferenceChanged: boolean = url.searchParams.get('editedRef') === 'true';
+    const url = new URL(request.url);
+    const hasEmploymentChanged: boolean = url.searchParams.get('editedEmp') === 'true';
+    const hasReferralPreferenceChanged: boolean = url.searchParams.get('editedRef') === 'true';
 
-  // Use the profile user data directly instead of fetching it separately
-  const currentUser = profileData.profileUser;
+    // Use the profile user data directly instead of fetching it separately
+    const currentUser = profileData.profileUser;
 
-  // Fetch reference data
-  const allLocalizedCities = await getCityService().listAllLocalized(lang);
+    // Fetch reference data
+    const allLocalizedCities = await getCityService().listAllLocalized(lang);
 
-  // Use profileUser for updated by information as well
-  const profileUpdatedByUserName = `${currentUser.firstName ?? 'Unknown'} ${currentUser.lastName ?? 'User'}`;
+    // Use profileUser for updated by information as well
+    const profileUpdatedByUserName = `${currentUser.firstName ?? 'Unknown'} ${currentUser.lastName ?? 'User'}`;
 
-  // convert the IDs to display names
-  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
-  const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
+    // convert the IDs to display names
+    const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
+    const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
 
-  // Check each section if the required fields are complete
-  const personalInformationData = {
-    businessEmailAddress: currentUser.businessEmailAddress,
-    languageOfCorrespondence: profileData.languageOfCorrespondence,
-    personalRecordIdentifier: currentUser.personalRecordIdentifier,
-    personalEmailAddress: profileData.personalEmailAddress,
-    personalPhoneNumber: profileData.personalPhoneNumber,
-  };
-  const requiredPersonalInformation = personalInformationData;
-  const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
-  const personalInformationTotalFields = Object.keys(requiredPersonalInformation).length;
+    // Check each section if the required fields are complete
+    const personalInformationData = {
+      businessEmailAddress: currentUser.businessEmailAddress,
+      languageOfCorrespondence: profileData.languageOfCorrespondence,
+      personalRecordIdentifier: currentUser.personalRecordIdentifier,
+      personalEmailAddress: profileData.personalEmailAddress,
+      personalPhoneNumber: profileData.personalPhoneNumber,
+    };
+    const requiredPersonalInformation = personalInformationData;
+    const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
+    const personalInformationTotalFields = Object.keys(requiredPersonalInformation).length;
 
-  // Employment information from Profile type
-  const employmentInformationData = {
-    substantiveClassification: profileData.substantiveClassification,
-    substantiveCity: profileData.substantiveCity,
-    substantiveWorkUnit: profileData.substantiveWorkUnit,
-    wfaStatus: profileData.wfaStatus,
-    wfaStartDate: profileData.wfaStartDate,
-    wfaEndDate: profileData.wfaEndDate,
-  };
-
-  const requiredEmploymentInformation = omitObjectProperties(employmentInformationData, ['wfaEndDate']);
-
-  const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
-  const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
-
-  // Referral preferences from Profile type
-  // Create an object with all required fields, ensuring they exist even if undefined
-  const referralPreferencesFields = {
-    preferredLanguages: profileData.preferredLanguages,
-    preferredClassifications: profileData.preferredClassifications,
-    preferredCities: profileData.preferredCities,
-    isAvailableForReferral: profileData.isAvailableForReferral,
-    isInterestedInAlternation: profileData.isInterestedInAlternation,
-  };
-
-  const referralPreferencesCompleted = countReferralPreferencesCompleted(referralPreferencesFields);
-  const referralPreferencesTotalFields = Object.keys(referralPreferencesFields).length;
-
-  const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFields;
-  const isCompleteEmploymentInformation = employmentInformationCompleted === employmentInformationTotalFields;
-  const isCompleteReferralPreferences = referralPreferencesCompleted === referralPreferencesTotalFields;
-
-  const profileCompleted = personalInformationCompleted + employmentInformationCompleted + referralPreferencesCompleted;
-  const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
-  const amountCompleted = (profileCompleted / profileTotalFields) * 100;
-
-  // Display Canada wide or province wide or list of cities on referral preferences section
-  const preferredCityIds = new Set(profileData.preferredCities?.map((city) => city.id) ?? []);
-  const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
-    preferredCityIds,
-    allLocalizedCities,
-  );
-
-  return {
-    documentTitle: t('app:profile.page-title'),
-    name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
-    email: currentUser.businessEmailAddress,
-    amountCompleted: amountCompleted,
-    isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
-    profileStatus: profileData.profileStatus,
-    personalInformation: {
-      isComplete: isCompletePersonalInformation,
-      isNew: countCompletedItems(personalInformationData) === 1, // only work email is available
-      personalRecordIdentifier: currentUser.personalRecordIdentifier
-        ? formatWithMask(currentUser.personalRecordIdentifier, '### ### ###')
-        : undefined,
-      preferredLanguage:
-        lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
-      workEmail: currentUser.businessEmailAddress,
-      personalEmail: profileData.personalEmailAddress,
-      workPhone: currentUser.businessPhoneNumber,
-      personalPhone: profileData.personalPhoneNumber,
-    },
-    employmentInformation: {
-      isComplete: isCompleteEmploymentInformation,
-      isNew: countCompletedItems(employmentInformationData) === 0,
-      substantivePosition:
-        lang === 'en' ? profileData.substantiveClassification?.nameEn : profileData.substantiveClassification?.nameFr,
-      branchOrServiceCanadaRegion: profileData.substantiveWorkUnit?.parent
-        ? lang === 'en'
-          ? profileData.substantiveWorkUnit.parent.nameEn
-          : profileData.substantiveWorkUnit.parent.nameFr
-        : lang === 'en'
-          ? profileData.substantiveWorkUnit?.nameEn
-          : profileData.substantiveWorkUnit?.nameFr,
-      directorate: profileData.substantiveWorkUnit?.parent
-        ? lang === 'en'
-          ? profileData.substantiveWorkUnit.nameEn
-          : profileData.substantiveWorkUnit.nameFr
-        : undefined,
-      province:
-        lang === 'en'
-          ? profileData.substantiveCity?.provinceTerritory.nameEn
-          : profileData.substantiveCity?.provinceTerritory.nameFr,
-      city: lang === 'en' ? profileData.substantiveCity?.nameEn : profileData.substantiveCity?.nameFr,
-      wfaStatus: lang === 'en' ? profileData.wfaStatus?.nameEn : profileData.wfaStatus?.nameFr,
-      wfaStatusCode: profileData.wfaStatus?.code,
-      wfaEffectiveDate: profileData.wfaStartDate,
+    // Employment information from Profile type
+    const employmentInformationData = {
+      substantiveClassification: profileData.substantiveClassification,
+      substantiveCity: profileData.substantiveCity,
+      substantiveWorkUnit: profileData.substantiveWorkUnit,
+      wfaStatus: profileData.wfaStatus,
+      wfaStartDate: profileData.wfaStartDate,
       wfaEndDate: profileData.wfaEndDate,
-      hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
-    },
-    referralPreferences: {
-      isComplete: isCompleteReferralPreferences,
-      isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
-      preferredLanguages: profileData.preferredLanguages?.map((l) => (lang === 'en' ? l.nameEn : l.nameFr)),
-      preferredClassifications: profileData.preferredClassifications?.map((c) => (lang === 'en' ? c.nameEn : c.nameFr)),
-      preferredCities: partiallySelectedCities,
-      locationScope,
-      provinceNames,
+    };
+
+    const requiredEmploymentInformation = omitObjectProperties(employmentInformationData, ['wfaEndDate']);
+
+    const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
+    const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
+
+    // Referral preferences from Profile type
+    // Create an object with all required fields, ensuring they exist even if undefined
+    const referralPreferencesFields = {
+      preferredLanguages: profileData.preferredLanguages,
+      preferredClassifications: profileData.preferredClassifications,
+      preferredCities: profileData.preferredCities,
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
-    },
-    lastModifiedDate: profileData.lastModifiedDate ?? undefined,
-    lastUpdatedBy: profileUpdatedByUserName,
-    hasEmploymentChanged,
-    hasReferralPreferenceChanged,
-    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
-    lang,
-  };
+    };
+
+    const referralPreferencesCompleted = countReferralPreferencesCompleted(referralPreferencesFields);
+    const referralPreferencesTotalFields = Object.keys(referralPreferencesFields).length;
+
+    const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFields;
+    const isCompleteEmploymentInformation = employmentInformationCompleted === employmentInformationTotalFields;
+    const isCompleteReferralPreferences = referralPreferencesCompleted === referralPreferencesTotalFields;
+
+    const profileCompleted = personalInformationCompleted + employmentInformationCompleted + referralPreferencesCompleted;
+    const profileTotalFields =
+      personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
+    const amountCompleted = (profileCompleted / profileTotalFields) * 100;
+
+    // Display Canada wide or province wide or list of cities on referral preferences section
+    const preferredCityIds = new Set(profileData.preferredCities?.map((city) => city.id) ?? []);
+    const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
+      preferredCityIds,
+      allLocalizedCities,
+    );
+
+    return {
+      documentTitle: t('app:profile.page-title'),
+      name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
+      email: currentUser.businessEmailAddress,
+      amountCompleted: amountCompleted,
+      isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
+      profileStatus: profileData.profileStatus,
+      personalInformation: {
+        isComplete: isCompletePersonalInformation,
+        isNew: countCompletedItems(personalInformationData) === 1, // only work email is available
+        personalRecordIdentifier: currentUser.personalRecordIdentifier
+          ? formatWithMask(currentUser.personalRecordIdentifier, '### ### ###')
+          : undefined,
+        preferredLanguage:
+          lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
+        workEmail: currentUser.businessEmailAddress,
+        personalEmail: profileData.personalEmailAddress,
+        workPhone: currentUser.businessPhoneNumber,
+        personalPhone: profileData.personalPhoneNumber,
+      },
+      employmentInformation: {
+        isComplete: isCompleteEmploymentInformation,
+        isNew: countCompletedItems(employmentInformationData) === 0,
+        substantivePosition:
+          lang === 'en' ? profileData.substantiveClassification?.nameEn : profileData.substantiveClassification?.nameFr,
+        branchOrServiceCanadaRegion: profileData.substantiveWorkUnit?.parent
+          ? lang === 'en'
+            ? profileData.substantiveWorkUnit.parent.nameEn
+            : profileData.substantiveWorkUnit.parent.nameFr
+          : lang === 'en'
+            ? profileData.substantiveWorkUnit?.nameEn
+            : profileData.substantiveWorkUnit?.nameFr,
+        directorate: profileData.substantiveWorkUnit?.parent
+          ? lang === 'en'
+            ? profileData.substantiveWorkUnit.nameEn
+            : profileData.substantiveWorkUnit.nameFr
+          : undefined,
+        province:
+          lang === 'en'
+            ? profileData.substantiveCity?.provinceTerritory.nameEn
+            : profileData.substantiveCity?.provinceTerritory.nameFr,
+        city: lang === 'en' ? profileData.substantiveCity?.nameEn : profileData.substantiveCity?.nameFr,
+        wfaStatus: lang === 'en' ? profileData.wfaStatus?.nameEn : profileData.wfaStatus?.nameFr,
+        wfaStatusCode: profileData.wfaStatus?.code,
+        wfaEffectiveDate: profileData.wfaStartDate,
+        wfaEndDate: profileData.wfaEndDate,
+        hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
+      },
+      referralPreferences: {
+        isComplete: isCompleteReferralPreferences,
+        isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
+        preferredLanguages: profileData.preferredLanguages?.map((l) => (lang === 'en' ? l.nameEn : l.nameFr)),
+        preferredClassifications: profileData.preferredClassifications?.map((c) => (lang === 'en' ? c.nameEn : c.nameFr)),
+        preferredCities: partiallySelectedCities,
+        locationScope,
+        provinceNames,
+        isAvailableForReferral: profileData.isAvailableForReferral,
+        isInterestedInAlternation: profileData.isInterestedInAlternation,
+      },
+      lastModifiedDate: profileData.lastModifiedDate ?? undefined,
+      lastUpdatedBy: profileUpdatedByUserName,
+      hasEmploymentChanged,
+      hasReferralPreferenceChanged,
+      baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+      lang,
+    };
+  });
 }
 
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
