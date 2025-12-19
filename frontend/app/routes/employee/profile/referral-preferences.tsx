@@ -117,10 +117,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
     const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-    const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
-    const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-    const localizedProvinces = await getProvinceService().listAllLocalized(lang);
-    const localizedCities = await getCityService().listAllLocalized(lang);
+
+    const [localizedLanguageReferralTypesResult, localizedClassifications, localizedProvinces, localizedCities] =
+      await Promise.all([
+        getLanguageReferralTypeService().listAllLocalized(lang),
+        getClassificationService().listAllLocalized(lang),
+        getProvinceService().listAllLocalized(lang),
+        getCityService().listAllLocalized(lang),
+      ]);
 
     const cityResult =
       profileData.preferredCities?.[0] !== undefined

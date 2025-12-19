@@ -108,15 +108,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
     const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-    const allWorkUnits = await getWorkUnitService().listAllLocalized(lang);
+
+    const [allWorkUnits, substantivePositions, provinces, cities, wfaStatuses, hrAdvisors] = await Promise.all([
+      getWorkUnitService().listAllLocalized(lang),
+      getClassificationService().listAllLocalized(lang),
+      getProvinceService().listAllLocalized(lang),
+      getCityService().listAllLocalized(lang),
+      getWFAStatuses().listAllLocalized(lang),
+      getHrAdvisors(session.authState.accessToken),
+    ]);
+
     const directorates = allWorkUnits.filter((wu) => wu.parent !== null);
-    const substantivePositions = await getClassificationService().listAllLocalized(lang);
     // Extract all unique branches (both standalone and those with directorates)
     const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(allWorkUnits);
-    const provinces = await getProvinceService().listAllLocalized(lang);
-    const cities = await getCityService().listAllLocalized(lang);
-    const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-    const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
 
     return {
       documentTitle: t('app:employment-information.page-title'),

@@ -122,11 +122,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
     const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-    const localizedLanguageRequirements = await getLanguageRequirementService().listAllLocalized(lang);
-    const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-    const localizedProvinces = await getProvinceService().listAllLocalized(lang);
-    const localizedCities = await getCityService().listAllLocalized(lang);
-    const localizedSecurityClearances = await getSecurityClearanceService().listAllLocalized(lang);
+    const [
+      localizedLanguageRequirements,
+      localizedClassifications,
+      localizedProvinces,
+      localizedCities,
+      localizedSecurityClearances,
+    ] = await Promise.all([
+      getLanguageRequirementService().listAllLocalized(lang),
+      getClassificationService().listAllLocalized(lang),
+      getProvinceService().listAllLocalized(lang),
+      getCityService().listAllLocalized(lang),
+      getSecurityClearanceService().listAllLocalized(lang),
+    ]);
 
     return {
       documentTitle: t('app:position-information.page-title'),
