@@ -22,6 +22,8 @@ databaseChangeLog:
       file: db/changelog/changes/000009.data.v4.sql
   - include:
       file: db/changelog/changes/000010.languageRequirement.sql
+  - include:
+      file: db/changelog/changes/000011.data.v5.sql
 
   # Insert future includes here, by individual file
 # Test/DummyData/Dev
