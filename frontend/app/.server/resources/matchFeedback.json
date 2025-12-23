@@ -3,8 +3,8 @@
     {
       "id": 0,
       "code": "QA-QOA",
-      "nameEn": "Qualified - Accepted offer (indeterminate)",
-      "nameFr": "Qualifié - Offre acceptée (indéterminé)",
+      "nameEn": "Meets requirements - Accepted offer (indeterminate)",
+      "nameFr": "Rencontre les exigences - Offre acceptée (indéterminé)",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
@@ -15,8 +15,8 @@
     {
       "id": 1,
       "code": "QNS",
-      "nameEn": "Qualified - Not selected",
-      "nameFr": "Qualifié - Non-selectionné",
+      "nameEn": "Meets requirements - Not selected",
+      "nameFr": "Rencontre les exigences - Non-sélectionné",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
@@ -27,8 +27,8 @@
     {
       "id": 2,
       "code": "QRO-QOR",
-      "nameEn": "Qualified - Refused offer",
-      "nameFr": "Qualifié - Offre refusée",
+      "nameEn": "Meets requirements - Refused offer",
+      "nameFr": "Rencontre les exigences - Offre refusée",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
@@ -39,8 +39,8 @@
     {
       "id": 3,
       "code": "NQC",
-      "nameEn": "Not qualified - Competency",
-      "nameFr": "Non-qualifié - Compétences",
+      "nameEn": "Does not meet requirements - Competency",
+      "nameFr": "Ne rencontre pas les exigences - Compétences",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
@@ -51,8 +51,8 @@
     {
       "id": 4,
       "code": "NQE",
-      "nameEn": "Not qualified - Education",
-      "nameFr": "Non-qualifié - Études",
+      "nameEn": "Does not meet requirements - Education",
+      "nameFr": "Ne rencontre pas les exigences - Études",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
@@ -63,8 +63,8 @@
     {
       "id": 5,
       "code": "NQO-NQA",
-      "nameEn": "Not qualified - Other",
-      "nameFr": "Non-qualifié - Autre",
+      "nameEn": "Does not meet requirements - Other",
+      "nameFr": "Ne rencontre pas les exigences - Autre",
       "createdDate": "2025-08-14T17:26:29.5766667Z",
       "lastModifiedBy": "system",
       "lastModifiedDate": "2025-08-14T17:26:29.5766667Z"
