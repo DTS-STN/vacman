@@ -28,7 +28,7 @@ Please ensure to include the VMS request number in the subject line of your emai
 
 In the absence of a response within the period specified, the hiring manager may conclude that you are not interested in this opportunity.
 
-Please note that in accordance with the Public Service Employment Act, there is an order of precedence to priority entitlements. Hiring managers may choose to consider those with higher ranked priority entitlement first. As such, you may not be immediately assessed depending on your priority entitlement type and that of others being considered.
+Please note that in accordance with the Public Service Employment Act, there is an order of precedence to priority entitlements. The hiring manager must consider those with a higher level of priority entitlement first. For example, employees with a surplus priority entitlement, who meet the essential qualifications for the position, must be appointed before opting or affected employees. Therefore, it is possible that the hiring manager does not contact you to conduct a more in-depth assessment if your priority entitlement does not take precedence.
 
 Should you have any questions, please contact ${submitterName} by email at ${submitterEmail}.
 
