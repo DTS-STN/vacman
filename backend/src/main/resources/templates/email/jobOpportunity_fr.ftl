@@ -28,7 +28,7 @@ Veuillez prendre soin d'inclure le numéro de demande du SGPV dans l'objet de vo
 
 En l'absence d'une réponse dans les délais précisés, le gestionnaire d'embauche pourrait conclure que vous n'êtes pas intéressé(e).
 
-Veuillez noter que, conformément à la Loi sur l'emploi dans la fonction publique, les droits de priorité suivent un ordre de préséance. L'organisation d'embauche pourrait choisir de considérer d'abord la candidature des personnes ayant le droit de priorité le plus élevé. Par conséquent, on pourrait ne pas vous évaluer immédiatement, en fonction de votre type de droit de priorité et de celui des autres bénéficiaires de priorité qui ont posé leur candidature.
+Veuillez noter que, conformément à la Loi sur l'emploi dans la fonction publique, les droits de priorité suivent un ordre de préséance. Le gestionnaire d'embauche doit d'abord prendre en considération les bénéficiaires dont le droit de priorité est plus élevé. Par exemple, les employés avec un droit de priorité excédentaire, qui possèdent les qualifications essentielles du poste, doivent être nommés avant les employés optant ou touché. Par conséquent, il se peut que le gestionnaire d'embauche ne communique pas avec vous pour mener une évaluation plus approfondie, si votre droit de priorité n'a pas préséance.
 
 Si vous avez des questions, veuillez contacter ${submitterName} par courriel à ${submitterEmail}.
 
