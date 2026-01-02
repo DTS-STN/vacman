@@ -54,7 +54,7 @@
 		<odfdom-java.version>1.0.0-BETA1</odfdom-java.version>
 		<record-builder.version>51</record-builder.version>
 		<spring-boot-configuration-processor.version>4.0.1</spring-boot-configuration-processor.version>
-		<springdoc.version>3.0.0</springdoc.version>
+		<springdoc.version>3.0.1</springdoc.version>
 	</properties>
 
 
