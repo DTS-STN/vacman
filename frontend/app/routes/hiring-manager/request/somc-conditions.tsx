@@ -55,7 +55,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
     }
 
-    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+    if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
       throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
     }
 
