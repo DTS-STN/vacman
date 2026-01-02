@@ -57,7 +57,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     }
 
     const requestData: RequestReadModel = requestResult.unwrap();
-    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+    if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
       throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
     }
 
@@ -103,7 +103,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
     }
 
-    if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+    if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
       throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
     }
 
