@@ -16,8 +16,6 @@ management:
         enabled: true
         aggregation-temporality: delta
         url: https://dynatrace.prod-dp.admin.dts-stn.com/e/676a0299-9802-4933-99d4-481318a557db/api/v2/otlp/v1/metrics
-    tracing:
-      endpoint: https://dynatrace.prod-dp.admin.dts-stn.com/e/676a0299-9802-4933-99d4-481318a557db/api/v2/otlp/v1/traces
 
 spring:
   datasource:
