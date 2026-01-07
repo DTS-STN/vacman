@@ -48,7 +48,7 @@
 		<!-- dependency/plugin versions -->
 
 		<datafaker.version>2.5.3</datafaker.version>
-		<immutables.version>2.12.0</immutables.version>
+		<immutables.version>2.12.1</immutables.version>
 		<johnzon.version>2.0.2</johnzon.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<odfdom-java.version>1.0.0-BETA1</odfdom-java.version>
