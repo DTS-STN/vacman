@@ -107,7 +107,7 @@ graph TD
 3. **Data Layer** has no dependencies on upper layers.
 4. **Cross-Cutting** packages (`json`, `config`, `security`) can be used by all layers.
 
-**dependency Injection:**
+**Dependency Injection:**
 Spring's IoC container is used to manage lifecycle and injection of components (`@Service`, `@Controller`, `@Repository`).
 
 ## 6. Data Architecture
