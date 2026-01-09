@@ -60,7 +60,7 @@ The utility performs the following steps:
 1. Clone the repository:
 
     ``` bash
-    git clone https://github.com/dts-stn/vacman.git
+    git clone https://github.com/stn-dts/vacman.git
     ```
 
 1. Navigate to the `support` directory:

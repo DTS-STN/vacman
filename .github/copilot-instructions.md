@@ -1,4 +1,4 @@
-# Copilot instructions for DTS-STN/vacman
+# Copilot instructions for STN-DTS/vacman
 
 Multi-app workspace:
 

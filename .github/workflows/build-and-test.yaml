@@ -19,7 +19,7 @@ env:
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'DTS-STN/vacman' }}
+    if: ${{ github.repository == 'STN-DTS/vacman' }}
     steps:
       - uses: actions/checkout@v4
       - id: backend

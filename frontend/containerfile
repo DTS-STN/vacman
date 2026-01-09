@@ -100,7 +100,7 @@ ARG BUILD_VERSION="0.0.0"
 ARG IMAGE_AUTHORS="Digital Technology Solutions"
 ARG IMAGE_DESCRIPTION="Vacancy Manager -- Frontend Application"
 ARG IMAGE_TITLE="vacman-frontend"
-ARG IMAGE_URL="https://github.com/DTS-STN/vacman/"
+ARG IMAGE_URL="https://github.com/STN-DTS/vacman/"
 ARG IMAGE_VENDOR="Employment and Social Development Canada"
 
 ENV BUILD_DATE=${BUILD_DATE}

@@ -299,7 +299,7 @@ application:
         authorization-url: https://login.microsoftonline.com/${application.entra-id.tenant-id}/oauth2/v2.0/authorize
         token-url: https://login.microsoftonline.com/${application.entra-id.tenant-id}/oauth2/v2.0/token
     contact-name: Digital Technology Solutions
-    contact-url: https://github.com/dts-stn/vacman/
+    contact-url: https://github.com/stn-dts/vacman/
     description: |
       This OpenAPI document describes the key areas where developers typically engage with the Vacancy Manager API.
     tos-url: https://www.canada.ca/en/transparency/terms.html
