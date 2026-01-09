@@ -28,7 +28,7 @@ The main API for the VacMan (Vacancy Management) application.
 
 1.  **Clone the repository:**
     ```bash
-    git clone git@github.com:DTS-STN/vacman.git
+    git clone git@github.com:STN-DTS/vacman.git
     cd vacman/backend/
     ```
 

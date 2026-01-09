@@ -79,7 +79,7 @@ Utility tools and scripts for maintaining the VacMan ecosystem.
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/DTS-STN/vacman.git
+   git clone https://github.com/STN-DTS/vacman.git
    cd vacman
    ```
 

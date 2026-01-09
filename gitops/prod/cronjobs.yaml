@@ -33,7 +33,7 @@ spec:
                   corepack prepare pnpm@10.10.0 --activate
 
                   echo "Cloning repository..."
-                  git clone https://github.com/DTS-STN/vacman.git /app
+                  git clone https://github.com/STN-DTS/vacman.git /app
                   cd /app/support
 
                   echo "Running group-sync script..."
